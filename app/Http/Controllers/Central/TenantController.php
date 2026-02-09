@@ -1,0 +1,253 @@
+<?php
+
+namespace App\Http\Controllers\Central;
+
+use App\Http\Controllers\Controller;
+use App\Models\Tenant;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Validation\Rule;
+
+class TenantController extends Controller
+{
+    public function index(Request $request)
+    {
+        if ($request->ajax() || $request->wantsJson()) {
+            $query = Tenant::with('domains');
+
+            // Grid.js envía los parámetros por defecto
+            $limit = $request->get('limit', 10);
+            $offset = $request->get('offset', 0);
+            $search = $request->get('search');
+
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('id', 'like', "%{$search}%");
+                });
+            }
+
+            $total = $query->count();
+            
+            $tenants = $query->orderBy('id', 'desc')
+                             ->offset($offset)
+                             ->limit($limit)
+                             ->get();
+
+            return response()->json([
+                'data' => $tenants,
+                'total' => (int) $total,
+                'status' => 'success'
+            ]);
+        }
+        return view('central.tenants.index');
+    }
+
+    public function checkId(Request $request)
+    {
+        $id = $request->get('id');
+        if (!$id) return response()->json(['available' => false]);
+        
+        // El dominio que se generaría
+        $domain = $id . '.' . $request->getHost();
+
+        $tenantExists = Tenant::where('id', $id)->exists();
+        $domainExists = \Stancl\Tenancy\Database\Models\Domain::where('domain', $domain)->exists();
+
+        $available = !$tenantExists && !$domainExists;
+
+        return response()->json([
+            'available' => $available,
+            'message' => !$available ? 'Este ID o Dominio ya está en uso' : 'ID disponible'
+        ]);
+    }
+
+    public function create()
+    {
+        return view('central.tenants.create');
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'id' => [
+                'required', 
+                'string', 
+                'max:60', 
+                'unique:tenants,id', 
+                'alpha_dash',
+                function ($attribute, $value, $fail) use ($request) {
+                    // Validar dominios reservados
+                    if (in_array($value, ['admin', 'central', 'www', 'mail', 'api'])) {
+                        $fail('Este ID está reservado por el sistema.');
+                    }
+                    
+                    // Validar que el dominio no exista
+                    $domain = $value . '.' . $request->getHost();
+                    if (\Stancl\Tenancy\Database\Models\Domain::where('domain', $domain)->exists()) {
+                        $fail('El dominio ' . $domain . ' ya está siendo utilizado por otra empresa.');
+                    }
+                },
+            ],
+        ], [
+            'id.unique' => 'Este nombre de empresa ya está registrado.',
+            'id.alpha_dash' => 'El ID solo puede contener letras, números y guiones.',
+        ]);
+
+        try {
+            $centralDbName = config('database.connections.central.database');
+            $tenantId = $request->id;
+            $tenantDbName = $centralDbName . '_' . $tenantId;
+
+            // Primero buscamos si ya existe para evitar duplicados
+            $tenant = Tenant::find($tenantId);
+            
+            if (!$tenant) {
+                // Si no existe, lo creamos PERO sin guardar aún
+                $tenant = Tenant::make(['id' => $tenantId]);
+                // Establecemos el nombre de la DB ANTES de guardar
+                // para que el Job de creación use este nombre
+                $tenant->setInternal('db_name', $tenantDbName);
+                $tenant->save();
+            } else {
+                // Si ya existe, solo actualizamos el nombre interno por si acaso
+                $tenant->setInternal('db_name', $tenantDbName);
+                $tenant->save();
+            }
+
+            $output = "Empresa base creada correctamente.\n";
+
+            // Si se marcó crear DB, procedemos con los pasos internos
+            if ($request->boolean('create_db')) {
+                // Asociamos el dominio
+                $tenant->domains()->firstOrCreate([
+                    'domain' => $tenantId . '.laravel-multitenancy.test'
+                ]);
+                $output .= "Dominio {$tenantId}.laravel-multitenancy.test configurado.\n";
+
+                // Ejecutamos migraciones
+                $tenant->run(function () use (&$output) {
+                    $output .= "Iniciando migraciones...\n";
+                    Artisan::call('migrate', [
+                        '--path' => 'database/migrations/tenant',
+                        '--force' => true,
+                    ]);
+                    $output .= Artisan::output();
+                });
+
+                // Si el usuario marcó la opción de Seeders, los ejecutamos ahora
+                if ($request->boolean('seed')) {
+                    $tenant->run(function () use (&$output) {
+                        $output .= "\nIniciando seeders...\n";
+                        Artisan::call('db:seed', [
+                            '--force' => true,
+                        ]);
+                        $output .= Artisan::output();
+                    });
+                }
+            } else {
+                $output .= "AVISO: Se omitió la creación de base de datos y tablas por solicitud del usuario.\n";
+                $output .= "La empresa ha sido registrada como un registro técnico únicamente.\n";
+            }
+
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'status' => 'success',
+                    'message' => "Empresa '{$tenantId}' registrada" . ($request->boolean('create_db') ? " con base de datos." : " (solo registro)."),
+                    'output' => $output,
+                    'tenant_id' => $tenantId
+                ]);
+            }
+
+            return redirect()->route('central.tenants.index')
+                ->with('success', "Empresa '{$tenantId}' registrada correctamente con la base de datos '{$tenantDbName}'" . ($request->boolean('seed') ? " y datos iniciales cargados." : "."));
+
+        } catch (\Exception $e) {
+            if ($request->wantsJson()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Error en el proceso: ' . $e->getMessage()
+                ], 500);
+            }
+            return back()->withInput()->with('error', 'Error en el proceso: ' . $e->getMessage());
+        }
+    }
+
+    public function maintenance(Request $request, Tenant $tenant)
+    {
+        try {
+            $type = $request->input('type', 'both'); // migrate, seed, both
+            $output = "Iniciando proceso de mantenimiento para el inquilino: {$tenant->id}\n";
+            $output .= "Modo: " . ($type === 'migrate' ? 'Solo Migraciones' : ($type === 'seed' ? 'Solo Seeders' : 'Completo')) . "\n";
+            $output .= "Verificando conexión con el dominio...\n";
+
+            // Aseguramos que tenga dominio si no lo tenía
+            if ($tenant->domains()->count() === 0) {
+                $tenant->domains()->create([
+                    'domain' => $tenant->id . '.laravel-multitenancy.test'
+                ]);
+                $output .= "Dominio {$tenant->id}.laravel-multitenancy.test configurado.\n";
+            }
+
+            // Ejecutamos migraciones y/o seeders
+            $tenant->run(function () use (&$output, $type) {
+                if ($type === 'migrate' || $type === 'both') {
+                    $output .= "\n--- EJECUTANDO MIGRACIONES ---\n";
+                    Artisan::call('migrate', [
+                        '--path' => 'database/migrations/tenant',
+                        '--force' => true,
+                    ]);
+                    $output .= Artisan::output();
+                }
+
+                if ($type === 'seed' || $type === 'both') {
+                    $output .= "\n--- MIGRANDO Y EJECUTANDO SEEDERS ---\n";
+                    // Aseguramos migraciones antes de seeders por seguridad
+                    if ($type === 'seed') {
+                        Artisan::call('migrate', [
+                            '--path' => 'database/migrations/tenant',
+                            '--force' => true,
+                        ]);
+                    }
+                    Artisan::call('db:seed', [
+                        '--force' => true,
+                    ]);
+                    $output .= Artisan::output();
+                }
+            });
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Proceso completado exitosamente',
+                'output' => $output
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error en el mantenimiento: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    public function edit(Tenant $tenant)
+    {
+        return view('central.tenants.edit', compact('tenant'));
+    }
+
+    public function update(Request $request, Tenant $tenant)
+    {
+        return redirect()->route('central.tenants.index')
+            ->with('success', "Información de la empresa {$tenant->id} verificada.");
+    }
+
+    public function destroy(Tenant $tenant)
+    {
+        try {
+            $tenant->delete();
+            return redirect()->route('central.tenants.index')
+                ->with('success', 'Inquilino eliminado correctamente.');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Error al eliminar el inquilino: ' . $e->getMessage());
+        }
+    }
+}
