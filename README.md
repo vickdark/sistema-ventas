@@ -1,6 +1,17 @@
-# 🚀 Laravel 12 Multitenancy Starter Kit (SaaS Ready)
+# 🚀 Sistema de Ventas Multitenancy (Laravel 12)
 
-Este proyecto ha evolucionado de un boilerplate estándar a una **solución completa de Multitenencia (SaaS)** utilizando `stancl/tenancy`. Permite gestionar múltiples clientes (inquilinos) donde cada uno tiene su propia base de datos aislada, garantizando máxima seguridad y escalabilidad.
+Este proyecto es un **Sistema de Ventas completo con arquitectura Multitenancy (SaaS)** utilizando `stancl/tenancy`. Permite gestionar múltiples clientes (inquilinos) donde cada uno tiene su propia base de datos aislada.
+
+---
+
+## 🏗️ Estado del Proyecto
+
+Actualmente, el sistema cuenta con la base de multitenencia configurada y los módulos base de seguridad en cada inquilino:
+
+*   **Multitenancy:** Aislamiento de base de datos por cliente (Single-database per tenant).
+*   **Gestión de Usuarios:** CRUD completo de usuarios por inquilino.
+*   **Roles y Permisos:** Sistema dinámico de permisos con sincronización automática de rutas.
+*   **Módulos de Ventas:** En desarrollo (Próximamente: Inventario, Clientes, Facturación).
 
 ---
 
@@ -40,8 +51,21 @@ El sistema utiliza una arquitectura de **Base de Datos por Inquilino (Single-Dat
 *   **Framework:** Laravel 12
 *   **Multitenancy:** [stancl/tenancy v3](https://tenancyforlaravel.com/)
 *   **Frontend:** Blade + Bootstrap 5.3 + Alpine.js
-*   **Base de Datos:** MySQL (con gestión dinámica de conexiones)
+*   **Base de Datos:** MySQL 8.4
+*   **Entorno de Desarrollo:** [Laravel Herd](https://herd.laravel.com/)
+*   **Gestor de DB:** [DBeaver](https://dbeaver.io/)
 *   **Componentes UI:** Grid.js, SweetAlert2, Tom-Select, FontAwesome.
+
+---
+
+## 📦 Herramientas y Requisitos
+
+Para el desarrollo de este sistema, se utilizan las siguientes herramientas:
+
+1.  **Laravel Herd:** Para el servidor web y entorno PHP (optimizado para macOS/Windows).
+2.  **MySQL 8.4:** Instalado como servicio local.
+3.  **DBeaver:** Cliente universal para la gestión de las bases de datos (Central y Tenants).
+4.  **Composer & Node.js:** Para la gestión de dependencias de PHP y Assets.
 
 ---
 
@@ -51,14 +75,13 @@ Más allá de la instalación base de Laravel, este proyecto integra:
 
 *   **[stancl/tenancy](https://tenancyforlaravel.com/):** El motor principal de la multitenencia.
 *   **[barryvdh/laravel-ide-helper](https://github.com/barryvdh/laravel-ide-helper):** (Dev) Para mejorar el autocompletado y soporte del IDE.
-
----
+*   Servidor
 
 ## ⚙️ Instalación y Puesta en Marcha
 
 ### 1. Requisitos Previos
-*   Servidor local tipo **Laravel Herd** o **Valet** (para soporte de subdominios `*.test`).
-*   MySQL activo.
+*   **Laravel Herd** activo (soporte de subdominios `*.test`).
+*   **MySQL 8.4** ejecutándose como servicio.
 
 ### 2. Configuración de Entorno (`.env`)
 Asegúrate de configurar la conexión central correctamente:
@@ -66,8 +89,8 @@ Asegúrate de configurar la conexión central correctamente:
 ```dotenv
 DB_CONNECTION=central
 DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=usuariosmultitenancy
+DB_PORT=3378
+DB_DATABASE=sistema_ventas
 DB_USERNAME=root
 DB_PASSWORD=
 ```
