@@ -13,12 +13,35 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $categories = Category::all();
-            return response()->json(['data' => $categories]);
+        if ($request->ajax() || $request->wantsJson()) {
+            $query = Category::query();
+
+            // Grid.js parameters
+            $limit = $request->get('limit', 10);
+            $offset = $request->get('offset', 0);
+            $search = $request->get('search');
+
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('id', 'like', "%{$search}%");
+                });
+            }
+
+            $total = $query->count();
+            
+            $categories = $query->orderBy('id', 'desc')
+                               ->offset($offset)
+                               ->limit($limit)
+                               ->get();
+
+            return response()->json([
+                'data' => $categories,
+                'total' => (int) $total,
+                'status' => 'success'
+            ]);
         }
-        $categories = Category::all();
-        return view('tenant.categories.index', compact('categories'));
+        return view('tenant.categories.index');
     }
 
     /**
@@ -36,7 +59,6 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
-            'description' => 'nullable|string',
         ]);
 
         $category = Category::create($request->all());
@@ -70,7 +92,6 @@ class CategoryController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255|unique:categories,name,' . $id,
-            'description' => 'nullable|string',
         ]);
 
         $category->update($request->all());

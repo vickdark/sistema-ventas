@@ -8,9 +8,9 @@ export function initSuppliersIndex(config) {
         url: routes.index,
         columns: [
             { id: 'id', name: "ID", width: "80px" },
-            { id: 'nombre', name: "Nombre" },
-            { id: 'contacto', name: "Contacto" },
-            { id: 'telefono', name: "Teléfono" },
+            { id: 'name', name: "Nombre" },
+            { id: 'company', name: "Empresa" },
+            { id: 'phone', name: "Teléfono" },
             { id: 'email', name: "Email" },
             { 
                 id: 'actions',
@@ -38,9 +38,9 @@ export function initSuppliersIndex(config) {
         ],
         mapData: (supplier) => [
             supplier.id, 
-            supplier.nombre, 
-            supplier.contacto,
-            supplier.telefono,
+            supplier.name, 
+            supplier.company,
+            supplier.phone,
             supplier.email,
             null
         ]

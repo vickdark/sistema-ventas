@@ -8,7 +8,7 @@ export function initCategoriesIndex(config) {
         url: routes.index,
         columns: [
             { id: 'id', name: "ID", width: "80px" },
-            { id: 'nombre', name: "Nombre" },
+            { id: 'name', name: "Nombre" },
             { 
                 id: 'actions',
                 name: "Acciones",
@@ -35,7 +35,7 @@ export function initCategoriesIndex(config) {
         ],
         mapData: (category) => [
             category.id, 
-            category.nombre, 
+            category.name, 
             null
         ]
     }).render();

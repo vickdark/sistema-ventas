@@ -28,10 +28,27 @@
                             @enderror
                         </div>
 
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Teléfono Principal</label>
+                                <input type="text" class="form-control rounded-3 @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $supplier->phone) }}" required>
+                                @error('phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="secondary_phone" class="form-label">Teléfono Secundario (Opcional)</label>
+                                <input type="text" class="form-control rounded-3 @error('secondary_phone') is-invalid @enderror" id="secondary_phone" name="secondary_phone" value="{{ old('secondary_phone', $supplier->secondary_phone) }}">
+                                @error('secondary_phone')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
                         <div class="mb-3">
-                            <label for="phone" class="form-label">Teléfono</label>
-                            <input type="text" class="form-control rounded-3 @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone', $supplier->phone) }}">
-                            @error('phone')
+                            <label for="company" class="form-label">Nombre de la Empresa</label>
+                            <input type="text" class="form-control rounded-3 @error('company') is-invalid @enderror" id="company" name="company" value="{{ old('company', $supplier->company) }}" required>
+                            @error('company')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>
@@ -46,7 +63,7 @@
 
                         <div class="mb-4">
                             <label for="address" class="form-label">Dirección</label>
-                            <textarea class="form-control rounded-3 @error('address') is-invalid @enderror" id="address" name="address">{{ old('address', $supplier->address) }}</textarea>
+                            <textarea class="form-control rounded-3 @error('address') is-invalid @enderror" id="address" name="address" required>{{ old('address', $supplier->address) }}</textarea>
                             @error('address')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror

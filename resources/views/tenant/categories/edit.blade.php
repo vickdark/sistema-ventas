@@ -28,14 +28,6 @@
                             @enderror
                         </div>
 
-                        <div class="mb-4">
-                            <label for="description" class="form-label">Descripción</label>
-                            <textarea class="form-control rounded-3 @error('description') is-invalid @enderror" id="description" name="description">{{ old('description', $category->description) }}</textarea>
-                            @error('description')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
                         <div class="d-grid">
                             <button type="submit" class="btn btn-primary rounded-pill py-2">
                                 <i class="fas fa-sync me-2"></i> Actualizar Categoría

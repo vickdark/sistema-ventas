@@ -20,7 +20,6 @@ class Category extends Model
 
     protected $fillable = [
         'name',
-        'description',
     ];
 
     // Define relationship with Products if applicable

@@ -18,22 +18,19 @@
             <div id="wrapper"></div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            initSuppliersIndex({
+                routes: {
+                    index: "{{ route('suppliers.index') }}",
+                    edit: "{{ route('suppliers.edit', ':id') }}",
+                    destroy: "{{ route('suppliers.destroy', ':id') }}"
+                },
+                tokens: {
+                    csrf: "{{ csrf_token() }}"
+                }
+            });
+        });
+    </script>
 </div>
 @endsection
-
-@push('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        initSuppliersIndex({
-            routes: {
-                index: "{{ route('suppliers.index') }}",
-                edit: "{{ route('suppliers.edit', ':id') }}",
-                destroy: "{{ route('suppliers.destroy', ':id') }}"
-            },
-            tokens: {
-                csrf: "{{ csrf_token() }}"
-            }
-        });
-    });
-</script>
-@endpush

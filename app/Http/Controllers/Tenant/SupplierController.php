@@ -13,12 +13,36 @@ class SupplierController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $suppliers = Supplier::all();
-            return response()->json(['data' => $suppliers]);
+        if ($request->ajax() || $request->wantsJson()) {
+            $query = Supplier::query();
+
+            // Grid.js parameters
+            $limit = $request->get('limit', 10);
+            $offset = $request->get('offset', 0);
+            $search = $request->get('search');
+
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('company', 'like', "%{$search}%")
+                      ->orWhere('id', 'like', "%{$search}%");
+                });
+            }
+
+            $total = $query->count();
+            
+            $suppliers = $query->orderBy('id', 'desc')
+                               ->offset($offset)
+                               ->limit($limit)
+                               ->get();
+
+            return response()->json([
+                'data' => $suppliers,
+                'total' => (int) $total,
+                'status' => 'success'
+            ]);
         }
-        $suppliers = Supplier::all();
-        return view('tenant.suppliers.index', compact('suppliers'));
+        return view('tenant.suppliers.index');
     }
 
     /**
@@ -36,10 +60,11 @@ class SupplierController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'contact_person' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:255',
-            'email' => 'nullable|string|email|max:255|unique:suppliers,email',
-            'address' => 'nullable|string|max:255',
+            'phone' => 'required|string|max:50',
+            'secondary_phone' => 'nullable|string|max:50',
+            'company' => 'required|string|max:255',
+            'email' => 'nullable|string|email|max:50',
+            'address' => 'required|string|max:255',
         ]);
 
         $supplier = Supplier::create($request->all());
@@ -73,10 +98,11 @@ class SupplierController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'contact_person' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:255',
-            'email' => 'nullable|string|email|max:255|unique:suppliers,email,' . $id,
-            'address' => 'nullable|string|max:255',
+            'phone' => 'required|string|max:50',
+            'secondary_phone' => 'nullable|string|max:50',
+            'company' => 'required|string|max:255',
+            'email' => 'nullable|string|email|max:50',
+            'address' => 'required|string|max:255',
         ]);
 
         $supplier->update($request->all());
