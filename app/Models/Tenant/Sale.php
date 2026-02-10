@@ -5,28 +5,20 @@ namespace App\Models\Tenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * @property-read \App\Models\Tenant\Client|null $client
- * @property-read \App\Models\Tenant\Product|null $product
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Sale newModelQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Sale newQuery()
- * @method static \Illuminate\Database\Eloquent\Builder<static>|Sale query()
- * @mixin \Eloquent
- */
 class Sale extends Model
 {
     use HasFactory;
 
-    protected $table = 'sales'; // Assuming the table name is 'sales'
-    protected $primaryKey = 'id'; // Assuming 'id' is the primary key
-
     protected $fillable = [
+        'nro_venta',
         'client_id',
-        'product_id',
-        'quantity',
-        'price',
+        'total_paid',
+        'user_id',
         'sale_date',
         'voucher',
+        'payment_type',
+        'payment_status',
+        'credit_payment_date',
     ];
 
     public function client()
@@ -34,8 +26,13 @@ class Sale extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function product()
+    public function user()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsTo(\App\Models\Usuarios\Usuario::class, 'user_id');
+    }
+
+    public function items()
+    {
+        return $this->hasMany(SaleItem::class);
     }
 }

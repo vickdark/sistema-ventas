@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('sale_items', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('sale_id');
             $table->unsignedBigInteger('client_id');
             $table->unsignedBigInteger('product_id');
             $table->integer('quantity');
@@ -21,6 +22,7 @@ return new class extends Migration
             $table->string('voucher', 255)->nullable();
             $table->timestamps();
 
+            $table->foreign('sale_id')->references('id')->on('sales')->onDelete('cascade');
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
         });

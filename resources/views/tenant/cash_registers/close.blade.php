@@ -27,22 +27,28 @@
                         </div>
 
                         <div class="row mb-4">
-                            <div class="col-md-4 text-center">
-                                <div class="p-3 bg-light rounded-3">
-                                    <small class="text-muted d-block text-uppercase fw-bold small">Monto Inicial</small>
-                                    <span class="fs-4 fw-bold text-dark">${{ number_format($cashRegister->initial_amount, 2) }}</span>
+                            <div class="col-md-3 text-center">
+                                <div class="p-2 bg-light rounded-3">
+                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Monto Inicial</small>
+                                    <span class="fs-5 fw-bold text-dark">${{ number_format($cashRegister->initial_amount, 2) }}</span>
                                 </div>
                             </div>
-                            <div class="col-md-4 text-center">
-                                <div class="p-3 bg-light rounded-3">
-                                    <small class="text-muted d-block text-uppercase fw-bold small">Total Ventas</small>
-                                    <span class="fs-4 fw-bold text-success">${{ number_format($totalSales, 2) }}</span>
+                            <div class="col-md-3 text-center">
+                                <div class="p-2 bg-light rounded-3">
+                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Ventas (Contado)</small>
+                                    <span class="fs-5 fw-bold text-success">${{ number_format($totalSalesValue, 2) }}</span>
                                 </div>
                             </div>
-                            <div class="col-md-4 text-center">
-                                <div class="p-3 bg-primary bg-opacity-10 rounded-3 border border-primary border-opacity-25">
-                                    <small class="text-primary d-block text-uppercase fw-bold small">Esperado en Caja</small>
-                                    <span class="fs-4 fw-bold text-primary">${{ number_format($expectedAmount, 2) }}</span>
+                            <div class="col-md-3 text-center">
+                                <div class="p-2 bg-light rounded-3">
+                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Abonos (Cartera)</small>
+                                    <span class="fs-5 fw-bold text-success">${{ number_format($totalAbonos, 2) }}</span>
+                                </div>
+                            </div>
+                            <div class="col-md-3 text-center">
+                                <div class="p-2 bg-primary bg-opacity-10 rounded-3 border border-primary border-opacity-25">
+                                    <small class="text-primary d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Total Esperado</small>
+                                    <span class="fs-5 fw-bold text-primary">${{ number_format($expectedAmount, 2) }}</span>
                                 </div>
                             </div>
                         </div>

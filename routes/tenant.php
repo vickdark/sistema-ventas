@@ -45,8 +45,14 @@ Route::middleware([
                 'categories' => \App\Http\Controllers\Tenant\CategoryController::class,
                 'purchases' => \App\Http\Controllers\Tenant\PurchaseController::class,
                 'suppliers' => \App\Http\Controllers\Tenant\SupplierController::class,
+                'sales' => \App\Http\Controllers\Tenant\SaleController::class,
+                'abonos' => \App\Http\Controllers\Tenant\AbonoController::class,
                 'cash-registers' => \App\Http\Controllers\Tenant\CashRegisterController::class,
             ]);
+
+            Route::get('abonos/pending-sales/{client}', [\App\Http\Controllers\Tenant\AbonoController::class, 'getPendingSales'])->name('abonos.pending-sales');
+            Route::get('abonos/debt-summary/{client}', [\App\Http\Controllers\Tenant\AbonoController::class, 'getDebtSummary'])->name('abonos.debt-summary');
+            Route::get('abonos/client-history/{client}', [\App\Http\Controllers\Tenant\AbonoController::class, 'getClientAbonoHistory'])->name('abonos.client-history');
 
             Route::get('cash-registers/{cash_register}/close', [\App\Http\Controllers\Tenant\CashRegisterController::class, 'closeForm'])->name('cash-registers.close-form');
             Route::post('cash-registers/{cash_register}/close', [\App\Http\Controllers\Tenant\CashRegisterController::class, 'close'])->name('cash-registers.close');

@@ -4,11 +4,11 @@
 <div class="container-fluid">
     <div class="row mb-4 align-items-center">
         <div class="col">
-            <h1 class="h3 mb-0 text-gray-800">Ventas</h1>
+            <h1 class="h3 mb-0 text-gray-800">Ventas Realizadas</h1>
         </div>
         <div class="col-auto">
             <a href="{{ route('sales.create') }}" class="btn btn-primary rounded-pill px-4">
-                <i class="fas fa-plus me-2"></i> Nueva Venta
+                <i class="fas fa-plus me-2"></i> Nueva Venta (POS)
             </a>
         </div>
     </div>
@@ -25,7 +25,7 @@
         initSalesIndex({
             routes: {
                 index: "{{ route('sales.index') }}",
-                edit: "{{ route('sales.edit', ':id') }}",
+                show: "{{ route('sales.show', ':id') }}",
                 destroy: "{{ route('sales.destroy', ':id') }}"
             },
             tokens: {

@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\CashRegister;
 use App\Models\Tenant\Configuration;
+use App\Models\Tenant\Sale;
+use App\Models\Tenant\Abono;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -95,13 +97,22 @@ class CashRegisterController extends Controller
             return redirect()->route('cash-registers.index')->with('error', 'Esta caja ya está cerrada.');
         }
 
-        // Simular cálculos de ventas (esto se conectará con el módulo de ventas después)
-        // Por ahora, valores en 0 o placeholder
-        $salesCount = 0; // TODO: Count actual sales in this session
-        $totalSales = 0; // TODO: Sum actual sales totals in this session
-        $expectedAmount = $cashRegister->initial_amount + $totalSales;
+        // Get paid sales in this session
+        $paidSales = Sale::where('payment_status', 'PAGADO')
+                         ->where('created_at', '>=', $cashRegister->opening_date)
+                         ->get();
+        
+        $salesCount = $paidSales->count();
+        $totalSalesValue = $paidSales->sum('total_paid');
 
-        return view('tenant.cash_registers.close', compact('cashRegister', 'salesCount', 'totalSales', 'expectedAmount'));
+        // Get abonos in this session (these are also cash inflow)
+        $totalAbonos = Abono::where('created_at', '>=', $cashRegister->opening_date)
+                            ->sum('amount');
+
+        $totalIncome = $totalSalesValue + $totalAbonos;
+        $expectedAmount = $cashRegister->initial_amount + $totalIncome;
+
+        return view('tenant.cash_registers.close', compact('cashRegister', 'salesCount', 'totalSalesValue', 'totalAbonos', 'totalIncome', 'expectedAmount'));
     }
 
     public function close(Request $request, CashRegister $cashRegister)
@@ -111,14 +122,23 @@ class CashRegisterController extends Controller
             'observations' => 'nullable|string',
         ]);
 
+        // Recalculate for final save
+        $paidSales = Sale::where('payment_status', 'PAGADO')
+                         ->where('created_at', '>=', $cashRegister->opening_date)
+                         ->get();
+        
+        $totalAbonos = Abono::where('created_at', '>=', $cashRegister->opening_date)
+                            ->sum('amount');
+
+        $totalIncome = $paidSales->sum('total_paid') + $totalAbonos;
+
         $cashRegister->update([
             'closing_date' => now(),
             'final_amount' => $request->final_amount,
             'status' => 'cerrada',
             'observations' => $cashRegister->observations . "\nCierre: " . $request->observations,
-            // Aquí se deberían guardar los conteos finales reales
-            'sales_count' => 0, // TODO: Get actual count
-            'total_sales' => 0, // TODO: Get actual total
+            'sales_count' => $paidSales->count(),
+            'total_sales' => $totalIncome,
         ]);
 
         return redirect()->route('cash-registers.index')->with('success', 'Caja cerrada correctamente.');

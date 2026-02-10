@@ -32,7 +32,9 @@ class DatabaseSeeder extends Seeder
 
             ['nombre' => 'Productos', 'slug' => 'products.index', 'descripcion' => 'Gestión de productos', 'module' => 'Inventario', 'icon' => 'fa-solid fa-box', 'is_menu' => true, 'order' => 4],
             ['nombre' => 'Compras', 'slug' => 'purchases.index', 'descripcion' => 'Gestión de compras', 'module' => 'Inventario', 'icon' => 'fa-solid fa-cart-shopping', 'is_menu' => true, 'order' => 5],
-            ['nombre' => 'Proveedores', 'slug' => 'suppliers.index', 'descripcion' => 'Gestión de proveedores', 'module' => 'Inventario', 'icon' => 'fa-solid fa-truck', 'is_menu' => true, 'order' => 6],
+            ['nombre' => 'Ventas', 'slug' => 'sales.index', 'descripcion' => 'Gestión de ventas', 'module' => 'Ventas', 'icon' => 'fa-solid fa-cash-register', 'is_menu' => true, 'order' => 5],
+            ['nombre' => 'Abonos', 'slug' => 'abonos.index', 'descripcion' => 'Gestión de abonos a venta', 'module' => 'Ventas', 'icon' => 'fa-solid fa-hand-holding-dollar', 'is_menu' => true, 'order' => 6],
+            ['nombre' => 'Proveedores', 'slug' => 'suppliers.index', 'descripcion' => 'Gestión de proveedores', 'module' => 'Inventario', 'icon' => 'fa-solid fa-truck', 'is_menu' => true, 'order' => 7],
             ['nombre' => 'Categorías', 'slug' => 'categories.index', 'descripcion' => 'Gestión de categorías', 'module' => 'Inventario', 'icon' => 'fa-solid fa-tags', 'is_menu' => true, 'order' => 7],
 
             ['nombre' => 'Caja', 'slug' => 'cash-registers.index', 'descripcion' => 'Gestión de caja', 'module' => 'Caja', 'icon' => 'fa-solid fa-cash-register', 'is_menu' => true, 'order' => 8],
