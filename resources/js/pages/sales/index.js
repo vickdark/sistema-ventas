@@ -36,12 +36,16 @@ export function initSalesIndex(config) {
                 formatter: (cell, row) => {
                     const id = row.cells[0].data;
                     const showUrl = routes.show.replace(':id', id);
+                    const ticketUrl = routes.ticket.replace(':id', id);
                     const deleteUrl = routes.destroy.replace(':id', id);
                     
                     return DataGrid.html(`
                         <div class="btn-group">
-                            <a href="${showUrl}" class="btn btn-sm btn-outline-info rounded-pill me-2" title="Ver Ticket">
+                            <a href="${showUrl}" class="btn btn-sm btn-outline-info rounded-pill" title="Ver Detalles">
                                 <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="${ticketUrl}" target="_blank" class="btn btn-sm btn-outline-warning rounded-pill mx-1" title="Imprimir Ticket">
+                                <i class="fas fa-print"></i>
                             </a>
                             <button type="button" 
                                 class="btn btn-sm btn-outline-danger rounded-pill" 

@@ -26,6 +26,7 @@
             routes: {
                 index: "{{ route('sales.index') }}",
                 show: "{{ route('sales.show', ':id') }}",
+                ticket: "{{ route('sales.ticket', ':id') }}",
                 destroy: "{{ route('sales.destroy', ':id') }}"
             },
             tokens: {

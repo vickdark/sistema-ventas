@@ -102,7 +102,9 @@ class PurchaseController extends Controller
         $product->stock += $request->quantity;
         $product->save();
 
-        return redirect()->route('purchases.index')->with('success', 'Compra registrada correctamente.');
+        return redirect()->route('purchases.index')
+            ->with('success', 'Compra registrada correctamente.')
+            ->with('new_purchase_id', $purchase->id);
     }
 
     /**
@@ -170,5 +172,10 @@ class PurchaseController extends Controller
 
         $purchase->delete();
         return redirect()->route('purchases.index')->with('success', 'Compra eliminada correctamente.');
+    }
+
+    public function voucher(Purchase $purchase)
+    {
+        return view('tenant.purchases.voucher', compact('purchase'));
     }
 }

@@ -28,6 +28,9 @@ export function initPurchasesIndex(config) {
                             <a href="${showUrl}" class="btn btn-sm btn-outline-info rounded-pill me-2" title="Ver Detalles">
                                 <i class="fas fa-eye"></i>
                             </a>
+                            <a href="${routes.index}/${id}/voucher" target="_blank" class="btn btn-sm btn-outline-warning rounded-pill me-2" title="Imprimir Comprobante">
+                                <i class="fas fa-print"></i>
+                            </a>
                             <a href="${editUrl}" class="btn btn-sm btn-outline-secondary rounded-pill me-2" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </a>

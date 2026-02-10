@@ -157,4 +157,9 @@ class SaleController extends Controller
             return redirect()->route('sales.index')->with('success', 'Venta eliminada y stock restaurado.');
         });
     }
+
+    public function ticket(Sale $sale)
+    {
+        return view('tenant.sales.ticket', compact('sale'));
+    }
 }

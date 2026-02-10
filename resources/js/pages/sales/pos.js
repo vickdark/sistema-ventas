@@ -171,7 +171,23 @@ export function initSalesPOS(config) {
 
                 if (response.ok) {
                     Notify.success('Venta exitosa', result.message);
-                    window.location.href = routes.index;
+                    
+                    // Offer to print ticket
+                    const printConfirmed = await Notify.confirm({
+                        title: 'Venta Registrada',
+                        text: '¿Desea imprimir el ticket de venta?',
+                        confirmButtonText: '<i class="fas fa-print"></i> Imprimir Ticket',
+                        cancelButtonText: 'Cerrar',
+                        icon: 'success'
+                    });
+
+                    if (printConfirmed) {
+                        window.open(`${routes.index}/${result.sale_id}/ticket`, '_blank');
+                    }
+                    
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
                 } else {
                     Notify.error('Error', result.message || 'Error al procesar la venta');
                     btnProcessSale.disabled = false;

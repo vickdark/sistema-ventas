@@ -32,6 +32,23 @@
                     csrf: "{{ csrf_token() }}"
                 }
             });
+
+            @if(session('new_purchase_id'))
+                Swal.fire({
+                    title: 'Compra Registrada',
+                    text: "¿Desea imprimir el comprobante de ingreso?",
+                    icon: 'success',
+                    showCancelButton: true,
+                    confirmButtonText: '<i class="fas fa-print"></i> Imprimir',
+                    cancelButtonText: 'Cerrar',
+                    confirmButtonColor: '#ffc107', 
+                    cancelButtonColor: '#858796',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.open("{{ route('purchases.voucher', session('new_purchase_id')) }}", '_blank');
+                    }
+                });
+            @endif
         });
     </script>
 </div>

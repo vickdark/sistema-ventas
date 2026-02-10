@@ -50,6 +50,12 @@ Route::middleware([
                 'cash-registers' => \App\Http\Controllers\Tenant\CashRegisterController::class,
                 'reports' => \App\Http\Controllers\Tenant\ReportController::class,
             ]);
+            
+            // Purchase Voucher
+            Route::get('purchases/{purchase}/voucher', [\App\Http\Controllers\Tenant\PurchaseController::class, 'voucher'])->name('purchases.voucher');
+
+            // Sale Ticket
+            Route::get('sales/{sale}/ticket', [\App\Http\Controllers\Tenant\SaleController::class, 'ticket'])->name('sales.ticket');
 
             Route::get('abonos/pending-sales/{client}', [\App\Http\Controllers\Tenant\AbonoController::class, 'getPendingSales'])->name('abonos.pending-sales');
             Route::get('abonos/debt-summary/{client}', [\App\Http\Controllers\Tenant\AbonoController::class, 'getDebtSummary'])->name('abonos.debt-summary');
