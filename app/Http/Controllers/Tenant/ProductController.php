@@ -14,12 +14,36 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $products = Product::with('category')->get();
-            return response()->json(['data' => $products]);
+        if ($request->ajax() || $request->wantsJson()) {
+            $query = Product::with('category');
+
+            // Grid.js parameters
+            $limit = $request->get('limit', 10);
+            $offset = $request->get('offset', 0);
+            $search = $request->get('search');
+
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('code', 'like', "%{$search}%")
+                      ->orWhere('id', 'like', "%{$search}%");
+                });
+            }
+
+            $total = $query->count();
+            
+            $products = $query->orderBy('id', 'desc')
+                              ->offset($offset)
+                              ->limit($limit)
+                              ->get();
+
+            return response()->json([
+                'data' => $products,
+                'total' => (int) $total,
+                'status' => 'success'
+            ]);
         }
-        $products = Product::with('category')->get();
-        return view('tenant.products.index', compact('products'));
+        return view('tenant.products.index');
     }
 
     /**
@@ -50,7 +74,10 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        $product = Product::create($request->all());
+        $data = $request->all();
+        $data['user_id'] = auth()->id();
+
+        $product = Product::create($data);
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
 

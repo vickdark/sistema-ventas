@@ -30,11 +30,16 @@ class Product extends Model
         'entry_date',
         'image',
         'category_id',
+        'user_id',
     ];
 
-    // Define relationship with Category if applicable
-    // public function category()
-    // {
-    //     return $this->belongsTo(Category::class);
-    // }
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\Usuarios\Usuario::class, 'user_id');
+    }
 }

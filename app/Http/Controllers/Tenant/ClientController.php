@@ -13,12 +13,36 @@ class ClientController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $clients = Client::all();
-            return response()->json(['data' => $clients]);
+        if ($request->ajax() || $request->wantsJson()) {
+            $query = Client::query();
+
+            // Grid.js parameters
+            $limit = $request->get('limit', 10);
+            $offset = $request->get('offset', 0);
+            $search = $request->get('search');
+
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('nit_ci', 'like', "%{$search}%")
+                      ->orWhere('id', 'like', "%{$search}%");
+                });
+            }
+
+            $total = $query->count();
+            
+            $clients = $query->orderBy('id', 'desc')
+                               ->offset($offset)
+                               ->limit($limit)
+                               ->get();
+
+            return response()->json([
+                'data' => $clients,
+                'total' => (int) $total,
+                'status' => 'success'
+            ]);
         }
-        $clients = Client::all();
-        return view('tenant.clients.index', compact('clients'));
+        return view('tenant.clients.index');
     }
 
     /**
@@ -36,10 +60,9 @@ class ClientController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'nit_ci' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:255',
-            'email' => 'nullable|string|email|max:255|unique:clients,email',
-            'address' => 'nullable|string|max:255',
+            'nit_ci' => 'required|string|max:255',
+            'phone' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
         ]);
 
         $client = Client::create($request->all());
@@ -73,10 +96,9 @@ class ClientController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'nit_ci' => 'nullable|string|max:255',
-            'phone' => 'nullable|string|max:255',
-            'email' => 'nullable|string|email|max:255|unique:clients,email,' . $id,
-            'address' => 'nullable|string|max:255',
+            'nit_ci' => 'required|string|max:255',
+            'phone' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
         ]);
 
         $client->update($request->all());

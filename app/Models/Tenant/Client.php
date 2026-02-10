@@ -23,6 +23,5 @@ class Client extends Model
         'nit_ci',
         'phone',
         'email',
-        'address',
     ];
 }

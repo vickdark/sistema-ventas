@@ -25,6 +25,7 @@
         initProductsIndex({
             routes: {
                 index: "{{ route('products.index') }}",
+                show: "{{ route('products.show', ':id') }}",
                 edit: "{{ route('products.edit', ':id') }}",
                 destroy: "{{ route('products.destroy', ':id') }}"
             },

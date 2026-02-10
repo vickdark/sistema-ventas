@@ -29,7 +29,7 @@
 
                         <div class="mb-3">
                             <label for="nit_ci" class="form-label">NIT/CI</label>
-                            <input type="text" class="form-control rounded-3 @error('nit_ci') is-invalid @enderror" id="nit_ci" name="nit_ci" value="{{ old('nit_ci') }}">
+                            <input type="text" class="form-control rounded-3 @error('nit_ci') is-invalid @enderror" id="nit_ci" name="nit_ci" value="{{ old('nit_ci') }}" required>
                             @error('nit_ci')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -37,7 +37,7 @@
 
                         <div class="mb-3">
                             <label for="phone" class="form-label">Teléfono</label>
-                            <input type="text" class="form-control rounded-3 @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}">
+                            <input type="text" class="form-control rounded-3 @error('phone') is-invalid @enderror" id="phone" name="phone" value="{{ old('phone') }}" required>
                             @error('phone')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -45,16 +45,8 @@
 
                         <div class="mb-3">
                             <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control rounded-3 @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}">
+                            <input type="email" class="form-control rounded-3 @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" required>
                             @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="address" class="form-label">Dirección</label>
-                            <input type="text" class="form-control rounded-3 @error('address') is-invalid @enderror" id="address" name="address" value="{{ old('address') }}">
-                            @error('address')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
                         </div>

@@ -8,21 +8,25 @@ export function initProductsIndex(config) {
         url: routes.index,
         columns: [
             { id: 'id', name: "ID", width: "80px" },
-            { id: 'nombre', name: "Nombre" },
-            { id: 'descripcion', name: "Descripción" },
-            { id: 'precio', name: "Precio" },
+            { id: 'code', name: "Código" },
+            { id: 'name', name: "Nombre" },
+            { id: 'sale_price', name: "Precio Venta" },
             { id: 'stock', name: "Stock" },
-            { id: 'category_name', name: "Categoría" },
+            { id: 'category', name: "Categoría" },
             { 
                 id: 'actions',
                 name: "Acciones",
                 formatter: (cell, row) => {
                     const id = row.cells[0].data;
+                    const showUrl = routes.show.replace(':id', id);
                     const editUrl = routes.edit.replace(':id', id);
                     const deleteUrl = routes.destroy.replace(':id', id);
                     
                     return DataGrid.html(`
                         <div class="btn-group">
+                            <a href="${showUrl}" class="btn btn-sm btn-outline-info rounded-pill me-2" title="Ver Detalles">
+                                <i class="fas fa-eye"></i>
+                            </a>
                             <a href="${editUrl}" class="btn btn-sm btn-outline-secondary rounded-pill me-2" title="Editar">
                                 <i class="fas fa-edit"></i>
                             </a>
@@ -39,11 +43,11 @@ export function initProductsIndex(config) {
         ],
         mapData: (product) => [
             product.id, 
-            product.nombre, 
-            product.descripcion,
-            product.precio,
+            product.code, 
+            product.name,
+            `$${product.sale_price}`,
             product.stock,
-            product.category ? product.category.nombre : 'Sin Categoría',
+            product.category ? product.category.name : 'Sin Categoría',
             null
         ]
     }).render();

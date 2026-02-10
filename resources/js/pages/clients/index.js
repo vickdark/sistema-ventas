@@ -8,10 +8,10 @@ export function initClientsIndex(config) {
         url: routes.index,
         columns: [
             { id: 'id', name: "ID", width: "80px" },
-            { id: 'nombre', name: "Nombre" },
-            { id: 'apellido', name: "Apellido" },
+            { id: 'name', name: "Nombre" },
+            { id: 'nit_ci', name: "NIT/Documento" },
             { id: 'email', name: "Email" },
-            { id: 'telefono', name: "Teléfono" },
+            { id: 'phone', name: "Teléfono" },
             { 
                 id: 'actions',
                 name: "Acciones",
@@ -38,10 +38,10 @@ export function initClientsIndex(config) {
         ],
         mapData: (client) => [
             client.id, 
-            client.nombre, 
-            client.apellido,
+            client.name, 
+            client.nit_ci,
             client.email,
-            client.telefono,
+            client.phone,
             null
         ]
     }).render();
