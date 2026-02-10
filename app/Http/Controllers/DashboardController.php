@@ -20,24 +20,27 @@ class DashboardController extends Controller
             return view('dashboard');
         }
 
-        // 1. Si el usuario tiene un permiso específico de dashboard (ej: dashboard.admin, dashboard.vendedor)
-        // Buscamos si tiene algún permiso que empiece por 'dashboard.' y no sea el genérico
+        // 1. Intentar por permiso específico (ej: dashboard.admin, dashboard.vendedor)
         $roleDashboard = $user->role->permissions()
             ->where('slug', 'like', 'dashboard.%')
-            ->where('slug', '!=', 'dashboard') // Ajustado para comparar con el slug base
+            ->where('slug', '!=', 'dashboard')
             ->first();
 
         if ($roleDashboard) {
-            // Si tiene un dashboard específico, intentamos cargar esa vista
-            // Por convención: dashboard.{rol} -> views/dashboards/{rol}.blade.php
             $viewName = str_replace('dashboard.', 'dashboards.', $roleDashboard->slug);
-            
             if (view()->exists($viewName)) {
                 return view($viewName);
             }
         }
 
-        // 2. Dashboard genérico por defecto
+        // 2. Intentar por el slug del rol directamente (ej: rol 'admin' -> dashboards.admin)
+        $roleSlug = $user->role->slug;
+        $roleViewName = "dashboards.{$roleSlug}";
+        if (view()->exists($roleViewName)) {
+            return view($roleViewName);
+        }
+
+        // 3. Dashboard genérico por defecto
         return view('dashboard');
     }
 }

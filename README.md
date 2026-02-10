@@ -23,13 +23,13 @@ El sistema utiliza una arquitectura de **Base de Datos por Inquilino (Single-Dat
     *   Gestionada por el **Dueño del SaaS** (Super Admin).
     *   Base de datos propia (`usuariosmultitenancy`).
     *   Se encarga de crear, editar y gestionar a los inquilinos (Tenants).
-    *   Dominio principal: `laravel-multitenancy.test`
+    *   Dominio principal: `sistema-ventas.test`
     *   Rutas protegidas bajo middleware `central_domain`.
 
 2.  **Aplicaciones Inquilino (`tenant`)**:
     *   Utilizada por los **Clientes** de la plataforma.
     *   Cada cliente tiene **su propia base de datos** (ej: `usuariosmultitenancy_empresa_a`).
-    *   Subdominios dinámicos: `empresa-a.laravel-multitenancy.test`.
+    *   Subdominios dinámicos: `empresa-a.sistema-ventas.test`.
     *   Datos 100% aislados: Un cliente nunca puede ver los datos de otro.
 
 ---

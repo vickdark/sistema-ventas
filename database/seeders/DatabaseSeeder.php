@@ -17,19 +17,22 @@ class DatabaseSeeder extends Seeder
     {
         // Crear permisos iniciales
         $permissions = [
-            ['nombre' => 'Ver Roles', 'slug' => 'roles.index', 'descripcion' => 'Permite ver la lista de roles'],
-            ['nombre' => 'Crear Roles', 'slug' => 'roles.create', 'descripcion' => 'Permite crear nuevos roles'],
-            ['nombre' => 'Editar Roles', 'slug' => 'roles.edit', 'descripcion' => 'Permite editar roles existentes'],
-            ['nombre' => 'Eliminar Roles', 'slug' => 'roles.destroy', 'descripcion' => 'Permite eliminar roles'],
+            ['nombre' => 'Dashboard', 'slug' => 'dashboard', 'descripcion' => 'Ver panel de control', 'module' => 'Dashboard', 'icon' => 'fa-solid fa-gauge-high', 'is_menu' => true, 'order' => 1],
+
+            ['nombre' => 'Ver Roles', 'slug' => 'roles.index', 'descripcion' => 'Permite ver la lista de roles', 'module' => 'Seguridad', 'icon' => 'fa-solid fa-shield-halved', 'is_menu' => true, 'order' => 2],
+            ['nombre' => 'Crear Roles', 'slug' => 'roles.create', 'descripcion' => 'Permite crear nuevos roles', 'module' => 'Seguridad', 'is_menu' => false],
+            ['nombre' => 'Editar Roles', 'slug' => 'roles.edit', 'descripcion' => 'Permite editar roles existentes', 'module' => 'Seguridad', 'is_menu' => false],
+            ['nombre' => 'Eliminar Roles', 'slug' => 'roles.destroy', 'descripcion' => 'Permite eliminar roles', 'module' => 'Seguridad', 'is_menu' => false],
             
-            ['nombre' => 'Ver Permisos', 'slug' => 'permissions.index', 'descripcion' => 'Permite ver la lista de permisos'],
-            ['nombre' => 'Crear Permisos', 'slug' => 'permissions.create', 'descripcion' => 'Permite crear nuevos permisos'],
-            ['nombre' => 'Editar Permisos', 'slug' => 'permissions.edit', 'descripcion' => 'Permite editar permisos existentes'],
-            ['nombre' => 'Eliminar Permisos', 'slug' => 'permissions.destroy', 'descripcion' => 'Permite eliminar permisos'],
+            ['nombre' => 'Ver Permisos', 'slug' => 'permissions.index', 'descripcion' => 'Permite ver la lista de permisos', 'module' => 'Seguridad', 'icon' => 'fa-solid fa-key', 'is_menu' => false, 'order' => 3],
+            ['nombre' => 'Crear Permisos', 'slug' => 'permissions.create', 'descripcion' => 'Permite crear nuevos permisos', 'module' => 'Seguridad', 'is_menu' => false],
+            ['nombre' => 'Editar Permisos', 'slug' => 'permissions.edit', 'descripcion' => 'Permite editar permisos existentes', 'module' => 'Seguridad', 'is_menu' => false],
+            ['nombre' => 'Eliminar Permisos', 'slug' => 'permissions.destroy', 'descripcion' => 'Permite eliminar permisos', 'module' => 'Seguridad', 'is_menu' => false],
+            ['nombre' => 'Sincronizar Permisos', 'slug' => 'permissions.sync', 'descripcion' => 'Permite sincronizar permisos con las rutas', 'module' => 'Seguridad', 'is_menu' => false],
         ];
 
         foreach ($permissions as $permission) {
-            Permission::firstOrCreate(['slug' => $permission['slug']], $permission);
+            Permission::updateOrCreate(['slug' => $permission['slug']], $permission);
         }
 
         // Crear roles iniciales

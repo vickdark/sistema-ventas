@@ -19,10 +19,11 @@ $tenantDbName = $centralDbName . '_' . $tenantId;
 $tenant = Tenant::find($tenantId);
 
 if (!$tenant) {
-    $tenant = Tenant::create([
+    $tenant = Tenant::make([
         'id' => $tenantId,
     ]);
     $tenant->setInternal('db_name', $tenantDbName);
+    $tenant->save();
     echo "Inquilino '{$tenantId}' creado con la base de datos '{$tenantDbName}'.\n";
 } else {
     echo "Inquilino '{$tenantId}' ya existe. Actualizando el nombre de la base de datos.\n";
@@ -31,8 +32,9 @@ if (!$tenant) {
     echo "Nombre de la base de datos del inquilino '{$tenantId}' actualizado a '{$tenantDbName}'.\n";
 }
 
+$baseDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? 'sistema-ventas.test';
 $domain = $tenant->domains()->firstOrCreate([
-    'domain' => $tenantId . '.laravel-multitenancy.test'
+    'domain' => $tenantId . '.' . $baseDomain
 ]);
 
 echo "Dominio '{$domain->domain}' asociado al inquilino '{$tenantId}'.\n";

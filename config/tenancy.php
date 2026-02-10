@@ -19,7 +19,7 @@ return [
     'central_domains' => [
         '127.0.0.1',
         'localhost',
-        'laravel-multitenancy.test'
+        parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST),
     ],
 
     /**

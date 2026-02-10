@@ -5,7 +5,7 @@ Este documento detalla el proceso completo y definitivo para configurar la multi
 ## 1. Prerrequisitos y Entorno
 *   **Laravel 12+**
 *   **MySQL** (Servidor activo)
-*   **Dominios locales:** Configuración de dominios wildcard (ej. `*.laravel-multitenancy.test`) en tu servidor local (Herd/Valet) y en el archivo `hosts`.
+*   **Dominios locales:** Configuración de dominios wildcard (ej. `*.sistema-ventas.test`) en tu servidor local (Herd/Valet) y en el archivo `hosts`.
 
 ## 2. Instalación del Paquete
 Ejecuta el comando para instalar la dependencia:
@@ -93,7 +93,7 @@ Asegúrate de que el paquete use tu modelo personalizado y reconozca tus dominio
 'central_domains' => [
     '127.0.0.1',
     'localhost',
-    'laravel-multitenancy.test',
+    'sistema-ventas.test',
 ],
 
 'database' => [

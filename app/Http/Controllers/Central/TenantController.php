@@ -49,7 +49,8 @@ class TenantController extends Controller
         if (!$id) return response()->json(['available' => false]);
         
         // El dominio que se generaría
-        $domain = $id . '.' . $request->getHost();
+        $baseDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? $request->getHost();
+        $domain = $id . '.' . $baseDomain;
 
         $tenantExists = Tenant::where('id', $id)->exists();
         $domainExists = \Stancl\Tenancy\Database\Models\Domain::where('domain', $domain)->exists();
@@ -83,7 +84,8 @@ class TenantController extends Controller
                     }
                     
                     // Validar que el dominio no exista
-                    $domain = $value . '.' . $request->getHost();
+                    $baseDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? $request->getHost();
+                    $domain = $value . '.' . $baseDomain;
                     if (\Stancl\Tenancy\Database\Models\Domain::where('domain', $domain)->exists()) {
                         $fail('El dominio ' . $domain . ' ya está siendo utilizado por otra empresa.');
                     }
@@ -120,10 +122,11 @@ class TenantController extends Controller
             // Si se marcó crear DB, procedemos con los pasos internos
             if ($request->boolean('create_db')) {
                 // Asociamos el dominio
+                $baseDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? $request->getHost();
                 $tenant->domains()->firstOrCreate([
-                    'domain' => $tenantId . '.laravel-multitenancy.test'
+                    'domain' => $tenantId . '.' . $baseDomain
                 ]);
-                $output .= "Dominio {$tenantId}.laravel-multitenancy.test configurado.\n";
+                $output .= "Dominio {$tenantId}.{$baseDomain} configurado.\n";
 
                 // Ejecutamos migraciones
                 $tenant->run(function () use (&$output) {
@@ -183,10 +186,11 @@ class TenantController extends Controller
 
             // Aseguramos que tenga dominio si no lo tenía
             if ($tenant->domains()->count() === 0) {
+                $baseDomain = parse_url(config('app.url'), PHP_URL_HOST) ?? $request->getHost();
                 $tenant->domains()->create([
-                    'domain' => $tenant->id . '.laravel-multitenancy.test'
+                    'domain' => $tenant->id . '.' . $baseDomain
                 ]);
-                $output .= "Dominio {$tenant->id}.laravel-multitenancy.test configurado.\n";
+                $output .= "Dominio {$tenant->id}.{$baseDomain} configurado.\n";
             }
 
             // Ejecutamos migraciones y/o seeders

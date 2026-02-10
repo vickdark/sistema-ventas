@@ -58,10 +58,36 @@ class SyncPermissions extends Command
             }
         }
 
-        // Limpieza automática de permisos antiguos (siempre activo por petición del usuario)
-        $deleted = \App\Models\Roles\Permission::whereNotIn('slug', $activeSlugs)->delete();
-        if ($deleted > 0) {
-            $this->warn("Se eliminaron {$deleted} permisos de rutas que ya no existen.");
+        // Limpieza automática de permisos antiguos y excluidos
+        $excludedPrefixes = [
+            'sanctum.', 'ignition.', 'livewire.', 'verification.', 
+            'password.', 'login', 'logout', 'register',
+            'profile.', 'storage.', 'central.', 'stancl.'
+        ];
+
+        // 1. Eliminar permisos que coinciden con los prefijos excluidos
+        $deletedExcluded = \App\Models\Roles\Permission::where(function($q) use ($excludedPrefixes) {
+            foreach ($excludedPrefixes as $prefix) {
+                $q->orWhere('slug', 'like', $prefix . '%');
+            }
+        })->delete();
+
+        if ($deletedExcluded > 0) {
+            $this->warn("Se eliminaron {$deletedExcluded} permisos de rutas excluidas.");
+        }
+
+        // 2. Limpieza de rutas que ya no existen (SOLO si se pasa el flag --clean)
+        if ($this->option('clean')) {
+            $deletedOld = \App\Models\Roles\Permission::whereNotIn('slug', $activeSlugs)
+                ->whereNotIn('slug', [
+                    'dashboard', 'roles.index', 'roles.create', 'roles.edit', 'roles.destroy',
+                    'permissions.index', 'permissions.create', 'permissions.edit', 'permissions.destroy', 'permissions.sync'
+                ])
+                ->delete();
+            
+            if ($deletedOld > 0) {
+                $this->warn("Se eliminaron {$deletedOld} permisos de rutas que ya no existen.");
+            }
         }
 
         $this->info("Sincronización completada. Total nuevos: {$permissionsCreated}.");
@@ -75,7 +101,7 @@ class SyncPermissions extends Command
         $excludedPrefixes = [
             'sanctum.', 'ignition.', 'livewire.', 'verification.', 
             'password.', 'login', 'logout', 'register',
-            'profile.', 'storage.', 'central.'
+            'profile.', 'storage.', 'central.', 'stancl.'
         ];
         
         foreach ($excludedPrefixes as $prefix) {
@@ -162,10 +188,14 @@ class SyncPermissions extends Command
     protected function isMenu($slug)
     {
         if ($slug === 'dashboard') return true;
+
+        // No mostrar la gestión de permisos en el menú lateral, se gestiona desde Roles
+        if (str_starts_with($slug, 'permissions.')) return false;
         
         // No mostrar dashboards específicos de rol en el menú directamente,
-        // ya que el DashboardController se encarga de redirigir.
-        if (str_starts_with($slug, 'dashboard.')) return false;
+        // ya que el DashboardController se encarga de redirigir y el aside.blade.php
+        // ya maneja la lógica de mostrar un único enlace para el módulo 'Dashboard'.
+        if (str_starts_with($slug, 'dashboard.')) return true;
 
         $parts = explode('.', $slug);
         $action = end($parts);

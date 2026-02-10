@@ -62,18 +62,20 @@
 
             @foreach($userPermissions as $module => $items)
                 @if($module === 'Dashboard')
-                    @foreach($items as $item)
-                        @php
-                            // El dashboard es un caso especial: es activo si la ruta es 'dashboard' 
-                            // o cualquier ruta que empiece por 'dashboard.'
-                            $isDashboardActive = request()->routeIs('dashboard') || request()->routeIs('central.dashboard') || request()->routeIs('dashboard.*');
-                            $dashboardRouteName = $isOwner ? 'central.dashboard' : 'dashboard';
-                        @endphp
-                        <a class="nav-link {{ $isDashboardActive ? 'active' : '' }}" href="{{ route($dashboardRouteName) }}">
-                            <i class="{{ $item->icon ?: 'fa-solid fa-gauge-high' }}"></i>
-                            <span class="app-link-text">{{ $item->nombre }}</span>
-                        </a>
-                    @endforeach
+                    @php
+                        // El dashboard es un caso especial: es activo si la ruta es 'dashboard' 
+                        // o cualquier ruta que empiece por 'dashboard.'
+                        $isDashboardActive = request()->routeIs('dashboard') || request()->routeIs('central.dashboard') || request()->routeIs('dashboard.*');
+                        $dashboardRouteName = $isOwner ? 'central.dashboard' : 'dashboard';
+                        
+                        // Buscamos el item que representa el dashboard (generalmente 'Dashboard' o 'dashboard.admin')
+                        // Priorizamos el que tenga el nombre más genérico para el texto del menú
+                        $dashboardItem = $items->firstWhere('slug', 'dashboard') ?? $items->first();
+                    @endphp
+                    <a class="nav-link {{ $isDashboardActive ? 'active' : '' }}" href="{{ route($dashboardRouteName) }}">
+                        <i class="{{ ($dashboardItem->icon ?? '') ?: 'fa-solid fa-gauge-high' }}"></i>
+                        <span class="app-link-text">{{ $dashboardItem->nombre ?? 'Dashboard' }}</span>
+                    </a>
                 @else
                     @php
                         $moduleSlug = strtolower($module);
