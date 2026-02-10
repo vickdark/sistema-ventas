@@ -9,6 +9,40 @@
         </div>
     </div>
 
+    <!-- Mega Acceso Rápido (Hiper visibles) -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-6">
+            <a href="{{ route('sales.create') }}" class="text-decoration-none action-card-wrapper">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-gradient-primary h-100 transform-hover">
+                    <div class="card-body p-4 d-flex align-items-center justify-content-between position-relative">
+                        <div class="z-1">
+                            <h2 class="fw-bold text-white mb-1">NUEVA VENTA POS</h2>
+                            <p class="text-white text-opacity-75 mb-0">Factura productos en segundos</p>
+                        </div>
+                        <i class="fa-solid fa-cart-shopping fa-4x text-white opacity-25 z-1"></i>
+                        <div class="decoration-circle-1"></div>
+                        <div class="decoration-circle-2"></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="{{ route('abonos.create') }}" class="text-decoration-none action-card-wrapper">
+                <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-gradient-success h-100 transform-hover">
+                    <div class="card-body p-4 d-flex align-items-center justify-content-between position-relative">
+                        <div class="z-1">
+                            <h2 class="fw-bold text-white mb-1">REGISTRAR ABONO</h2>
+                            <p class="text-white text-opacity-75 mb-0">Gestión rápida de cobros de cartera</p>
+                        </div>
+                        <i class="fa-solid fa-money-bill-transfer fa-4x text-white opacity-50 z-1"></i>
+                        <div class="decoration-circle-1"></div>
+                        <div class="decoration-circle-3"></div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+
     <div class="row g-4 mb-4">
         <!-- Usuarios Card -->
         <div class="col-xl-3 col-md-6">
@@ -150,6 +184,21 @@
                 </div>
                 <div class="card-body">
                     <div class="d-grid gap-2">
+                        @php
+                            $openRegister = \App\Models\Tenant\CashRegister::open()->first();
+                        @endphp
+
+                        @if(!$openRegister)
+                            <a href="{{ route('cash-registers.create') }}" class="btn btn-primary text-start shadow-sm py-2">
+                                <i class="fa-solid fa-cash-register me-2"></i> Abrir Nueva Caja
+                            </a>
+                        @else
+                            <a href="{{ route('cash-registers.close-form', $openRegister) }}" class="btn btn-danger text-start shadow-sm py-2">
+                                <i class="fa-solid fa-lock me-2"></i> Cerrar Caja Actual
+                            </a>
+                        @endif
+
+                        <hr class="my-2 opacity-10">
                         <a href="{{ route('usuarios.create') }}" class="btn btn-outline-primary text-start">
                             <i class="fa-solid fa-user-plus me-2"></i> Crear Nuevo Usuario
                         </a>
@@ -172,5 +221,55 @@
 <style>
     .text-xs { font-size: .75rem; }
     .shadow-soft { box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important; }
+    
+    .bg-gradient-primary {
+        background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+    }
+    
+    .bg-gradient-success {
+        background: linear-gradient(135deg, #1cc88a 0%, #13855c 100%);
+    }
+    
+    .transform-hover {
+        transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+    }
+    
+    .transform-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 1rem 3rem rgba(0,0,0,.175)!important;
+    }
+    
+    .z-1 { z-index: 1; }
+    
+    /* Decorative elements for cards */
+    .decoration-circle-1 {
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        background: rgba(255,255,255,0.1);
+        border-radius: 50%;
+        top: -50px;
+        right: -30px;
+    }
+    
+    .decoration-circle-2 {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 50%;
+        bottom: -20px;
+        left: 20%;
+    }
+    
+    .decoration-circle-3 {
+        position: absolute;
+        width: 100px;
+        height: 100px;
+        background: rgba(0,0,0,0.05);
+        border-radius: 50%;
+        bottom: -40px;
+        right: 10%;
+    }
 </style>
 @endsection

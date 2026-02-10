@@ -48,6 +48,7 @@ Route::middleware([
                 'sales' => \App\Http\Controllers\Tenant\SaleController::class,
                 'abonos' => \App\Http\Controllers\Tenant\AbonoController::class,
                 'cash-registers' => \App\Http\Controllers\Tenant\CashRegisterController::class,
+                'reports' => \App\Http\Controllers\Tenant\ReportController::class,
             ]);
 
             Route::get('abonos/pending-sales/{client}', [\App\Http\Controllers\Tenant\AbonoController::class, 'getPendingSales'])->name('abonos.pending-sales');

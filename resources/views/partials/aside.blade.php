@@ -55,6 +55,7 @@
                 </a>
             @endif
 
+            @php $currentModule = null; @endphp
             @foreach($permissions as $item)
                 @php
                     $isDashboard = $item->slug === 'dashboard' || str_starts_with($item->slug, 'dashboard.');
@@ -63,6 +64,13 @@
                     $itemUrl = $routeExists ? route($item->slug) : '#';
                 @endphp
                 
+                @if($item->module !== $currentModule)
+                    <div class="sidebar-heading px-4 mt-3 mb-1 text-sidebar-muted text-uppercase fw-bold" style="font-size: 0.6rem; letter-spacing: 0.05em; opacity: 0.8;">
+                        {{ $item->module }}
+                    </div>
+                    @php $currentModule = $item->module; @endphp
+                @endif
+
                 <a class="nav-link {{ $isActive ? 'active' : '' }}" href="{{ $itemUrl }}">
                     <i class="{{ $item->icon ?: 'fa-solid fa-circle-dot' }}"></i>
                     <span class="app-link-text">{{ $item->nombre }}</span>
@@ -107,7 +115,7 @@
                 <i class="fa-solid fa-power-off small"></i>
                 <span class="app-link-text fw-semibold small">Cerrar sesión</span>
             </button>
-            @endauth
+            @endif
         </div>
     </div>
 </aside>

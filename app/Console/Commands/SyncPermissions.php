@@ -165,6 +165,7 @@ class SyncPermissions extends Command
             'sales'          => ['singular' => 'Venta', 'plural' => 'Ventas'],
             'cash-registers' => ['singular' => 'Caja', 'plural' => 'Cajas'],
             'abonos'         => ['singular' => 'Abono', 'plural' => 'Abonos'],
+            'reports'        => ['singular' => 'Reporte', 'plural' => 'Reportes'],
             'config'         => ['singular' => 'Configuración', 'plural' => 'Configuraciones'],
         ];
     }
@@ -259,16 +260,18 @@ class SyncPermissions extends Command
             'cash-registers' => 'fa-solid fa-vault',
             'abonos'         => 'fa-solid fa-hand-holding-dollar',
             'clients'        => 'fa-solid fa-address-book',
+            'reports'        => 'fa-solid fa-chart-pie',
             'config'         => 'fa-solid fa-gears',
             'seguridad'      => 'fa-solid fa-shield-halved',
             'ventas'         => 'fa-solid fa-money-bill-transfer',
+            'reportes'       => 'fa-solid fa-chart-pie',
         ];
 
         return $icons[strtolower($entity)] ?? 'fa-solid fa-circle-dot';
     }
 
     /**
-     * Genera el nombre del módulo para agrupar en el menú.
+     * Genera el nombre del segmento/módulo para separar en el menú sin agrupar en dropdowns.
      */
     protected function generateModuleName($slug)
     {
@@ -278,9 +281,9 @@ class SyncPermissions extends Command
         $entity = count($parts) > 1 ? $parts[count($parts) - 2] : 'General';
 
         $moduleMapping = [
-            'usuarios'       => 'Seguridad',
-            'roles'          => 'Seguridad',
-            'permissions'    => 'Seguridad',
+            'usuarios'       => 'Configuración',
+            'roles'          => 'Configuración',
+            'permissions'    => 'Configuración',
             'products'       => 'Inventario',
             'categories'     => 'Inventario',
             'purchases'      => 'Inventario',
@@ -288,6 +291,7 @@ class SyncPermissions extends Command
             'sales'          => 'Ventas',
             'abonos'         => 'Ventas',
             'clients'        => 'Ventas',
+            'reports'        => 'Análisis',
             'cash-registers' => 'Caja',
         ];
         
@@ -312,6 +316,7 @@ class SyncPermissions extends Command
             'sales'          => 20,
             'abonos'         => 21,
             'clients'        => 22,
+            'reports'        => 40,
             'cash-registers' => 30,
             'usuarios'       => 100,
             'roles'          => 101,
