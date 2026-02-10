@@ -66,6 +66,10 @@ Route::middleware([
             
             // Gestión de Permisos (Sincronización)
             Route::post('permissions/sync', [\App\Http\Controllers\Roles\PermissionController::class, 'sync'])->name('permissions.sync');
+            
+            // Notificaciones
+            Route::get('notifications/low-stock', [\App\Http\Controllers\Tenant\NotificationController::class, 'getLowStockProducts'])->name('notifications.low-stock');
+
             // Perfil y Seguridad
             Route::put('/password', [\App\Http\Controllers\Profile\PasswordController::class, 'update'])->name('password.update.ajax');
         });

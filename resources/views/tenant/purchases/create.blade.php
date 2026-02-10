@@ -65,8 +65,11 @@
                             <select class="form-select rounded-3 @error('product_id') is-invalid @enderror" id="product_id" name="product_id" required>
                                 <option value="" disabled selected>Selecciona un producto</option>
                                 @foreach($products as $product)
-                                    <option value="{{ $product->id }}" {{ old('product_id') == $product->id ? 'selected' : '' }}>
-                                        {{ $product->code }} - {{ $product->name }} (Stock: {{ $product->stock }})
+                                    <option value="{{ $product->id }}" 
+                                            data-max-stock="{{ $product->max_stock }}" 
+                                            data-current-stock="{{ $product->stock }}"
+                                            {{ (old('product_id') ?? request('product_id')) == $product->id ? 'selected' : '' }}>
+                                        {{ $product->code }} - {{ $product->name }} (Stock: {{ $product->stock }} / Max: {{ $product->max_stock }})
                                     </option>
                                 @endforeach
                             </select>
@@ -109,23 +112,65 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        let productSelectInstance;
+
         if (window.TomSelect) {
             new TomSelect('#supplier_id', {
                 create: false,
-                sortField: {
-                    field: 'text',
-                    direction: 'asc'
-                }
+                sortField: { field: 'text', direction: 'asc' }
             });
 
-            new TomSelect('#product_id', {
+            productSelectInstance = new TomSelect('#product_id', {
                 create: false,
-                sortField: {
-                    field: 'text',
-                    direction: 'asc'
-                }
+                sortField: { field: 'text', direction: 'asc' },
+                onChange: validateStock
             });
         }
+
+        const quantityInput = document.getElementById('quantity');
+        const quantityFeedback = document.querySelector('#quantity + .invalid-feedback') || createFeedbackElement(quantityInput);
+        
+        quantityInput.addEventListener('input', validateStock);
+
+        function createFeedbackElement(input) {
+            const div = document.createElement('div');
+            div.className = 'invalid-feedback';
+            input.parentNode.appendChild(div);
+            return div;
+        }
+
+        function validateStock() {
+            const productId = document.getElementById('product_id').value;
+            const quantity = parseInt(quantityInput.value) || 0;
+            
+            if (!productId) return;
+
+            // Find the option element in the original select to get data attributes
+            // TomSelect hides it but keeps it updated partially, but we need to find the option by value
+            const originalSelect = document.getElementById('product_id');
+            const selectedOption = originalSelect.querySelector(`option[value="${productId}"]`);
+
+            if (!selectedOption) return;
+
+            const maxStock = parseInt(selectedOption.getAttribute('data-max-stock')) || 0;
+            const currentStock = parseInt(selectedOption.getAttribute('data-current-stock')) || 0;
+
+            // Si maxStock es 0, asumimos que no hay límite o no se configuró, pero el usuario pidió validar
+            // que NO supere el stock máximo. Si max_stock está definido en BD, lo usamos.
+            if (maxStock > 0) {
+                if ((currentStock + quantity) > maxStock) {
+                    quantityInput.classList.add('is-invalid');
+                    quantityFeedback.textContent = `La cantidad supera el stock máximo permitido (${maxStock}). Stock actual: ${currentStock}. Espacio disponible: ${maxStock - currentStock}`;
+                    quantityFeedback.style.display = 'block';
+                } else {
+                    quantityInput.classList.remove('is-invalid');
+                    quantityFeedback.style.display = 'none';
+                }
+            }
+        }
+        
+        // Ejecutar validación inicial si hay valores (ej: old input o redirect)
+        setTimeout(validateStock, 500);
     });
 </script>
 @endsection

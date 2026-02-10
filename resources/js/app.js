@@ -12,6 +12,7 @@ import Chart from 'chart.js/auto';
 import DataGrid from './modules/DataGrid';
 import { initSidebar } from './modules/sidebar';
 import Notifications from './modules/Notifications';
+import NavbarNotifications from './components/NavbarNotifications';
 
 // Import Pages
 import { initUsersIndex } from './pages/usuarios/index';
@@ -64,4 +65,5 @@ Alpine.start();
 
 document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
+    new NavbarNotifications('/notifications/low-stock');
 });

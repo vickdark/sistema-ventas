@@ -73,7 +73,19 @@ class PurchaseController extends Controller
         $request->validate([
             'product_id' => 'required|exists:products,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'quantity' => 'required|integer|min:1',
+            'quantity' => [
+                'required',
+                'integer',
+                'min:1',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($request->product_id) {
+                        $product = Product::find($request->product_id);
+                        if ($product && $product->max_stock > 0 && ($product->stock + $value) > $product->max_stock) {
+                            $fail("La cantidad ingresada supera el stock máximo permitido ({$product->max_stock}). Stock actual: {$product->stock}.");
+                        }
+                    }
+                },
+            ],
             'price' => 'required|numeric|min:0',
             'purchase_date' => 'required|date',
             'voucher' => 'required|string|max:255',

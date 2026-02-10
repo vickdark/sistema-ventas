@@ -10,10 +10,33 @@
         </div>
     </div>
     <div class="app-topbar-actions">
-        <button class="btn btn-light position-relative me-2">
-            <i class="fa-regular fa-bell"></i>
-            <span class="app-notification-dot"></span>
-        </button>
+        @if(Route::has('notifications.low-stock'))
+        <div class="dropdown me-3">
+            <button class="btn btn-light position-relative border-0 shadow-sm rounded-circle" type="button" id="notificationBtn" data-bs-toggle="dropdown" aria-expanded="false" style="width: 40px; height: 40px;">
+                <i class="fa-regular fa-bell text-secondary"></i>
+                <span id="notificationDot" class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle d-none">
+                    <span class="visually-hidden">New alerts</span>
+                </span>
+            </button>
+            <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 p-0 overflow-hidden" aria-labelledby="notificationBtn" style="width: 320px;">
+                <div class="p-3 border-bottom bg-light">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h6 class="mb-0 fw-bold text-dark">Notificaciones</h6>
+                        <span class="badge bg-primary bg-opacity-10 text-primary rounded-pill px-2 py-1" style="font-size: 0.65rem;">STOCK BAJO</span>
+                    </div>
+                </div>
+                <div id="notificationList" class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                    <!-- Items cargados vía AJAX -->
+                    <div class="text-center py-4">
+                        <div class="spinner-border spinner-border-sm text-muted" role="status"></div>
+                    </div>
+                </div>
+                <div class="p-2 text-center border-top bg-light">
+                    <a href="{{ route('products.index') }}" class="small text-decoration-none fw-bold text-primary">Ver todo el inventario</a>
+                </div>
+            </div>
+        </div>
+        @endif
         
         @php
             $isOwner = auth('owner')->check();
