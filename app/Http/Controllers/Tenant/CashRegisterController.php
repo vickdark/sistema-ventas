@@ -88,7 +88,26 @@ class CashRegisterController extends Controller
 
     public function show(CashRegister $cashRegister)
     {
-        return view('tenant.cash_registers.show', compact('cashRegister'));
+        $endTime = $cashRegister->closing_date ?? now();
+        
+        $directSales = Sale::with('client')
+                         ->whereIn('payment_type', ['CONTADO', 'TRANSFERENCIA'])
+                         ->where('created_at', '>=', $cashRegister->opening_date)
+                         ->where('created_at', '<=', $endTime)
+                         ->orderBy('created_at', 'desc')
+                         ->get();
+        
+        $abonos = Abono::with(['client', 'sale'])
+                       ->where('created_at', '>=', $cashRegister->opening_date)
+                       ->where('created_at', '<=', $endTime)
+                       ->orderBy('created_at', 'desc')
+                       ->get();
+
+        $totalSalesValue = $directSales->sum('total_paid');
+        $totalAbonos = $abonos->sum('amount');
+        $totalIncome = $totalSalesValue + $totalAbonos;
+        
+        return view('tenant.cash_registers.show', compact('cashRegister', 'directSales', 'abonos', 'totalSalesValue', 'totalAbonos', 'totalIncome'));
     }
 
     public function closeForm(CashRegister $cashRegister)
@@ -97,22 +116,29 @@ class CashRegisterController extends Controller
             return redirect()->route('cash-registers.index')->with('error', 'Esta caja ya está cerrada.');
         }
 
-        // Get paid sales in this session
-        $paidSales = Sale::where('payment_status', 'PAGADO')
+        // Obtener ventas DIRECTAS (Contado/Transferencia) en esta sesión
+        // Excluimos las ventas a CRÉDITO porque esas ingresan dinero a través de los Abonos
+        $directSales = Sale::with('client')
+                         ->whereIn('payment_type', ['CONTADO', 'TRANSFERENCIA'])
                          ->where('created_at', '>=', $cashRegister->opening_date)
+                         ->orderBy('created_at', 'desc')
                          ->get();
         
-        $salesCount = $paidSales->count();
-        $totalSalesValue = $paidSales->sum('total_paid');
+        $salesCount = $directSales->count();
+        $totalSalesValue = $directSales->sum('total_paid');
 
-        // Get abonos in this session (these are also cash inflow)
-        $totalAbonos = Abono::where('created_at', '>=', $cashRegister->opening_date)
-                            ->sum('amount');
+        // Obtener abonos en esta sesión (pagos de créditos)
+        $abonos = Abono::with(['client', 'sale'])
+                       ->where('created_at', '>=', $cashRegister->opening_date)
+                       ->orderBy('created_at', 'desc')
+                       ->get();
+                       
+        $totalAbonos = $abonos->sum('amount');
 
         $totalIncome = $totalSalesValue + $totalAbonos;
         $expectedAmount = $cashRegister->initial_amount + $totalIncome;
 
-        return view('tenant.cash_registers.close', compact('cashRegister', 'salesCount', 'totalSalesValue', 'totalAbonos', 'totalIncome', 'expectedAmount'));
+        return view('tenant.cash_registers.close', compact('cashRegister', 'salesCount', 'totalSalesValue', 'totalAbonos', 'totalIncome', 'expectedAmount', 'directSales', 'abonos'));
     }
 
     public function close(Request $request, CashRegister $cashRegister)
@@ -122,22 +148,22 @@ class CashRegisterController extends Controller
             'observations' => 'nullable|string',
         ]);
 
-        // Recalculate for final save
-        $paidSales = Sale::where('payment_status', 'PAGADO')
+        // Recalcular para guardar final (SOLO DIRECTAS + ABONOS)
+        $directSales = Sale::whereIn('payment_type', ['CONTADO', 'TRANSFERENCIA'])
                          ->where('created_at', '>=', $cashRegister->opening_date)
                          ->get();
         
         $totalAbonos = Abono::where('created_at', '>=', $cashRegister->opening_date)
                             ->sum('amount');
 
-        $totalIncome = $paidSales->sum('total_paid') + $totalAbonos;
+        $totalIncome = $directSales->sum('total_paid') + $totalAbonos;
 
         $cashRegister->update([
             'closing_date' => now(),
             'final_amount' => $request->final_amount,
             'status' => 'cerrada',
             'observations' => $cashRegister->observations . "\nCierre: " . $request->observations,
-            'sales_count' => $paidSales->count(),
+            'sales_count' => $directSales->count(), // Solo contar ventas directas en el contador de "ventas del turno"
             'total_sales' => $totalIncome,
         ]);
 

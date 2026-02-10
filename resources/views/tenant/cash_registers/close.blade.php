@@ -80,6 +80,101 @@
                         </div>
                     </form>
                 </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Detailed Summary Section -->
+    <div class="row mt-4">
+        <!-- Sales Summary -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-soft rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="m-0 font-weight-bold text-primary"><i class="fas fa-shopping-cart me-2"></i> Ventas Directas del Turno</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-hover align-middle mb-0 small">
+                            <thead class="bg-light sticky-top">
+                                <tr>
+                                    <th class="ps-4">Folio</th>
+                                    <th>Cliente</th>
+                                    <th>Hora</th>
+                                    <th class="text-end pe-4">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($directSales as $sale)
+                                <tr>
+                                    <td class="ps-4 fw-bold">#{{ $sale->nro_venta }}</td>
+                                    <td>{{ optional($sale->client)->name ?? 'Consumidor Final' }}</td>
+                                    <td class="text-muted">{{ $sale->created_at->format('H:i') }}</td>
+                                    <td class="text-end pe-4 fw-bold text-success">${{ number_format($sale->total_paid, 2) }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">No hay ventas directas en este turno.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                            <tfoot class="bg-light fw-bold">
+                                <tr>
+                                    <td colspan="3" class="text-end py-2">Total Ventas:</td>
+                                    <td class="text-end pe-4 py-2">${{ number_format($totalSalesValue, 2) }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Abonos Summary -->
+        <div class="col-md-6 mb-4">
+            <div class="card border-0 shadow-soft rounded-4 h-100">
+                <div class="card-header bg-white py-3 border-bottom">
+                    <h6 class="m-0 font-weight-bold text-success"><i class="fas fa-hand-holding-dollar me-2"></i> Abonos Recibidos (Cartera)</h6>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive" style="max-height: 300px; overflow-y: auto;">
+                        <table class="table table-hover align-middle mb-0 small">
+                            <thead class="bg-light sticky-top">
+                                <tr>
+                                    <th class="ps-4">Cliente</th>
+                                    <th>Concepto</th>
+                                    <th>Hora</th>
+                                    <th class="text-end pe-4">Monto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($abonos as $abono)
+                                <tr>
+                                    <td class="ps-4 fw-bold text-truncate" style="max-width: 150px;">{{ optional($abono->client)->name }}</td>
+                                    <td>
+                                        @if($abono->sale_id)
+                                            Venta #{{ optional($abono->sale)->nro_venta }}
+                                        @else
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary">General</span>
+                                        @endif
+                                    </td>
+                                    <td class="text-muted">{{ $abono->created_at->format('H:i') }}</td>
+                                    <td class="text-end pe-4 fw-bold text-success">${{ number_format($abono->amount, 2) }}</td>
+                                </tr>
+                                @empty
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-muted">No hay abonos registrados en este turno.</td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                            <tfoot class="bg-light fw-bold">
+                                <tr>
+                                    <td colspan="3" class="text-end py-2">Total Abonos:</td>
+                                    <td class="text-end pe-4 py-2">${{ number_format($totalAbonos, 2) }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

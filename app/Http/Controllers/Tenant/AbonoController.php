@@ -121,34 +121,50 @@ class AbonoController extends Controller
      */
     public function getDebtSummary(Client $client)
     {
-        $totalSales = Sale::where('client_id', $client->id)->sum('total_paid');
-        $totalAbonos = Abono::where('client_id', $client->id)->sum('amount');
-        
-        // Only pending debt
+        // Only pending sales (active debts)
         $pendingSales = Sale::where('client_id', $client->id)
                             ->where('payment_status', 'PENDIENTE')
                             ->get();
         
-        $totalPendingDebt = 0;
-        foreach ($pendingSales as $sale) {
-            $paidToSale = Abono::where('sale_id', $sale->id)->sum('amount');
-            $totalPendingDebt += ($sale->total_paid - $paidToSale);
-        }
+        $pendingSalesIds = $pendingSales->pluck('id');
+
+        // Total value of currently pending sales
+        $totalInvoiced = $pendingSales->sum('total_paid');
+        
+        // Sum of payments for THESE pending sales
+        $abonosOnActiveSales = Abono::whereIn('sale_id', $pendingSalesIds)->sum('amount');
+        
+        // General payments (advances / excess)
+        $generalAbonos = Abono::where('client_id', $client->id)
+                              ->whereNull('sale_id')
+                              ->sum('amount');
+        
+        $totalAbonos = $abonosOnActiveSales + $generalAbonos;
+        
+        $totalPendingDebt = $totalInvoiced - $totalAbonos;
 
         return response()->json([
-            'total_invoiced' => (float)$totalSales,
+            'total_invoiced' => (float)$totalInvoiced,
             'total_abonos' => (float)$totalAbonos,
             'total_debt' => (float)$totalPendingDebt
         ]);
     }
 
     /**
-     * Get abono history for a client
+     * Get abono history for a client (Only active debts)
      */
     public function getClientAbonoHistory(Client $client)
     {
+        $pendingSalesIds = Sale::where('client_id', $client->id)
+                               ->where('payment_status', 'PENDIENTE')
+                               ->pluck('id');
+
         $history = Abono::with('sale')
                         ->where('client_id', $client->id)
+                        ->where(function($query) use ($pendingSalesIds) {
+                            $query->whereIn('sale_id', $pendingSalesIds)
+                                  ->orWhereNull('sale_id');
+                        })
                         ->orderBy('created_at', 'desc')
                         ->get();
         
