@@ -59,16 +59,40 @@ class SupplierController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:50',
-            'secondary_phone' => 'nullable|string|max:50',
-            'company' => 'required|string|max:255',
-            'email' => 'nullable|string|email|max:50',
-            'address' => 'required|string|max:255',
+            'suppliers' => 'required|array|min:1|max:5',
+            'suppliers.*.name' => 'required|string|max:255',
+            'suppliers.*.phone' => 'required|string|max:50|distinct',
+            'suppliers.*.secondary_phone' => 'nullable|string|max:50',
+            'suppliers.*.company' => 'required|string|max:255',
+            'suppliers.*.email' => 'nullable|email|max:50',
+            'suppliers.*.address' => 'required|string|max:255',
+        ], [
+            'suppliers.required' => 'Debe agregar al menos un proveedor.',
+            'suppliers.max' => 'Solo puede registrar hasta 5 proveedores a la vez.',
+            'suppliers.*.phone.distinct' => 'No puede haber teléfonos principales duplicados.',
         ]);
 
-        $supplier = Supplier::create($request->all());
-        return redirect()->route('suppliers.index')->with('success', 'Supplier created successfully.');
+        $created = 0;
+        $duplicates = [];
+
+        foreach ($request->suppliers as $supplierData) {
+            // Verificar si ya existe por teléfono principal
+            if (Supplier::where('phone', $supplierData['phone'])->exists()) {
+                $duplicates[] = $supplierData['phone'];
+                continue;
+            }
+
+            Supplier::create($supplierData);
+            $created++;
+        }
+
+        $message = "Se registraron {$created} proveedor(es) exitosamente.";
+        
+        if (count($duplicates) > 0) {
+            $message .= " Los siguientes teléfonos ya existían: " . implode(', ', $duplicates);
+        }
+
+        return redirect()->route('suppliers.index')->with('success', $message);
     }
 
     /**

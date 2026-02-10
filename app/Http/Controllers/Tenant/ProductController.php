@@ -61,24 +61,48 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'code' => 'required|string|max:255|unique:products,code',
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'stock' => 'required|integer|min:0',
-            'min_stock' => 'required|integer|min:0',
-            'max_stock' => 'required|integer|min:0',
-            'purchase_price' => 'required|numeric|min:0',
-            'sale_price' => 'required|numeric|min:0',
-            'entry_date' => 'required|date',
-            'image' => 'nullable|string|max:255',
-            'category_id' => 'required|exists:categories,id',
+            'products' => 'required|array|min:1|max:5',
+            'products.*.code' => 'required|string|max:255|distinct',
+            'products.*.name' => 'required|string|max:255',
+            'products.*.description' => 'nullable|string',
+            'products.*.stock' => 'required|integer|min:0',
+            'products.*.min_stock' => 'required|integer|min:0',
+            'products.*.max_stock' => 'required|integer|min:0',
+            'products.*.purchase_price' => 'required|numeric|min:0',
+            'products.*.sale_price' => 'required|numeric|min:0',
+            'products.*.entry_date' => 'required|date',
+            'products.*.image' => 'nullable|string|max:255',
+            'products.*.category_id' => 'required|exists:categories,id',
+        ], [
+            'products.required' => 'Debe agregar al menos un producto.',
+            'products.max' => 'Solo puede registrar hasta 5 productos a la vez.',
+            'products.*.code.distinct' => 'No puede haber códigos duplicados.',
         ]);
 
-        $data = $request->all();
-        $data['user_id'] = auth()->id();
+        $created = 0;
+        $duplicates = [];
 
-        $product = Product::create($data);
-        return redirect()->route('products.index')->with('success', 'Product created successfully.');
+        foreach ($request->products as $productData) {
+            // Verificar si ya existe por código
+            if (Product::where('code', $productData['code'])->exists()) {
+                $duplicates[] = $productData['code'];
+                continue;
+            }
+
+            // Agregar el user_id
+            $productData['user_id'] = auth()->id();
+
+            Product::create($productData);
+            $created++;
+        }
+
+        $message = "Se registraron {$created} producto(s) exitosamente.";
+        
+        if (count($duplicates) > 0) {
+            $message .= " Los siguientes códigos ya existían: " . implode(', ', $duplicates);
+        }
+
+        return redirect()->route('products.index')->with('success', $message);
     }
 
     /**

@@ -64,6 +64,15 @@ Route::middleware([
             Route::get('cash-registers/{cash_register}/close', [\App\Http\Controllers\Tenant\CashRegisterController::class, 'closeForm'])->name('cash-registers.close-form');
             Route::post('cash-registers/{cash_register}/close', [\App\Http\Controllers\Tenant\CashRegisterController::class, 'close'])->name('cash-registers.close');
 
+            // ETL Import Module
+            Route::get('import', [\App\Http\Controllers\Tenant\ImportController::class, 'index'])->name('import.index');
+            Route::get('import/template/{module}', [\App\Http\Controllers\Tenant\ImportController::class, 'template'])->name('import.template');
+            Route::post('import/categories', [\App\Http\Controllers\Tenant\ImportController::class, 'importCategories'])->name('import.categories');
+            Route::post('import/clients', [\App\Http\Controllers\Tenant\ImportController::class, 'importClients'])->name('import.clients');
+            Route::post('import/suppliers', [\App\Http\Controllers\Tenant\ImportController::class, 'importSuppliers'])->name('import.suppliers');
+            Route::post('import/products', [\App\Http\Controllers\Tenant\ImportController::class, 'importProducts'])->name('import.products');
+            Route::post('import/purchases', [\App\Http\Controllers\Tenant\ImportController::class, 'importPurchases'])->name('import.purchases');
+
             Route::post('configurations', [\App\Http\Controllers\Tenant\ConfigurationController::class, 'update'])->name('configurations.update');
 
             // Gestión de Roles y Seguridad (Rutas adicionales)

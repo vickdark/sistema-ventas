@@ -167,6 +167,7 @@ class SyncPermissions extends Command
             'abonos'         => ['singular' => 'Abono', 'plural' => 'Abonos'],
             'reports'        => ['singular' => 'Reporte', 'plural' => 'Reportes'],
             'config'         => ['singular' => 'Configuración', 'plural' => 'Configuraciones'],
+            'import'         => ['singular' => 'Importación', 'plural' => 'Importación Masiva'],
         ];
     }
 
@@ -265,6 +266,7 @@ class SyncPermissions extends Command
             'seguridad'      => 'fa-solid fa-shield-halved',
             'ventas'         => 'fa-solid fa-money-bill-transfer',
             'reportes'       => 'fa-solid fa-chart-pie',
+            'import'         => 'fa-solid fa-file-import',
         ];
 
         return $icons[strtolower($entity)] ?? 'fa-solid fa-circle-dot';
@@ -293,6 +295,7 @@ class SyncPermissions extends Command
             'clients'        => 'Ventas',
             'reports'        => 'Análisis',
             'cash-registers' => 'Caja',
+            'import'         => 'Herramientas',
         ];
         
         return $moduleMapping[strtolower($entity)] ?? 'General';
@@ -318,6 +321,7 @@ class SyncPermissions extends Command
             'clients'        => 22,
             'reports'        => 40,
             'cash-registers' => 30,
+            'import'         => 5,
             'usuarios'       => 100,
             'roles'          => 101,
             'permissions'    => 102,

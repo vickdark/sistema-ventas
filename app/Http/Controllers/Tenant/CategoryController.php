@@ -58,11 +58,37 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name',
+            'categories' => 'required|array|min:1',
+            'categories.*' => 'required|string|max:255|distinct',
+        ], [
+            'categories.required' => 'Debe agregar al menos una categoría.',
+            'categories.*.required' => 'El nombre de la categoría es obligatorio.',
+            'categories.*.distinct' => 'No puede haber categorías duplicadas.',
         ]);
 
-        $category = Category::create($request->all());
-        return redirect()->route('categories.index')->with('success', 'Category created successfully.');
+        $created = 0;
+        $duplicates = [];
+
+        foreach ($request->categories as $categoryName) {
+            $categoryName = trim($categoryName);
+            
+            // Verificar si ya existe
+            if (Category::where('name', $categoryName)->exists()) {
+                $duplicates[] = $categoryName;
+                continue;
+            }
+
+            Category::create(['name' => $categoryName]);
+            $created++;
+        }
+
+        $message = "Se crearon {$created} categoría(s) exitosamente.";
+        
+        if (count($duplicates) > 0) {
+            $message .= " Las siguientes ya existían: " . implode(', ', $duplicates);
+        }
+
+        return redirect()->route('categories.index')->with('success', $message);
     }
 
     /**
