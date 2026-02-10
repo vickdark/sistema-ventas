@@ -31,7 +31,7 @@ CREATE TABLE `tb_clientes` (
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 ```
-**Conclusión:** La migración de `clients` es consistente con `tb_clientes`. Los nombres de las columnas se han adaptado a las convenciones de Laravel (ej. `id_cliente` a `id`, `nombre_cliente` a `name`, `fyh_creacion` a `created_at`). No hay omisiones ni extras significativos.
+**Conclusión:** La migración de `clients` es consistente con `tb_clientes`. Los nombres de las columnas se han adaptado a las convenciones de Laravel (ej. `id_cliente` a `id`, `nombre_cliente` a `name`, `fyh_creacion` a `created_at`). No hay omisiones ni extras significativos. La tabla de Laravel correspondiente se llama `clients`.
 
 ## 2. `create_categories_table.php` vs `tb_categorias`
 
@@ -52,7 +52,7 @@ CREATE TABLE `tb_categorias` (
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 ```
-**Conclusión:** La migración de `categories` es consistente con `tb_categorias`. Los nombres de las columnas se han adaptado a las convenciones de Laravel. No hay omisiones ni extras significativos.
+**Conclusión:** La migración de `categories` es consistente con `tb_categorias`. Los nombres de las columnas se han adaptado a las convenciones de Laravel. No hay omisiones ni extras significativos. La tabla de Laravel correspondiente se llama `categories`.
 
 ## 3. `create_products_table.php` vs `tb_almacen`
 
@@ -89,7 +89,7 @@ CREATE TABLE `tb_almacen` (
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 ```
-**Conclusión:** La migración de `products` es consistente con `tb_almacen`. Se ha mejorado el tipo de dato para `precio_compra` y `precio_venta` de `varchar` a `decimal(10, 2)`, lo cual es una mejora positiva para la precisión monetaria. Se añadió una clave foránea para `category_id`.
+**Conclusión:** La migración de `products` es consistente con `tb_almacen`. Se ha mejorado el tipo de dato para `precio_compra` y `precio_venta` de `varchar` a `decimal(10, 2)`, lo cual es una mejora positiva para la precisión monetaria. Se añadió una clave foránea para `category_id`. La tabla de Laravel correspondiente se llama `products`.
 
 ## 4. `create_suppliers_table.php` vs `tb_proveedores`
 
@@ -116,7 +116,7 @@ CREATE TABLE `tb_proveedores` (
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 ```
-**Conclusión:** La migración de `suppliers` es consistente con `tb_proveedores`. Los nombres de las columnas se han adaptado a las convenciones de Laravel. No hay omisiones ni extras significativos.
+**Conclusión:** La migración de `suppliers` es consistente con `tb_proveedores`. Los nombres de las columnas se han adaptado a las convenciones de Laravel. No hay omisiones ni extras significativos. La tabla de Laravel correspondiente se llama `suppliers`.
 
 ## 5. `create_purchases_table.php` vs `tb_compras`
 
@@ -146,7 +146,7 @@ CREATE TABLE `tb_compras` (
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 ```
-**Conclusión:** La migración de `purchases` es consistente con `tb_compras`. Se ha mejorado el tipo de dato para `precio_compra` de `varchar` a `decimal(10, 2)`. Se añadieron claves foráneas para `supplier_id` y `product_id`.
+**Conclusión:** La migración de `purchases` es consistente con `tb_compras`. Se ha mejorado el tipo de dato para `precio_compra` de `varchar` a `decimal(10, 2)`. Se añadieron claves foráneas para `supplier_id` y `product_id`. La tabla de Laravel correspondiente se llama `purchases`.
 
 ## 6. `create_sale_items_table.php` vs `tb_carrito`
 
@@ -175,7 +175,7 @@ CREATE TABLE `tb_carrito` (
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 ```
-**Conclusión:** La migración de `sale_items` es consistente con `tb_carrito`. Se ha mejorado el tipo de dato para `precio_unitario` de `varchar` a `decimal(10, 2)`. Se añadió `sale_id` como clave foránea, lo cual es un extra necesario para relacionar los ítems con una venta específica, mejorando la robustez del esquema.
+**Conclusión:** La migración de `sale_items` es consistente con `tb_carrito`. Se ha mejorado el tipo de dato para `precio_unitario` de `varchar` a `decimal(10, 2)`. Se añadió `sale_id` como clave foránea, lo cual es un extra necesario para relacionar los ítems con una venta específica, mejorando la robustez del esquema. La tabla de Laravel correspondiente se llama `sale_items`.
 
 ## 7. `create_sales_table.php` vs `tb_ventas`
 
@@ -212,7 +212,7 @@ CREATE TABLE `tb_ventas` (
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 ```
-**Conclusión:** La migración de `sales` ahora incluye las columnas `payment_type`, `payment_status` y `credit_payment_date` del esquema legado. Los extras (`user_id`, `sale_date`, `voucher`) se mantienen como adiciones útiles. La mejora en el tipo de dato para `total_paid` es positiva. La migración es ahora más consistente con el esquema legado, manteniendo las mejoras de Laravel.
+**Conclusión:** La migración de `sales` ahora incluye las columnas `payment_type`, `payment_status` y `credit_payment_date` del esquema legado. Los extras (`user_id`, `sale_date`, `voucher`) se mantienen como adiciones útiles. La mejora en el tipo de dato para `total_paid` es positiva. La migración es ahora más consistente con el esquema legado, manteniendo las mejoras de Laravel. La tabla de Laravel correspondiente se llama `sales`.
 
 ## 8. `create_abonos_table.php` vs `tb_abonos`
 
@@ -239,7 +239,7 @@ CREATE TABLE `tb_abonos` (
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 ```
-**Conclusión:** La migración de `abonos` es consistente con `tb_abonos`. Se ha mejorado el tipo de dato para `monto` de `varchar` a `decimal(10, 2)`. Se añadió una clave foránea para `sale_id`.
+**Conclusión:** La migración de `abonos` es consistente con `tb_abonos`. Se ha mejorado el tipo de dato para `monto` de `varchar` a `decimal(10, 2)`. Se añadió una clave foránea para `sale_id`. La tabla de Laravel correspondiente se llama `abonos`.
 
 ## 9. `create_cash_registers_table.php` vs `tb_arqueo_caja`
 
@@ -270,7 +270,7 @@ CREATE TABLE `tb_arqueo_caja` (
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 ```
-**Conclusión:** La migración de `cash_registers` es consistente con `tb_arqueo_caja`. Se han mejorado los tipos de datos para `monto_inicial` y `monto_final` de `varchar` a `decimal(10, 2)`. Se adaptaron los nombres de las columnas y se añadió una clave foránea para `user_id`.
+**Conclusión:** La migración de `cash_registers` es consistente con `tb_arqueo_caja`. Se han mejorado los tipos de datos para `monto_inicial` y `monto_final` de `varchar` a `decimal(10, 2)`. Se adaptaron los nombres de las columnas y se añadió una clave foránea para `user_id`. La tabla de Laravel correspondiente se llama `cash_registers`.
 
 ## 10. `create_carts_table.php` vs `tb_carrito`
 
@@ -297,7 +297,7 @@ CREATE TABLE `tb_carrito` (
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 ```
-**Conclusión:** La migración de `carts` es consistente con `tb_carrito`. Se ha mejorado el tipo de dato para `precio_unitario` de `varchar` a `decimal(10, 2)`. Se añadió una clave foránea para `product_id`.
+**Conclusión:** La migración de `carts` es consistente con `tb_carrito`. Se ha mejorado el tipo de dato para `precio_unitario` de `varchar` a `decimal(10, 2)`. Se añadió una clave foránea para `product_id`. La tabla de Laravel correspondiente se llama `carts`.
 
 ## 11. `create_configurations_table.php` vs `tb_configuraciones`
 
@@ -320,7 +320,7 @@ CREATE TABLE `tb_configuraciones` (
   `fyh_actualizacion` datetime NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_spanish_ci;
 ```
-**Conclusión:** La migración de `configurations` es consistente con `tb_configuraciones`. Los nombres de las columnas se han adaptado a las convenciones de Laravel. No hay omisiones ni extras significativos.
+**Conclusión:** La migración de `configurations` es consistente con `tb_configuraciones`. Los nombres de las columnas se han adaptado a las convenciones de Laravel. No hay omisiones ni extras significativos. La tabla de Laravel correspondiente se llama `configurations`.
 
 ## Aclaración sobre `tb_carrito` y el conteo de migraciones
 
