@@ -1,43 +1,69 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid h-100 p-0">
+@push('styles')
+    @vite(['resources/css/pages/pos.css'])
+@endpush
+
+<div class="container-fluid p-0 pos-container">
     <div class="row h-100 g-0">
-        <!-- Panel Izquierdo: Productos -->
-        <div class="col-md-8 bg-light d-flex flex-column" style="height: calc(100vh - 65px);">
-            <div class="p-3 bg-white border-bottom">
-                <div class="row align-items-center">
-                    <div class="col">
-                        <h4 class="mb-0 fw-bold"><i class="fas fa-shopping-cart me-2 text-primary"></i> Punto de Venta</h4>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="input-group shadow-sm border-0 rounded-pill overflow-hidden">
-                            <span class="input-group-text bg-white border-0"><i class="fas fa-search text-muted"></i></span>
-                            <input type="text" id="productSearch" class="form-control border-0 py-2" placeholder="Buscar producto por nombre o código...">
-                        </div>
-                    </div>
+        <!-- Dashboard de Ventas (Izquierda) -->
+        <div class="col-md-8 product-panel">
+            <!-- Buscador Superior -->
+            <div class="search-header">
+                <div class="position-relative flex-grow-1">
+                    <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="z-index: 10;"></i>
+                    <input type="text" id="productSearch" class="form-control pos-search-input py-3" placeholder="Buscar por nombre, código de barras o categoría...">
+                </div>
+                <div class="ms-4 d-none d-lg-flex gap-2">
+                    <span class="badge bg-white text-slate-500 border py-2 px-3 rounded-pill text-muted small">
+                         <i class="fas fa-keyboard me-2 opacity-50"></i> F2: Buscar
+                    </span>
+                    <span class="badge bg-white text-slate-500 border py-2 px-3 rounded-pill text-muted small">
+                         <i class="fas fa-bolt me-2 opacity-50"></i> F4: Cobrar
+                    </span>
                 </div>
             </div>
 
-            <div class="flex-grow-1 overflow-auto p-4">
-                <div id="productsGrid" class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-3">
+            <!-- Carrusel de Filtros -->
+            <div class="categories-bar">
+                <button class="category-btn active">Todos los Productos</button>
+                @php 
+                    $categories = $products->pluck('category.name')->unique()->filter();
+                @endphp
+                @foreach($categories as $cat)
+                    <button class="category-btn">{{ $cat }}</button>
+                @endforeach
+            </div>
+
+            <!-- Listado de Productos -->
+            <div class="product-grid-scroll">
+                <div id="productsGrid" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
                     @foreach($products as $product)
-                        <div class="col product-item" data-name="{{ strtolower($product->name) }}" data-code="{{ strtolower($product->code) }}">
-                            <div class="card border-0 shadow-sm rounded-4 h-100 btn-add-product" 
-                                 style="cursor: pointer;"
+                        <div class="col product-item" 
+                             data-name="{{ strtolower($product->name) }}" 
+                             data-code="{{ strtolower($product->code) }}"
+                             data-category="{{ strtolower($product->category->name ?? '') }}">
+                            <div class="card modern-product-card btn-add-product" 
                                  data-id="{{ $product->id }}" 
                                  data-name="{{ $product->name }}" 
                                  data-price="{{ $product->sale_price }}"
                                  data-stock="{{ $product->stock }}">
-                                <div class="card-body p-3 text-center">
-                                    <div class="bg-primary bg-opacity-10 rounded-3 p-3 mb-2 mx-auto" style="width: 60px; height: 60px;">
-                                        <i class="fas fa-box text-primary fs-4"></i>
-                                    </div>
-                                    <h6 class="fw-bold mb-1 text-truncate">{{ $product->name }}</h6>
-                                    <div class="text-muted small mb-2">{{ $product->code }}</div>
-                                    <div class="text-primary fw-bold fs-5">${{ number_format($product->sale_price, 2) }}</div>
-                                    <div class="badge rounded-pill {{ $product->stock < 10 ? 'bg-danger' : 'bg-success' }} bg-opacity-10 {{ $product->stock < 10 ? 'text-danger' : 'text-success' }} small">
-                                        Stock: {{ $product->stock }}
+                                <div class="product-card-img">
+                                    <span class="stock-badge {{ $product->stock < 10 ? 'bg-danger bg-opacity-10 text-danger' : 'bg-emerald-50 text-emerald-600' }}" 
+                                          style="{{ $product->stock >= 10 ? 'background: #ecfdf5; color: #059669;' : '' }}">
+                                        {{ $product->stock }} disp.
+                                    </span>
+                                    <i class="fas fa-box fa-3x text-slate-200" style="color: #e2e8f0;"></i>
+                                </div>
+                                <div class="card-body p-3">
+                                    <h6 class="fw-bold text-slate-700 mb-1 text-truncate">{{ $product->name }}</h6>
+                                    <p class="text-muted small mb-3 letter-spacing-1">#{{ $product->code }}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span class="h5 fw-extrabold text-indigo-600 mb-0" style="color: #4f46e5;">${{ number_format($product->sale_price, 2) }}</span>
+                                        <div class="bg-indigo-50 p-2 rounded-lg" style="background: #eef2ff; color: #4f46e5; border-radius: 10px;">
+                                            <i class="fas fa-plus"></i>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -47,73 +73,140 @@
             </div>
         </div>
 
-        <!-- Panel Derecho: Carrito y Checkout -->
-        <div class="col-md-4 bg-white border-start d-flex flex-column" style="height: calc(100vh - 65px);">
-            <div class="p-3 border-bottom">
-                <h5 class="fw-bold mb-3">Detalle de Venta #{{ $nextNroVenta }}</h5>
-                <div class="mb-3">
-                    <label class="form-label small fw-bold">Cliente</label>
-                    <select id="client_id" class="form-select rounded-3 border-light bg-light shadow-sm" required>
-                        <option value="">Seleccione un cliente...</option>
-                        @foreach($clients as $client)
-                            <option value="{{ $client->id }}">{{ $client->name }} ({{ $client->nit_ci }})</option>
-                        @endforeach
-                    </select>
+        <!-- Panel de Carrito (Derecha) -->
+        <div class="col-md-4 cart-sidebar">
+            <div class="cart-header">
+                <div>
+                    <h5 class="fw-extrabold text-slate-800 mb-0">Detalle de Venta</h5>
+                    <span class="text-muted small">Ticket #{{ str_pad($nextNroVenta, 6, '0', STR_PAD_LEFT) }}</span>
+                </div>
+                <button class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold flex-shrink-0" id="btnClearCart">
+                    <i class="fas fa-trash-alt me-2"></i>Vaciar
+                </button>
+            </div>
+
+            <div class="p-3 bg-slate-50" style="background: #f8fafc;">
+                <label class="form-label small fw-bold text-slate-500 mb-1">CLIENTE</label>
+                <div class="d-flex gap-2">
+                    <div class="flex-grow-1">
+                        <select id="client_id" class="form-select border-0 shadow-sm" style="border-radius: 12px; height: 45px;">
+                            <option value="">Consumidor Final</option>
+                            @foreach($clients as $client)
+                                <option value="{{ $client->id }}">{{ $client->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <button class="btn btn-white border-0 shadow-sm" id="btnOpenQuickClient" style="border-radius: 12px; width: 45px;" title="Nuevo Cliente">
+                        <i class="fas fa-plus text-indigo-600"></i>
+                    </button>
                 </div>
             </div>
 
-            <div class="flex-grow-1 overflow-auto p-2" id="cartItems">
-                <div class="text-center py-4 text-muted opacity-50" id="emptyCart">
-                    <i class="fas fa-shopping-basket fa-3x mb-2"></i>
-                    <p class="small">El carrito está vacío</p>
+            <div class="cart-items-scroll" id="cartItems">
+                <div class="text-center py-5 text-muted opacity-40" id="emptyCart">
+                    <i class="fas fa-shopping-basket fa-4x mb-3"></i>
+                    <h6 class="fw-bold">El resumen está vacío</h6>
+                    <p class="small">Añade productos para continuar</p>
                 </div>
-                <!-- Cart items will be injected here -->
             </div>
 
-            <div class="p-3 bg-light border-top mt-auto">
-                <div class="d-flex justify-content-between mb-1">
-                    <span class="text-muted small">Subtotal</span>
-                    <span class="fw-bold small" id="subtotalLabel">$0.00</span>
-                </div>
-                <div class="d-flex justify-content-between mb-2 align-items-center">
-                    <h5 class="mb-0 fw-bold">TOTAL</h5>
-                    <h4 class="mb-0 fw-bold text-primary" id="totalLabel">$0.00</h4>
+            <div class="checkout-footer">
+                <div class="total-display">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="text-slate-500 fw-bold">Subtotal</span>
+                        <span class="fw-bold text-slate-800" id="subtotalLabel">$0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center pt-2">
+                        <h3 class="fw-extrabold text-slate-900 mb-0">Total</h3>
+                        <h2 class="fw-extrabold text-indigo-600 mb-0" id="totalLabel" style="color: #4f46e5;">$0.00</h2>
+                    </div>
                 </div>
 
-                <div class="mb-2">
-                    <div class="row g-1" id="paymentButtons">
-                        <div class="col">
-                            <input type="radio" class="btn-check" name="payment_type" id="pay_contado" value="CONTADO" checked>
-                            <label class="btn btn-outline-primary w-100 rounded-3 py-1 px-1" for="pay_contado">
-                                <i class="fas fa-money-bill-wave d-block mb-0 small"></i> <span style="font-size: 0.75rem;">Efectivo</span>
-                            </label>
+                <div class="row g-2 mb-4">
+                    <div class="col-4">
+                        <input type="radio" class="btn-check" name="payment_type" id="pay_contado" value="CONTADO" checked>
+                        <label class="btn btn-outline-indigo pay-cash w-100 py-3 rounded-4 border-2" for="pay_contado">
+                            <i class="fas fa-money-bill-wave d-block mb-1"></i> <span class="small fw-bold">Efectivo</span>
+                        </label>
+                    </div>
+                    <div class="col-4">
+                        <input type="radio" class="btn-check" name="payment_type" id="pay_transfer" value="TRANSFERENCIA">
+                        <label class="btn btn-outline-indigo pay-bank w-100 py-3 rounded-4 border-2" for="pay_transfer">
+                            <i class="fas fa-university d-block mb-1"></i> <span class="small fw-bold">Banco</span>
+                        </label>
+                    </div>
+                    <div class="col-4">
+                        <input type="radio" class="btn-check" name="payment_type" id="pay_credito" value="CREDITO">
+                        <label class="btn btn-outline-indigo pay-credit w-100 py-3 rounded-4 border-2" for="pay_credito">
+                            <i class="fas fa-clock d-block mb-1"></i> <span class="small fw-bold">Crédito</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Calculadora de Cambio para Efectivo -->
+                <div id="cashCalculation" class="bg-indigo-50 p-3 rounded-4 mb-4 border border-indigo-100" style="background: #f5f3ff; border: 1px solid #ddd6fe;">
+                    <div class="row align-items-center">
+                        <div class="col-6">
+                            <label class="form-label small fw-bold text-indigo-700">Paga con:</label>
+                            <input type="number" id="received_amount" class="form-control border-0 shadow-sm" placeholder="0.00" style="border-radius: 10px;">
                         </div>
-                        <div class="col">
-                            <input type="radio" class="btn-check" name="payment_type" id="pay_transfer" value="TRANSFERENCIA">
-                            <label class="btn btn-outline-primary w-100 rounded-3 py-1 px-1" for="pay_transfer">
-                                <i class="fas fa-mobile-alt d-block mb-0 small"></i> <span style="font-size: 0.75rem;">Transf.</span>
-                            </label>
-                        </div>
-                        <div class="col">
-                            <input type="radio" class="btn-check" name="payment_type" id="pay_credito" value="CREDITO">
-                            <label class="btn btn-outline-primary w-100 rounded-3 py-1 px-1" for="pay_credito">
-                                <i class="fas fa-calendar-alt d-block mb-0 small"></i> <span style="font-size: 0.75rem;">Crédito</span>
-                            </label>
+                        <div class="col-6 text-end">
+                            <label class="form-label small fw-bold text-indigo-700">Cambio:</label>
+                            <div class="h4 fw-extrabold text-indigo-600 mb-0" id="changeLabel">$0.00</div>
                         </div>
                     </div>
                 </div>
 
-                <div id="creditDateSection" class="mb-2 d-none">
-                    <label class="form-label small fw-bold mb-1" style="font-size: 0.7rem;">Fecha Límite (Opcional)</label>
-                    <input type="date" id="credit_payment_date" class="form-control form-control-sm rounded-3 border-light bg-light" value="">
+                <!-- Fecha crédito (condicional) -->
+                <div id="creditDateSection" class="mb-4 d-none">
+                    <label class="form-label small fw-bold">Fecha Límite</label>
+                    <input type="date" id="credit_payment_date" class="form-control rounded-4 shadow-sm" value="">
                 </div>
 
-                <div class="mb-3">
-                    <input type="text" id="voucher" class="form-control form-control-sm rounded-3 border-light bg-light" placeholder="Referencia / Comprobante">
+                <div class="mb-4">
+                    <input type="text" id="voucher" class="form-control border-0 bg-slate-100 py-3 px-4" placeholder="Referencia / Comprobante" style="background: #f1f5f9; border-radius: 12px;">
                 </div>
 
-                <button id="btnProcessSale" class="btn btn-primary w-100 py-2 rounded-pill fw-bold shadow-sm">
-                    <i class="fas fa-check-circle me-2"></i> PROCESAR VENTA
+                <button id="btnProcessSale" class="btn-pay-action" disabled>
+                    <i class="fas fa-check-circle me-2"></i> PROCESAR PAGO
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cliente Rápido -->
+<div class="modal fade" id="quickClientModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg rounded-4">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Nuevo Cliente Rápido</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <form id="quickClientForm">
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Nombre Completo</label>
+                        <input type="text" name="name" class="form-control rounded-3 border-light bg-light" placeholder="Ej. Juan Pérez" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">NIT / CI</label>
+                        <input type="text" name="nit_ci" class="form-control rounded-3 border-light bg-light" placeholder="Ej. 1234567" required title="NIT o Cédula de Identidad">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label small fw-bold">Celular (Opcional)</label>
+                        <input type="text" name="phone" class="form-control rounded-3 border-light bg-light" placeholder="Ej. 70000000">
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label small fw-bold">Correo (Opcional)</label>
+                        <input type="email" name="email" class="form-control rounded-3 border-light bg-light" placeholder="cliente@correo.com">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnSaveQuickClient" class="btn btn-primary rounded-pill px-4 fw-bold">
+                    Guardar Cliente
                 </button>
             </div>
         </div>
@@ -121,33 +214,49 @@
 </div>
 
 <template id="cartItemTemplate">
-    <div class="cart-item-row p-2 bg-white border rounded-3 shadow-sm mb-2">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-            <span class="fw-bold text-dark item-name small text-truncate" style="max-width: 150px;"></span>
-            <button class="btn btn-link text-danger p-0 btn-remove-item"><i class="fas fa-times-circle small"></i></button>
+    <div class="cart-item-modern shadow-sm">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+            <span class="fw-bold text-slate-800 item-name small text-truncate pe-2"></span>
+            <button class="btn btn-link text-danger p-0 btn-remove-item border-0 outline-0" title="Eliminar">
+                <i class="fas fa-times-circle"></i>
+            </button>
         </div>
         <div class="d-flex justify-content-between align-items-center">
-            <div class="input-group input-group-sm" style="width: 80px;">
-                <button class="btn btn-outline-secondary btn-minus px-2 py-0"><i class="fas fa-minus small"></i></button>
-                <input type="text" class="form-control text-center border-secondary item-qty p-0" value="1" readonly style="font-size: 0.8rem;">
-                <button class="btn btn-outline-secondary btn-plus px-2 py-0"><i class="fas fa-plus small"></i></button>
+            <div class="qty-control" style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; padding: 2px;">
+                <button class="btn-qty btn-minus border-0 bg-transparent text-muted px-2"><i class="fas fa-minus small"></i></button>
+                <input type="text" class="form-control form-control-sm text-center border-0 bg-transparent item-qty fw-bold p-0" value="1" readonly style="width: 25px; font-size: 0.8rem;">
+                <button class="btn-qty btn-plus border-0 bg-transparent text-muted px-2"><i class="fas fa-plus small"></i></button>
             </div>
-            <div class="item-price-total fw-bold text-primary small"></div>
+            <div class="text-end">
+                <div class="text-muted small item-price-unit" style="font-size: 0.65rem;"></div>
+                <div class="item-price-total fw-extrabold text-indigo-600"></div>
+            </div>
         </div>
     </div>
 </template>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        initSalesPOS({
-            routes: {
-                store: "{{ route('sales.store') }}",
-                index: "{{ route('sales.index') }}"
-            },
-            tokens: {
-                csrf: "{{ csrf_token() }}"
-            }
-        });
+        // Estilos específicos para el POS
+        document.body.classList.add('pos-page');
+
+        // Minimizar sidebar automáticamente para el POS
+        if (window.innerWidth > 991) {
+            document.body.classList.add('sidebar-mini');
+        }
+
+        if (typeof initSalesPOS === 'function') {
+            initSalesPOS({
+                routes: {
+                    store: "{{ route('sales.store') }}",
+                    index: "{{ route('sales.index') }}",
+                    clients_store: "{{ route('clients.store') }}"
+                },
+                tokens: {
+                    csrf: "{{ csrf_token() }}"
+                }
+            });
+        }
     });
 </script>
 @endsection

@@ -58,6 +58,31 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
+        // Detect if it's a single client (POS) or bulk (Regular form)
+        if ($request->has('name')) {
+            $rules = [
+                'name' => 'required|string|max:255',
+                'nit_ci' => 'required|string|max:255|unique:clients,nit_ci',
+                'phone' => 'nullable|string|max:255',
+                'email' => 'nullable|email|max:255',
+            ];
+            
+            if ($request->ajax() || $request->wantsJson()) {
+                $request->validate($rules);
+                $client = Client::create($request->all());
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Cliente registrado correctamente.',
+                    'data' => $client
+                ]);
+            }
+
+            $request->validate($rules);
+            Client::create($request->all());
+            return redirect()->route('clients.index')->with('success', 'Cliente registrado correctamente.');
+        }
+
+        // Bulk creation logic
         $request->validate([
             'clients' => 'required|array|min:1|max:5',
             'clients.*.name' => 'required|string|max:255',
@@ -74,7 +99,6 @@ class ClientController extends Controller
         $duplicates = [];
 
         foreach ($request->clients as $clientData) {
-            // Verificar si ya existe por NIT/CI
             if (Client::where('nit_ci', $clientData['nit_ci'])->exists()) {
                 $duplicates[] = $clientData['nit_ci'];
                 continue;
@@ -85,7 +109,6 @@ class ClientController extends Controller
         }
 
         $message = "Se registraron {$created} cliente(s) exitosamente.";
-        
         if (count($duplicates) > 0) {
             $message .= " Los siguientes NITs/CIs ya existían: " . implode(', ', $duplicates);
         }

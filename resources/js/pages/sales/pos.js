@@ -3,6 +3,7 @@ import Notifications from '../../modules/Notifications';
 export function initSalesPOS(config) {
     const { routes, tokens } = config;
     let cart = [];
+    let saleTotal = 0;
 
     // Elements
     const clientSelect = new TomSelect('#client_id', {
@@ -11,8 +12,9 @@ export function initSalesPOS(config) {
             field: "text",
             direction: "asc"
         },
-        placeholder: 'Seleccione un cliente...'
+        placeholder: 'Seleccione cliente...'
     });
+    
     const productSearch = document.getElementById('productSearch');
     const productsGrid = document.getElementById('productsGrid');
     const cartItems = document.getElementById('cartItems');
@@ -20,20 +22,48 @@ export function initSalesPOS(config) {
     const totalLabel = document.getElementById('totalLabel');
     const subtotalLabel = document.getElementById('subtotalLabel');
     const btnProcessSale = document.getElementById('btnProcessSale');
+    const btnClearCart = document.getElementById('btnClearCart');
     const paymentRadios = document.getElementsByName('payment_type');
     const creditDateSection = document.getElementById('creditDateSection');
+    const cashCalculation = document.getElementById('cashCalculation');
+    const receivedAmountInput = document.getElementById('received_amount');
+    const changeLabel = document.getElementById('changeLabel');
+
+    // Quick Client Elements
+    const btnSaveQuickClient = document.getElementById('btnSaveQuickClient');
+    const quickClientForm = document.getElementById('quickClientForm');
+    const quickClientModal = document.getElementById('quickClientModal') ? new bootstrap.Modal(document.getElementById('quickClientModal')) : null;
+    const btnOpenQuickClient = document.querySelector('[title="Nuevo Cliente"]');
 
     // Search Logic
-    productSearch.addEventListener('input', (e) => {
-        const query = e.target.value.toLowerCase();
+    const filterProducts = () => {
+        const query = productSearch.value.toLowerCase();
+        const activeCategory = document.querySelector('.category-btn.active')?.textContent.trim().toLowerCase();
+
         document.querySelectorAll('.product-item').forEach(item => {
             const name = item.dataset.name;
             const code = item.dataset.code;
-            if (name.includes(query) || code.includes(query)) {
+            const category = item.dataset.category || '';
+            
+            const matchesSearch = name.includes(query) || code.includes(query);
+            const matchesCategory = activeCategory === 'todos los productos' || category === activeCategory;
+
+            if (matchesSearch && matchesCategory) {
                 item.classList.remove('d-none');
             } else {
                 item.classList.add('d-none');
             }
+        });
+    };
+
+    productSearch.addEventListener('input', filterProducts);
+
+    // Category Buttons Logic
+    document.querySelectorAll('.category-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filterProducts();
         });
     });
 
@@ -42,27 +72,55 @@ export function initSalesPOS(config) {
         radio.addEventListener('change', () => {
             if (radio.value === 'CREDITO') {
                 creditDateSection.classList.remove('d-none');
+                cashCalculation.classList.add('d-none');
+            } else if (radio.value === 'CONTADO') {
+                creditDateSection.classList.add('d-none');
+                cashCalculation.classList.remove('d-none');
             } else {
                 creditDateSection.classList.add('d-none');
+                cashCalculation.classList.add('d-none');
             }
         });
     });
 
-    // Add Product to Cart
-    document.querySelectorAll('.btn-add-product').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const product = {
-                id: btn.dataset.id,
-                name: btn.dataset.name,
-                price: parseFloat(btn.dataset.price),
-                stock: parseInt(btn.dataset.stock)
-            };
-            addToCart(product);
-        });
+    // Change Calculation
+    receivedAmountInput.addEventListener('input', calculateChange);
+
+    function calculateChange() {
+        const received = parseFloat(receivedAmountInput.value) || 0;
+        const change = received - saleTotal;
+        
+        if (changeLabel) {
+            changeLabel.textContent = `$${(change > 0 ? change : 0).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+            changeLabel.className = change >= 0 ? 'h5 fw-bold text-success mb-0' : 'h5 fw-bold text-danger mb-0';
+        }
+    }
+
+    // Add Product to Cart (Using delegation to avoid multiple listener issues)
+    productsGrid.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-add-product');
+        if (!btn) return;
+
+        const product = {
+            id: btn.dataset.id,
+            name: btn.dataset.name,
+            price: parseFloat(btn.dataset.price),
+            stock: parseInt(btn.dataset.stock)
+        };
+        addToCart(product);
+        
+        // Visual feedback
+        const card = btn.classList.contains('card') ? btn : btn.querySelector('.card');
+        if (card) {
+            card.style.transform = 'scale(0.95)';
+            setTimeout(() => card.style.transform = '', 100);
+        }
     });
 
     function addToCart(product) {
-        const existing = cart.find(item => item.id === product.id);
+        // Ensure comparison is robust by converting both to String
+        const existing = cart.find(item => String(item.id) === String(product.id));
+        
         if (existing) {
             if (existing.quantity >= product.stock) {
                 Notify.error('Stock insuficiente', `No hay más stock disponible para ${product.name}`);
@@ -76,11 +134,12 @@ export function initSalesPOS(config) {
     }
 
     function renderCart() {
-        cartItems.querySelectorAll('.cart-item-row').forEach(el => el.remove());
+        cartItems.querySelectorAll('.cart-item-modern').forEach(el => el.remove());
         
         if (cart.length === 0) {
             emptyCart.classList.remove('d-none');
             btnProcessSale.disabled = true;
+            saleTotal = 0;
         } else {
             emptyCart.classList.add('d-none');
             btnProcessSale.disabled = false;
@@ -91,15 +150,19 @@ export function initSalesPOS(config) {
 
         cart.forEach((item, index) => {
             const clone = template.content.cloneNode(true);
-            const row = clone.querySelector('.cart-item-row');
+            const row = clone.querySelector('.cart-item-modern');
             
             row.querySelector('.item-name').textContent = item.name;
             row.querySelector('.item-qty').value = item.quantity;
-            row.querySelector('.item-price-total').textContent = `$${(item.price * item.quantity).toLocaleString()}`;
+            row.querySelector('.item-price-unit').textContent = `$${item.price.toLocaleString()} c/u`;
+            row.querySelector('.item-price-total').textContent = `$${(item.price * item.quantity).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
 
             row.querySelector('.btn-minus').addEventListener('click', () => {
                 if (item.quantity > 1) {
                     item.quantity--;
+                    renderCart();
+                } else {
+                    cart.splice(index, 1);
                     renderCart();
                 }
             });
@@ -122,9 +185,93 @@ export function initSalesPOS(config) {
             total += item.price * item.quantity;
         });
 
-        totalLabel.textContent = `$${total.toLocaleString()}`;
-        subtotalLabel.textContent = `$${total.toLocaleString()}`;
+        saleTotal = total;
+        totalLabel.textContent = `$${total.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        subtotalLabel.textContent = `$${total.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+        calculateChange();
     }
+
+    // Clear Cart
+    btnClearCart.addEventListener('click', async () => {
+        if (cart.length === 0) return;
+        
+        const confirmed = await Notify.confirm({
+            title: '¿Vaciar carrito?',
+            text: 'Se eliminarán todos los productos seleccionados.',
+            confirmButtonText: 'Sí, vaciar',
+            confirmButtonColor: '#dc3545'
+        });
+
+        if (confirmed) {
+            cart = [];
+            renderCart();
+        }
+    });
+
+    // Quick Client Logic
+    if (btnOpenQuickClient && quickClientModal) {
+        btnOpenQuickClient.addEventListener('click', () => quickClientModal.show());
+    }
+
+    if (btnSaveQuickClient) {
+        btnSaveQuickClient.addEventListener('click', async () => {
+            const formData = new FormData(quickClientForm);
+            const data = Object.fromEntries(formData.entries());
+
+            if (!data.name || !data.nit_ci) {
+                Notify.error('Campos requeridos', 'Nombre y NIT/CI son obligatorios.');
+                return;
+            }
+
+            btnSaveQuickClient.disabled = true;
+            btnSaveQuickClient.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> GUARDANDO...';
+
+            try {
+                const response = await fetch(routes.clients_store, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': tokens.csrf,
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    Notify.success('Cliente creado', 'El cliente fue registrado exitosamente.');
+                    
+                    // Add to TomSelect and select it
+                    clientSelect.addOption({ value: result.data.id, text: `${result.data.name} (${result.data.nit_ci})` });
+                    clientSelect.setValue(result.data.id);
+                    
+                    quickClientModal.hide();
+                    quickClientForm.reset();
+                } else {
+                    Notify.error('Error', result.message || 'No se pudo crear el cliente.');
+                }
+            } catch (error) {
+                Notify.error('Error de conexión');
+                console.error(error);
+            } finally {
+                btnSaveQuickClient.disabled = false;
+                btnSaveQuickClient.innerHTML = 'Guardar Cliente';
+            }
+        });
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'F2') {
+            e.preventDefault();
+            productSearch.focus();
+        }
+        if (e.key === 'F4') {
+            e.preventDefault();
+            btnProcessSale.click();
+        }
+    });
 
     // Process Sale
     btnProcessSale.addEventListener('click', async () => {
@@ -172,7 +319,6 @@ export function initSalesPOS(config) {
                 if (response.ok) {
                     Notify.success('Venta exitosa', result.message);
                     
-                    // Offer to print ticket
                     const printConfirmed = await Notify.confirm({
                         title: 'Venta Registrada',
                         text: '¿Desea imprimir el ticket de venta?',
@@ -191,13 +337,13 @@ export function initSalesPOS(config) {
                 } else {
                     Notify.error('Error', result.message || 'Error al procesar la venta');
                     btnProcessSale.disabled = false;
-                    btnProcessSale.innerHTML = '<i class="fas fa-check-circle me-2"></i> PROCESAR VENTA';
+                    btnProcessSale.innerHTML = '<i class="fas fa-shopping-cart me-2"></i> PROCESAR VENTA';
                 }
             } catch (error) {
                 Notify.error('Error de conexión');
                 console.error(error);
                 btnProcessSale.disabled = false;
-                btnProcessSale.innerHTML = '<i class="fas fa-check-circle me-2"></i> PROCESAR VENTA';
+                btnProcessSale.innerHTML = '<i class="fas fa-shopping-cart me-2"></i> PROCESAR VENTA';
             }
         }
     });

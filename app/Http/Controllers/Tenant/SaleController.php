@@ -58,7 +58,7 @@ class SaleController extends Controller
         }
 
         $clients = Client::all();
-        $products = Product::where('stock', '>', 0)->get();
+        $products = Product::with('category')->where('stock', '>', 0)->get();
         $lastSale = Sale::latest()->first();
         $nextNroVenta = $lastSale ? $lastSale->nro_venta + 1 : 1;
 
