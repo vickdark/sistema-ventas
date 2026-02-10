@@ -45,7 +45,13 @@ Route::middleware([
                 'categories' => \App\Http\Controllers\Tenant\CategoryController::class,
                 'purchases' => \App\Http\Controllers\Tenant\PurchaseController::class,
                 'suppliers' => \App\Http\Controllers\Tenant\SupplierController::class,
+                'cash-registers' => \App\Http\Controllers\Tenant\CashRegisterController::class,
             ]);
+
+            Route::get('cash-registers/{cash_register}/close', [\App\Http\Controllers\Tenant\CashRegisterController::class, 'closeForm'])->name('cash-registers.close-form');
+            Route::post('cash-registers/{cash_register}/close', [\App\Http\Controllers\Tenant\CashRegisterController::class, 'close'])->name('cash-registers.close');
+
+            Route::post('configurations', [\App\Http\Controllers\Tenant\ConfigurationController::class, 'update'])->name('configurations.update');
 
             // Gestión de Roles y Seguridad (Rutas adicionales)
             Route::get('roles/{role}/permisos', [\App\Http\Controllers\Roles\RoleController::class, 'permissions'])->name('roles.edit_permissions');

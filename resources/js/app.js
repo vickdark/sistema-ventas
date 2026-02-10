@@ -21,6 +21,7 @@ import { initClientsIndex } from './pages/clients/index';
 import { initProductsIndex } from './pages/products/index';
 import { initPurchasesIndex } from './pages/purchases/index';
 import { initSuppliersIndex } from './pages/suppliers/index';
+import { initCashRegistersIndex } from './pages/cash_registers/index';
 
 //Opciones de expotacion para Grid JS 
 import { jsPDF } from 'jspdf';
@@ -46,6 +47,7 @@ window.initClientsIndex = initClientsIndex;
 window.initProductsIndex = initProductsIndex;
 window.initPurchasesIndex = initPurchasesIndex;
 window.initSuppliersIndex = initSuppliersIndex;
+window.initCashRegistersIndex = initCashRegistersIndex;
 
 // Initialize
 Alpine.start();

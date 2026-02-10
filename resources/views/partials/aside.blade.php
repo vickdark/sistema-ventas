@@ -106,7 +106,17 @@
                         <div class="collapse {{ $isActive ? 'show' : '' }}" id="menu-{{ $moduleSlug }}" data-bs-parent="#sidebarAccordion">
                             <nav class="nav flex-column ms-3 mt-1">
                                 @foreach($items as $item)
-                                    <a class="nav-link py-1 {{ request()->routeIs($item->slug) ? 'active' : '' }}" href="{{ Route::has($item->slug) ? route($item->slug) : '#' }}">
+                                    @php
+                                        $itemUrl = '#';
+                                        if (Route::has($item->slug)) {
+                                            try {
+                                                $itemUrl = route($item->slug);
+                                            } catch (\Exception $e) {
+                                                $itemUrl = '#';
+                                            }
+                                        }
+                                    @endphp
+                                    <a class="nav-link py-1 {{ request()->routeIs($item->slug) ? 'active' : '' }}" href="{{ $itemUrl }}">
                                         <span class="small">{{ $item->nombre }}</span>
                                     </a>
                                 @endforeach

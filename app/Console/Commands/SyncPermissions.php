@@ -201,7 +201,7 @@ class SyncPermissions extends Command
         $action = end($parts);
 
         // Excluimos explícitamente las acciones que requieren ID o no tienen sentido en el menú
-        $excludedActions = ['show', 'edit', 'destroy', 'update', 'store', 'update_permissions', 'edit_permissions', 'sync'];
+        $excludedActions = ['show', 'edit', 'destroy', 'update', 'store', 'update_permissions', 'edit_permissions', 'sync', 'close', 'close-form'];
         
         if (in_array($action, $excludedActions)) {
             return false;
