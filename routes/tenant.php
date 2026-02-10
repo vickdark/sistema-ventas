@@ -33,7 +33,7 @@ Route::middleware([
         // Tenant Login/Auth
         require __DIR__.'/auth.php';
 
-        Route::middleware('auth')->group(function () {
+        Route::middleware(['auth', \App\Http\Middleware\CheckPermission::class])->group(function () {
             Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
             Route::get('/dashboard/admin', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard.admin');
             
