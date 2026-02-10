@@ -16,6 +16,11 @@ import Notifications from './modules/Notifications';
 // Import Pages
 import { initUsersIndex } from './pages/usuarios/index';
 import { initTenantsIndex } from './pages/central/tenants/index';
+import { initCategoriesIndex } from './pages/categories/index';
+import { initClientsIndex } from './pages/clients/index';
+import { initProductsIndex } from './pages/products/index';
+import { initPurchasesIndex } from './pages/purchases/index';
+import { initSuppliersIndex } from './pages/suppliers/index';
 
 //Opciones de expotacion para Grid JS 
 import { jsPDF } from 'jspdf';
@@ -36,6 +41,11 @@ window.DataGrid = DataGrid;
 window.Notify = Notifications;
 window.initUsersIndex = initUsersIndex;
 window.initTenantsIndex = initTenantsIndex;
+window.initCategoriesIndex = initCategoriesIndex;
+window.initClientsIndex = initClientsIndex;
+window.initProductsIndex = initProductsIndex;
+window.initPurchasesIndex = initPurchasesIndex;
+window.initSuppliersIndex = initSuppliersIndex;
 
 // Initialize
 Alpine.start();

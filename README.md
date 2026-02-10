@@ -145,6 +145,12 @@ npm run build
 
 ## �🔧 Comandos Útiles de Artisan
 
+### Gestión de Base de Datos Central
+
+*   `php artisan migrate`: Ejecuta las migraciones pendientes para la base de datos **central**.
+*   `php artisan db:seed --class=CentralAdminSeeder`: Ejecuta el seeder `CentralAdminSeeder` para la base de datos **central`.
+*   `php artisan migrate:fresh`: Elimina todas las tablas de la base de datos **central** y ejecuta todas las migraciones centrales. Para sembrar los datos del administrador central, ejecuta `php artisan db:seed --class=CentralAdminSeeder` por separado.
+
 ### Gestión de Inquilinos (stancl/tenancy)
 *   `php artisan tenants:migrate`: Ejecuta las migraciones en **todos** los inquilinos.
 *   `php artisan tenants:rollback`: Revierte la última migración en todos los inquilinos.

@@ -40,6 +40,11 @@ Route::middleware([
             Route::resources([
                 'usuarios' => \App\Http\Controllers\Usuarios\UsuarioController::class,
                 'roles' => \App\Http\Controllers\Roles\RoleController::class,
+                'clients' => \App\Http\Controllers\Tenant\ClientController::class,
+                'products' => \App\Http\Controllers\Tenant\ProductController::class,
+                'categories' => \App\Http\Controllers\Tenant\CategoryController::class,
+                'purchases' => \App\Http\Controllers\Tenant\PurchaseController::class,
+                'suppliers' => \App\Http\Controllers\Tenant\SupplierController::class,
             ]);
 
             // Gestión de Roles y Seguridad (Rutas adicionales)
