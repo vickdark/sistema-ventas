@@ -26,6 +26,9 @@ return Application::configure(basePath: dirname(__DIR__))
             }
             return route('login');
         });
+
+        // Prevenir caché del botón atrás
+        $middleware->append(\App\Http\Middleware\PreventBackHistory::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
