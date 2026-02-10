@@ -17,16 +17,60 @@
         <div class="col-md-8">
             <div class="card border-0 shadow-soft rounded-4">
                 <div class="card-body p-4">
+                    <div class="alert alert-info rounded-3 small mb-4">
+                        <i class="fas fa-exclamation-triangle me-2"></i> 
+                        <strong>Nota:</strong> Al editar la cantidad, el stock del producto se ajustará automáticamente.
+                    </div>
+
                     <form action="{{ route('purchases.update', $purchase) }}" method="POST">
                         @csrf
                         @method('PUT')
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="nro_compra" class="form-label">Número de Compra</label>
+                                <input type="number" class="form-control rounded-3 bg-light @error('nro_compra') is-invalid @enderror" id="nro_compra" name="nro_compra" value="{{ old('nro_compra', $purchase->nro_compra) }}" required readonly>
+                                @error('nro_compra')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="purchase_date" class="form-label">Fecha de Compra</label>
+                                <input type="date" class="form-control rounded-3 @error('purchase_date') is-invalid @enderror" id="purchase_date" name="purchase_date" value="{{ old('purchase_date', $purchase->purchase_date) }}" required>
+                                @error('purchase_date')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="supplier_id" class="form-label">Proveedor</label>
+                                <select class="form-select rounded-3 @error('supplier_id') is-invalid @enderror" id="supplier_id" name="supplier_id" required>
+                                    @foreach($suppliers as $supplier)
+                                        <option value="{{ $supplier->id }}" {{ old('supplier_id', $purchase->supplier_id) == $supplier->id ? 'selected' : '' }}>
+                                            {{ $supplier->name }} ({{ $supplier->company }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('supplier_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="voucher" class="form-label">Comprobante / Factura</label>
+                                <input type="text" class="form-control rounded-3 @error('voucher') is-invalid @enderror" id="voucher" name="voucher" value="{{ old('voucher', $purchase->voucher) }}" required>
+                                @error('voucher')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                        </div>
+
                         <div class="mb-3">
                             <label for="product_id" class="form-label">Producto</label>
                             <select class="form-select rounded-3 @error('product_id') is-invalid @enderror" id="product_id" name="product_id" required>
-                                <option value="" disabled>Selecciona un producto</option>
                                 @foreach($products as $product)
                                     <option value="{{ $product->id }}" {{ old('product_id', $purchase->product_id) == $product->id ? 'selected' : '' }}>
-                                        {{ $product->name }}
+                                        {{ $product->code }} - {{ $product->name }}
                                     </option>
                                 @endforeach
                             </select>
@@ -35,56 +79,29 @@
                             @enderror
                         </div>
 
-                        <div class="mb-3">
-                            <label for="supplier_id" class="form-label">Proveedor</label>
-                            <select class="form-select rounded-3 @error('supplier_id') is-invalid @enderror" id="supplier_id" name="supplier_id" required>
-                                <option value="" disabled>Selecciona un proveedor</option>
-                                @foreach($suppliers as $supplier)
-                                    <option value="{{ $supplier->id }}" {{ old('supplier_id', $purchase->supplier_id) == $supplier->id ? 'selected' : '' }}>
-                                        {{ $supplier->name }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('supplier_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="quantity" class="form-label">Cantidad</label>
+                                <input type="number" class="form-control rounded-3 @error('quantity') is-invalid @enderror" id="quantity" name="quantity" value="{{ old('quantity', $purchase->quantity) }}" required min="1">
+                                @error('quantity')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label for="price" class="form-label">Precio Unitario de Compra</label>
+                                <div class="input-group">
+                                    <span class="input-group-text rounded-start-3">$</span>
+                                    <input type="number" step="0.01" class="form-control rounded-end-3 @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price', $purchase->price) }}" required min="0">
+                                </div>
+                                @error('price')
+                                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
-                        <div class="mb-3">
-                            <label for="quantity" class="form-label">Cantidad</label>
-                            <input type="number" class="form-control rounded-3 @error('quantity') is-invalid @enderror" id="quantity" name="quantity" value="{{ old('quantity', $purchase->quantity) }}" required>
-                            @error('quantity')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="price" class="form-label">Precio</label>
-                            <input type="number" step="0.01" class="form-control rounded-3 @error('price') is-invalid @enderror" id="price" name="price" value="{{ old('price', $purchase->price) }}" required>
-                            @error('price')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-3">
-                            <label for="purchase_date" class="form-label">Fecha de Compra</label>
-                            <input type="date" class="form-control rounded-3 @error('purchase_date') is-invalid @enderror" id="purchase_date" name="purchase_date" value="{{ old('purchase_date', $purchase->purchase_date) }}" required>
-                            @error('purchase_date')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="mb-4">
-                            <label for="voucher" class="form-label">Comprobante</label>
-                            <input type="text" class="form-control rounded-3 @error('voucher') is-invalid @enderror" id="voucher" name="voucher" value="{{ old('voucher', $purchase->voucher) }}">
-                            @error('voucher')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        <div class="d-grid">
+                        <div class="d-grid mt-2">
                             <button type="submit" class="btn btn-primary rounded-pill py-2">
-                                <i class="fas fa-sync me-2"></i> Actualizar Compra
+                                <i class="fas fa-sync me-2"></i> Actualizar Compra y Stock
                             </button>
                         </div>
                     </form>
@@ -93,4 +110,26 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (window.TomSelect) {
+            new TomSelect('#supplier_id', {
+                create: false,
+                sortField: {
+                    field: 'text',
+                    direction: 'asc'
+                }
+            });
+
+            new TomSelect('#product_id', {
+                create: false,
+                sortField: {
+                    field: 'text',
+                    direction: 'asc'
+                }
+            });
+        }
+    });
+</script>
 @endsection

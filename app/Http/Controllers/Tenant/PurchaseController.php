@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Purchase;
 use App\Models\Tenant\Product;
+use App\Models\Tenant\Supplier;
 use Illuminate\Http\Request;
 
 class PurchaseController extends Controller
@@ -14,12 +15,41 @@ class PurchaseController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax()) {
-            $purchases = Purchase::with('product')->get();
-            return response()->json(['data' => $purchases]);
+        if ($request->ajax() || $request->wantsJson()) {
+            $query = Purchase::with(['product', 'supplier']);
+
+            // Grid.js parameters
+            $limit = $request->get('limit', 10);
+            $offset = $request->get('offset', 0);
+            $search = $request->get('search');
+
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('nro_compra', 'like', "%{$search}%")
+                      ->orWhere('voucher', 'like', "%{$search}%")
+                      ->orWhereHas('product', function($pq) use ($search) {
+                          $pq->where('name', 'like', "%{$search}%");
+                      })
+                      ->orWhereHas('supplier', function($sq) use ($search) {
+                          $sq->where('name', 'like', "%{$search}%");
+                      });
+                });
+            }
+
+            $total = $query->count();
+            
+            $purchases = $query->orderBy('id', 'desc')
+                               ->offset($offset)
+                               ->limit($limit)
+                               ->get();
+
+            return response()->json([
+                'data' => $purchases,
+                'total' => (int) $total,
+                'status' => 'success'
+            ]);
         }
-        $purchases = Purchase::with('product')->get();
-        return view('tenant.purchases.index', compact('purchases'));
+        return view('tenant.purchases.index');
     }
 
     /**
@@ -28,8 +58,11 @@ class PurchaseController extends Controller
     public function create()
     {
         $products = Product::all();
-        // $suppliers = Supplier::all(); // Uncomment when Supplier model is available
-        return view('tenant.purchases.create', compact('products' /*, 'suppliers'*/));
+        $suppliers = Supplier::all();
+        $lastPurchase = Purchase::latest()->first();
+        $nextNroCompra = $lastPurchase ? $lastPurchase->nro_compra + 1 : 1;
+
+        return view('tenant.purchases.create', compact('products', 'suppliers', 'nextNroCompra'));
     }
 
     /**
@@ -39,15 +72,25 @@ class PurchaseController extends Controller
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            // 'supplier_id' => 'required|exists:suppliers,id', // Uncomment when Supplier model is available
+            'supplier_id' => 'required|exists:suppliers,id',
             'quantity' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
             'purchase_date' => 'required|date',
-            'voucher' => 'nullable|string|max:255',
+            'voucher' => 'required|string|max:255',
+            'nro_compra' => 'required|unique:purchases,nro_compra',
         ]);
 
-        $purchase = Purchase::create($request->all());
-        return redirect()->route('purchases.index')->with('success', 'Purchase created successfully.');
+        $data = $request->all();
+        $data['user_id'] = auth()->id();
+
+        $purchase = Purchase::create($data);
+
+        // Update product stock
+        $product = Product::find($request->product_id);
+        $product->stock += $request->quantity;
+        $product->save();
+
+        return redirect()->route('purchases.index')->with('success', 'Compra registrada correctamente.');
     }
 
     /**
@@ -55,7 +98,7 @@ class PurchaseController extends Controller
      */
     public function show(string $id)
     {
-        $purchase = Purchase::with('product')->findOrFail($id);
+        $purchase = Purchase::with(['product', 'supplier', 'user'])->findOrFail($id);
         return view('tenant.purchases.show', compact('purchase'));
     }
 
@@ -64,10 +107,10 @@ class PurchaseController extends Controller
      */
     public function edit(string $id)
     {
-        $purchase = Purchase::with('product')->findOrFail($id);
+        $purchase = Purchase::findOrFail($id);
         $products = Product::all();
-        // $suppliers = Supplier::all(); // Uncomment when Supplier model is available
-        return view('tenant.purchases.edit', compact('purchase', 'products' /*, 'suppliers'*/));
+        $suppliers = Supplier::all();
+        return view('tenant.purchases.edit', compact('purchase', 'products', 'suppliers'));
     }
 
     /**
@@ -79,15 +122,26 @@ class PurchaseController extends Controller
 
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            // 'supplier_id' => 'required|exists:suppliers,id', // Uncomment when Supplier model is available
+            'supplier_id' => 'required|exists:suppliers,id',
             'quantity' => 'required|integer|min:1',
             'price' => 'required|numeric|min:0',
             'purchase_date' => 'required|date',
-            'voucher' => 'nullable|string|max:255',
+            'voucher' => 'required|string|max:255',
+            'nro_compra' => 'required|unique:purchases,nro_compra,' . $id,
         ]);
 
+        // Adjust product stock
+        $product = Product::find($purchase->product_id);
+        $product->stock -= $purchase->quantity; // Revert old quantity
+        $product->save();
+
         $purchase->update($request->all());
-        return redirect()->route('purchases.index')->with('success', 'Purchase updated successfully.');
+
+        $newProduct = Product::find($request->product_id);
+        $newProduct->stock += $request->quantity; // Add new quantity
+        $newProduct->save();
+
+        return redirect()->route('purchases.index')->with('success', 'Compra actualizada correctamente.');
     }
 
     /**
@@ -96,7 +150,13 @@ class PurchaseController extends Controller
     public function destroy(string $id)
     {
         $purchase = Purchase::findOrFail($id);
+
+        // Adjust product stock
+        $product = Product::find($purchase->product_id);
+        $product->stock -= $purchase->quantity;
+        $product->save();
+
         $purchase->delete();
-        return redirect()->route('purchases.index')->with('success', 'Purchase deleted successfully.');
+        return redirect()->route('purchases.index')->with('success', 'Compra eliminada correctamente.');
     }
 }
