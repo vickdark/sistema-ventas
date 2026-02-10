@@ -1,161 +1,197 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="container-fluid py-4">
-    <div class="row mb-4 align-items-center">
+<div class="container-fluid py-4 report-facelift">
+    <div class="row mb-5 align-items-center">
         <div class="col-sm-6">
-            <h1 class="h3 mb-0 text-gray-800"><i class="fas fa-chart-pie text-primary me-2"></i>Reportes Estadísticos</h1>
-            <p class="text-muted small">Visualización periódica del rendimiento del negocio.</p>
+            <h1 class="h2 fw-bold text-dark mb-1">Análisis de Negocio</h1>
+            <p class="text-muted d-flex align-items-center gap-2">
+                <i class="fas fa-magic text-primary"></i> 
+                Insights estratégicos y rendimiento financiero en tiempo real.
+            </p>
         </div>
         <div class="col-sm-6 text-end">
-            <button type="button" class="btn btn-success shadow-sm rounded-pill px-4" id="exportExcel">
-                <i class="fas fa-file-excel me-2"></i> Exportar a Excel
+            <button type="button" class="btn btn-white shadow-sm border-0 rounded-pill px-4 hover-lift" id="exportExcel">
+                <i class="fas fa-file-excel text-success me-2"></i> 
+                <span class="fw-semibold">Descargar Reporte</span>
             </button>
         </div>
     </div>
 
-    <!-- Tarjetas de Ingresos -->
-    <div class="row g-4 mb-4">
-        <div class="col-lg-4 col-md-6">
-            <div class="card bg-primary text-white border-0 shadow-sm rounded-4 overflow-hidden position-relative h-100">
-                <div class="card-body p-4 z-1">
-                    <p class="text-uppercase small fw-bold mb-1 opacity-75">Ingresos de Hoy</p>
-                    <h2 class="fw-bold mb-0">$ {{ number_format($ingresoDiario, 2) }}</h2>
-                    <i class="fas fa-calendar-day fa-4x position-absolute end-0 bottom-0 opacity-25 me-n3 mb-n3"></i>
+    <!-- Compressed KPI Grid -->
+    <div class="row g-3 mb-4">
+        <!-- Ingresos Hoy -->
+        <div class="col-xl-2 col-md-4 col-6">
+            <div class="report-card primary compact">
+                <div class="card-body p-3 position-relative overflow-hidden">
+                    <div class="z-1 position-relative">
+                        <div class="stat-label">HOY</div>
+                        <div class="stat-value-sm">$ {{ number_format($ingresoDiario, 0) }}</div>
+                    </div>
+                    <i class="fas fa-calendar-day icon-bg-sm"></i>
                 </div>
             </div>
         </div>
-        <div class="col-lg-4 col-md-6">
-            <div class="card bg-success text-white border-0 shadow-sm rounded-4 overflow-hidden position-relative h-100">
-                <div class="card-body p-4 z-1">
-                    <p class="text-uppercase small fw-bold mb-1 opacity-75">Ingresos del Mes</p>
-                    <h2 class="fw-bold mb-0">$ {{ number_format($ingresoMensual, 2) }}</h2>
-                    <i class="fas fa-calendar-alt fa-4x position-absolute end-0 bottom-0 opacity-25 me-n3 mb-n3"></i>
+
+        <!-- Ingresos Mes -->
+        <div class="col-xl-2 col-md-4 col-6">
+            <div class="report-card success compact">
+                <div class="card-body p-3 position-relative overflow-hidden">
+                    <div class="z-1 position-relative">
+                        <div class="stat-label">MES</div>
+                        <div class="stat-value-sm">$ {{ number_format($ingresoMensual, 0) }}</div>
+                    </div>
+                    <i class="fas fa-calendar-alt icon-bg-sm"></i>
                 </div>
             </div>
         </div>
-        <div class="col-lg-4 col-md-12">
-            <div class="card bg-dark text-white border-0 shadow-sm rounded-4 overflow-hidden position-relative h-100">
-                <div class="card-body p-4 z-1">
-                    <p class="text-uppercase small fw-bold mb-1 opacity-75">Ingresos del Año</p>
-                    <h2 class="fw-bold mb-0">$ {{ number_format($ingresoAnual, 2) }}</h2>
-                    <i class="fas fa-chart-line fa-4x position-absolute end-0 bottom-0 opacity-25 me-n3 mb-n3"></i>
+
+        <!-- Ingreso Anual -->
+        <div class="col-xl-2 col-md-4 col-6">
+            <div class="report-card warning compact">
+                <div class="card-body p-3 position-relative overflow-hidden">
+                    <div class="z-1 position-relative">
+                        <div class="stat-label">AÑO</div>
+                        <div class="stat-value-sm">$ {{ number_format($ingresoAnual, 0) }}</div>
+                    </div>
+                    <i class="fas fa-chart-line icon-bg-sm"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cartera -->
+        <div class="col-xl-2 col-md-4 col-6">
+            <div class="report-card danger compact">
+                <div class="card-body p-3 position-relative overflow-hidden">
+                    <div class="z-1 position-relative">
+                        <div class="stat-label">CARTERA</div>
+                        <div class="stat-value-sm">$ {{ number_format($deudaTotalClientes, 0) }}</div>
+                    </div>
+                    <i class="fas fa-wallet icon-bg-sm"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Facturas Pendientes -->
+        <div class="col-xl-2 col-md-4 col-6">
+            <div class="report-card info compact">
+                <div class="card-body p-3 position-relative overflow-hidden">
+                    <div class="z-1 position-relative">
+                        <div class="stat-label">PENDIENTES</div>
+                        <div class="stat-value-sm">{{ $cantidadCreditosPendientes }} <small class="opacity-75" style="font-size: 0.6rem;">DOCS</small></div>
+                    </div>
+                    <i class="fas fa-file-invoice icon-bg-sm"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Inversion (Standard Card now) -->
+        <div class="col-xl-2 col-md-4 col-6">
+            <div class="report-card dark compact">
+                <div class="card-body p-3 position-relative overflow-hidden">
+                    <div class="z-1 position-relative">
+                        <div class="stat-label">INVERSIÓN</div>
+                        <div class="stat-value-sm">$ {{ number_format($valorInversion, 0) }}</div>
+                    </div>
+                    <i class="fas fa-warehouse icon-bg-sm"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Tarjetas de Deudas y Créditos -->
-    <div class="row g-4 mb-4">
-        <div class="col-lg-6">
-            <div class="card bg-danger text-white border-0 shadow-sm rounded-4 overflow-hidden position-relative h-100">
-                <div class="card-body p-4 z-1">
-                    <p class="text-uppercase small fw-bold mb-1 opacity-75">Cartera por Cobrar (Deuda Total)</p>
-                    <h2 class="fw-bold mb-0">$ {{ number_format($deudaTotalClientes, 2) }}</h2>
-                    <i class="fas fa-hand-holding-usd fa-4x position-absolute end-0 bottom-0 opacity-25 me-n3 mb-n3"></i>
+    <!-- Charts Section -->
+    <div class="row g-4">
+        <!-- Main Balance Chart -->
+        <div class="col-xl-8 col-lg-7">
+            <div class="card border-0 shadow-sm rounded-4 h-100 chart-card">
+                <div class="card-header bg-transparent border-0 pt-4 px-4 d-flex justify-content-between align-items-center">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-0">Balance Financiero Anual</h5>
+                        <small class="text-muted">Comparativa de ingresos vs egresos por mes</small>
+                    </div>
+                    <div class="chart-actions">
+                        <button class="btn btn-light btn-sm rounded-circle"><i class="fas fa-sync-alt"></i></button>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-lg-6">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative h-100" style="background: linear-gradient(135deg, #f97316 0%, #fb923c 100%); color: white;">
-                <div class="card-body p-4 z-1">
-                    <p class="text-uppercase small fw-bold mb-1 opacity-75">Facturas a Crédito Pendientes</p>
-                    <h2 class="fw-bold mb-0">{{ $cantidadCreditosPendientes }} <small class="fw-normal" style="font-size: 1rem;">Documentos</small></h2>
-                    <i class="fas fa-file-invoice-dollar fa-4x position-absolute end-0 bottom-0 opacity-25 me-n3 mb-n3"></i>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Seccion Contable: Inversion -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card border-0 shadow-sm rounded-4 overflow-hidden position-relative" style="background: linear-gradient(135deg, #64748b 0%, #475569 100%); color: white;">
-                <div class="card-body p-4 z-1">
-                    <div class="row align-items-center">
-                        <div class="col-md-9">
-                            <p class="text-uppercase small fw-bold mb-1 opacity-75">Inversión Total en Almacén (Costo de Inventario)</p>
-                            <h2 class="fw-bold mb-0">$ {{ number_format($valorInversion, 2) }}</h2>
-                            <small class="opacity-75">Basado en precio de costo * stock actual de todos los productos.</small>
-                        </div>
-                        <div class="col-md-3 text-end opacity-25">
-                            <i class="fas fa-warehouse fa-5x"></i>
-                        </div>
+                <div class="card-body px-4 pb-4">
+                    <div class="chart-container" style="height: 380px;">
+                        <canvas id="balanceChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <div class="row g-4">
-        <!-- Gráfico: Balance Mensual -->
-        <div class="col-md-8">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
+        <!-- Payment Methods -->
+        <div class="col-xl-4 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 h-100 chart-card">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="card-title fw-bold text-dark mb-0"><i class="fas fa-balance-scale text-primary me-2"></i>Balance Financiero Anual (Ingresos vs Compras)</h5>
+                    <h5 class="fw-bold text-dark mb-0">Métodos de Pago</h5>
+                    <small class="text-muted">Distribución de facturación</small>
                 </div>
-                <div class="card-body px-4 pb-4">
-                    <canvas id="balanceChart" style="min-height: 300px;"></canvas>
+                <div class="card-body px-4 pb-4 d-flex align-items-center">
+                    <div class="chart-container w-100" style="height: 300px;">
+                        <canvas id="metodosChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Gráfico: Métodos de Pago -->
-        <div class="col-md-4">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
+        <!-- Weekly Performance -->
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 chart-card">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="card-title fw-bold text-dark mb-0"><i class="fas fa-wallet text-warning me-2"></i>Métodos de Pago</h5>
+                    <h5 class="fw-bold text-dark mb-0">Rendimiento Semanal</h5>
+                    <small class="text-muted">Flujo de caja de los últimos 7 días</small>
                 </div>
                 <div class="card-body px-4 pb-4">
-                    <canvas id="metodosChart" style="min-height: 300px;"></canvas>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="ventasChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Gráfico: Ventas Semanales -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
+        <!-- Top Products -->
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 chart-card">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="card-title fw-bold text-dark mb-0"><i class="fas fa-money-bill-wave text-success me-2"></i>Ingresos Semanales</h5>
+                    <h5 class="fw-bold text-dark mb-0">Top 5 Productos Estrella</h5>
+                    <small class="text-muted">Artículos con mayor rotación</small>
                 </div>
                 <div class="card-body px-4 pb-4">
-                    <canvas id="ventasChart" style="min-height: 250px;"></canvas>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="productosChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Gráfico: Top Productos -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
+        <!-- Cash Performance -->
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 chart-card">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="card-title fw-bold text-dark mb-0"><i class="fas fa-star text-warning me-2"></i>Top 5 Productos Más Vendidos</h5>
+                    <h5 class="fw-bold text-dark mb-0">Arqueos de Caja</h5>
+                    <small class="text-muted">Eficiencia en los cierres diarios</small>
                 </div>
                 <div class="card-body px-4 pb-4">
-                    <canvas id="productosChart" style="min-height: 250px;"></canvas>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="cajaChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Gráfico: Arqueo de Caja -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
+        <!-- Categories Distribution -->
+        <div class="col-xl-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 chart-card">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="card-title fw-bold text-dark mb-0"><i class="fas fa-cash-register text-info me-2"></i>Desempeño de Caja (Últimos 10 Arqueos)</h5>
+                    <h5 class="fw-bold text-dark mb-0">Stock por Categoría</h5>
+                    <small class="text-muted">Diversificación del inventario</small>
                 </div>
                 <div class="card-body px-4 pb-4">
-                    <canvas id="cajaChart" style="min-height: 250px;"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <!-- Gráfico: Distribución por Categorías -->
-        <div class="col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 h-100">
-                <div class="card-header bg-transparent border-0 pt-4 px-4">
-                    <h5 class="card-title fw-bold text-dark mb-0"><i class="fas fa-tags text-secondary me-2"></i>Stock por Categoría</h5>
-                </div>
-                <div class="card-body px-4 pb-4">
-                    <canvas id="categoriaChart" style="min-height: 250px;"></canvas>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="categoriaChart"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
@@ -184,8 +220,112 @@
 </script>
 
 <style>
+    .ls-1 { letter-spacing: 0.05em; }
     .z-1 { z-index: 1; }
-    .me-n3 { margin-right: -1rem !important; }
-    .mb-n3 { margin-bottom: -1rem !important; }
+    .icon-bg {
+        position: absolute;
+        right: -20px;
+        bottom: -20px;
+        font-size: 8rem;
+        opacity: 0.15;
+        transform: rotate(-15deg);
+        color: white;
+    }
+
+    .icon-bg-sm {
+        position: absolute;
+        right: -10px;
+        bottom: -10px;
+        font-size: 4rem;
+        opacity: 0.12;
+        transform: rotate(-10deg);
+        color: white;
+    }
+
+    .report-card {
+        border: 0;
+        border-radius: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        transition: all 0.3s ease;
+        color: white;
+        height: 100%;
+    }
+
+    .report-card.compact {
+        border-radius: 16px;
+    }
+
+    .report-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    }
+
+    .report-card.primary { background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%); }
+    .report-card.success { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+    .report-card.danger { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); }
+    .report-card.warning { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+    .report-card.info { background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); }
+    .report-card.dark { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); }
+
+    .stat-label {
+        font-size: 0.75rem;
+        font-weight: 800;
+        letter-spacing: 0.1em;
+        opacity: 0.8;
+        margin-bottom: 8px;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: 800;
+    }
+
+    .stat-value-sm {
+        font-size: 1.25rem;
+        font-weight: 800;
+    }
+
+    .decoration-1, .decoration-2, .decoration-3 {
+        position: absolute;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.1);
+        z-index: 0;
+    }
+
+    .decoration-1 { width: 150px; height: 150px; top: -50px; left: -50px; }
+    .decoration-2 { width: 120px; height: 120px; bottom: -40px; right: 20%; }
+    .decoration-3 { width: 180px; height: 180px; top: -20px; right: -60px; }
+
+    .investment-hero {
+        background: #1e293b;
+        position: relative;
+    }
+
+    .glass-decoration {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.15) 0%, transparent 50%);
+    }
+
+    .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1) !important;
+    }
+
+    .chart-card {
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.03);
+    }
+
+    .btn-white {
+        background: white;
+        color: #334155;
+    }
 </style>
 @endsection
