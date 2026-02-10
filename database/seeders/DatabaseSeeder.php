@@ -29,15 +29,6 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'Editar Permisos', 'slug' => 'permissions.edit', 'descripcion' => 'Permite editar permisos existentes', 'module' => 'Seguridad', 'is_menu' => false],
             ['nombre' => 'Eliminar Permisos', 'slug' => 'permissions.destroy', 'descripcion' => 'Permite eliminar permisos', 'module' => 'Seguridad', 'is_menu' => false],
             ['nombre' => 'Sincronizar Permisos', 'slug' => 'permissions.sync', 'descripcion' => 'Permite sincronizar permisos con las rutas', 'module' => 'Seguridad', 'is_menu' => false],
-
-            ['nombre' => 'Productos', 'slug' => 'products.index', 'descripcion' => 'Gestión de productos', 'module' => 'Inventario', 'icon' => 'fa-solid fa-box', 'is_menu' => true, 'order' => 4],
-            ['nombre' => 'Compras', 'slug' => 'purchases.index', 'descripcion' => 'Gestión de compras', 'module' => 'Inventario', 'icon' => 'fa-solid fa-cart-shopping', 'is_menu' => true, 'order' => 5],
-            ['nombre' => 'Ventas', 'slug' => 'sales.index', 'descripcion' => 'Gestión de ventas', 'module' => 'Ventas', 'icon' => 'fa-solid fa-cash-register', 'is_menu' => true, 'order' => 5],
-            ['nombre' => 'Abonos', 'slug' => 'abonos.index', 'descripcion' => 'Gestión de abonos a venta', 'module' => 'Ventas', 'icon' => 'fa-solid fa-hand-holding-dollar', 'is_menu' => true, 'order' => 6],
-            ['nombre' => 'Proveedores', 'slug' => 'suppliers.index', 'descripcion' => 'Gestión de proveedores', 'module' => 'Inventario', 'icon' => 'fa-solid fa-truck', 'is_menu' => true, 'order' => 7],
-            ['nombre' => 'Categorías', 'slug' => 'categories.index', 'descripcion' => 'Gestión de categorías', 'module' => 'Inventario', 'icon' => 'fa-solid fa-tags', 'is_menu' => true, 'order' => 7],
-
-            ['nombre' => 'Caja', 'slug' => 'cash-registers.index', 'descripcion' => 'Gestión de caja', 'module' => 'Caja', 'icon' => 'fa-solid fa-cash-register', 'is_menu' => true, 'order' => 8],
         ];
 
         foreach ($permissions as $permission) {

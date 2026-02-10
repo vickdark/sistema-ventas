@@ -123,6 +123,8 @@ class SyncPermissions extends Command
      */
     protected function generateName($slug)
     {
+        if ($slug === 'dashboard') return "Tablero Principal";
+        
         if (str_starts_with($slug, 'dashboard.')) {
             $role = ucfirst(str_replace('dashboard.', '', $slug));
             return "Dashboard {$role}";
@@ -130,14 +132,41 @@ class SyncPermissions extends Command
 
         $parts = explode('.', $slug);
         $action = end($parts);
-        $module = count($parts) > 1 ? $parts[count($parts) - 2] : 'General';
+        $entitySlug = count($parts) > 1 ? $parts[count($parts) - 2] : 'General';
 
         $translations = $this->getTranslations();
+        $entities = $this->getEntityNames();
 
         $actionName = $translations[$action] ?? ucfirst($action);
-        $moduleName = ucfirst($module);
+        $entityName = $entities[$entitySlug]['plural'] ?? ucfirst($entitySlug);
 
-        return "{$actionName} {$moduleName}";
+        // Especial para el menú (index)
+        if ($action === 'index') {
+            return $entityName;
+        }
+
+        return "{$actionName} " . ($entities[$entitySlug]['singular'] ?? $entitySlug);
+    }
+
+    /**
+     * Nombres de las entidades en español (singular y plural)
+     */
+    protected function getEntityNames()
+    {
+        return [
+            'usuarios'       => ['singular' => 'Usuario', 'plural' => 'Usuarios'],
+            'roles'          => ['singular' => 'Rol', 'plural' => 'Roles'],
+            'permissions'    => ['singular' => 'Permiso', 'plural' => 'Permisos'],
+            'clients'        => ['singular' => 'Cliente', 'plural' => 'Clientes'],
+            'products'       => ['singular' => 'Producto', 'plural' => 'Productos'],
+            'categories'     => ['singular' => 'Categoría', 'plural' => 'Categorías'],
+            'purchases'      => ['singular' => 'Compra', 'plural' => 'Compras'],
+            'suppliers'      => ['singular' => 'Proveedor', 'plural' => 'Proveedores'],
+            'sales'          => ['singular' => 'Venta', 'plural' => 'Ventas'],
+            'cash-registers' => ['singular' => 'Caja', 'plural' => 'Cajas'],
+            'abonos'         => ['singular' => 'Abono', 'plural' => 'Abonos'],
+            'config'         => ['singular' => 'Configuración', 'plural' => 'Configuraciones'],
+        ];
     }
 
     /**
@@ -146,8 +175,8 @@ class SyncPermissions extends Command
     protected function getTranslations()
     {
         return [
-            'index'   => 'Ver lista de',
-            'show'    => 'Ver detalle de',
+            'index'   => 'Ver',
+            'show'    => 'Ver Detalle',
             'create'  => 'Crear',
             'store'   => 'Guardar',
             'edit'    => 'Editar',
@@ -156,8 +185,8 @@ class SyncPermissions extends Command
             'sync'    => 'Sincronizar',
             'export'  => 'Exportar',
             'import'  => 'Importar',
-            'edit_permissions'   => 'Gestionar permisos de',
-            'update_permissions' => 'Actualizar permisos de',
+            'close'   => 'Cerrar',
+            'close-form' => 'Cierre',
         ];
     }
 
@@ -166,6 +195,8 @@ class SyncPermissions extends Command
      */
     protected function generateDescription($slug, $route)
     {
+        if ($slug === 'dashboard') return "Acceso al tablero principal de estadísticas";
+        
         if (str_starts_with($slug, 'dashboard.')) {
             $role = str_replace('dashboard.', '', $slug);
             return "Vista de panel principal personalizada para el rol {$role}";
@@ -173,13 +204,15 @@ class SyncPermissions extends Command
 
         $parts = explode('.', $slug);
         $action = end($parts);
-        $module = count($parts) > 1 ? $parts[count($parts) - 2] : 'General';
+        $entitySlug = count($parts) > 1 ? $parts[count($parts) - 2] : 'General';
         
         $translations = $this->getTranslations();
+        $entities = $this->getEntityNames();
+        
         $actionName = $translations[$action] ?? ucfirst($action);
-        $moduleName = ucfirst($module);
+        $entityName = $entities[$entitySlug]['singular'] ?? $entitySlug;
 
-        return "Permite {$actionName} {$moduleName} en el sistema";
+        return "Permite {$actionName} {$entityName} en el sistema";
     }
 
     /**
@@ -189,51 +222,49 @@ class SyncPermissions extends Command
     {
         if ($slug === 'dashboard') return true;
 
-        // No mostrar la gestión de permisos en el menú lateral, se gestiona desde Roles
+        // No mostrar la gestión de permisos en el menú lateral directamente
         if (str_starts_with($slug, 'permissions.')) return false;
         
-        // No mostrar dashboards específicos de rol en el menú directamente,
-        // ya que el DashboardController se encarga de redirigir y el aside.blade.php
-        // ya maneja la lógica de mostrar un único enlace para el módulo 'Dashboard'.
-        if (str_starts_with($slug, 'dashboard.')) return true;
-
         $parts = explode('.', $slug);
         $action = end($parts);
 
-        // Excluimos explícitamente las acciones que requieren ID o no tienen sentido en el menú
-        $excludedActions = ['show', 'edit', 'destroy', 'update', 'store', 'update_permissions', 'edit_permissions', 'sync', 'close', 'close-form'];
-        
-        if (in_array($action, $excludedActions)) {
+        // Solo el index suele ir al menú, a menos que sea algo muy específico
+        if ($action !== 'index') {
             return false;
         }
 
-        // Cualquier otra acción (index, create, sync, export, etc.) puede ir al menú
         return true;
     }
 
     /**
-     * Genera un icono sugerido según el nombre del módulo.
+     * Genera un icono sugerido según el nombre del módulo o entidad.
      */
     protected function generateIcon($slug)
     {
         if ($slug === 'dashboard') return 'fa-solid fa-gauge-high';
 
         $parts = explode('.', $slug);
-        $module = count($parts) > 1 ? $parts[count($parts) - 2] : 'General';
+        $entity = count($parts) > 1 ? $parts[count($parts) - 2] : 'General';
 
         $icons = [
-            'usuarios' => 'fa-solid fa-users',
-            'roles'    => 'fa-solid fa-user-shield',
-            'permissions' => 'fa-solid fa-key',
-            'infraestructura' => 'fa-solid fa-server',
-            'inventario' => 'fa-solid fa-laptop-code',
-            'asignaciones' => 'fa-solid fa-hand-holding-hand',
-            'mantenimientos' => 'fa-solid fa-tools',
-            'bajas' => 'fa-solid fa-trash-can',
-            'configuracion' => 'fa-solid fa-gears',
+            'usuarios'       => 'fa-solid fa-users',
+            'roles'          => 'fa-solid fa-user-shield',
+            'permissions'    => 'fa-solid fa-key',
+            'inventario'     => 'fa-solid fa-boxes-stacked',
+            'products'       => 'fa-solid fa-box',
+            'categories'     => 'fa-solid fa-tags',
+            'purchases'      => 'fa-solid fa-cart-shopping',
+            'suppliers'      => 'fa-solid fa-truck',
+            'sales'          => 'fa-solid fa-cash-register',
+            'cash-registers' => 'fa-solid fa-vault',
+            'abonos'         => 'fa-solid fa-hand-holding-dollar',
+            'clients'        => 'fa-solid fa-address-book',
+            'config'         => 'fa-solid fa-gears',
+            'seguridad'      => 'fa-solid fa-shield-halved',
+            'ventas'         => 'fa-solid fa-money-bill-transfer',
         ];
 
-        return $icons[strtolower($module)] ?? 'fa-solid fa-circle-dot';
+        return $icons[strtolower($entity)] ?? 'fa-solid fa-circle-dot';
     }
 
     /**
@@ -241,14 +272,26 @@ class SyncPermissions extends Command
      */
     protected function generateModuleName($slug)
     {
-        if ($slug === 'dashboard') return 'Dashboard';
+        if ($slug === 'dashboard') return 'Tablero';
 
         $parts = explode('.', $slug);
-        if (count($parts) <= 1) return 'General';
+        $entity = count($parts) > 1 ? $parts[count($parts) - 2] : 'General';
 
-        $module = $parts[count($parts) - 2];
+        $moduleMapping = [
+            'usuarios'       => 'Seguridad',
+            'roles'          => 'Seguridad',
+            'permissions'    => 'Seguridad',
+            'products'       => 'Inventario',
+            'categories'     => 'Inventario',
+            'purchases'      => 'Inventario',
+            'suppliers'      => 'Inventario',
+            'sales'          => 'Ventas',
+            'abonos'         => 'Ventas',
+            'clients'        => 'Ventas',
+            'cash-registers' => 'Caja',
+        ];
         
-        return ucfirst($module);
+        return $moduleMapping[strtolower($entity)] ?? 'General';
     }
 
     /**
@@ -257,9 +300,24 @@ class SyncPermissions extends Command
     protected function generateOrder($slug)
     {
         if ($slug === 'dashboard') return 1;
-        if (str_contains($slug, 'usuarios')) return 10;
-        if (str_contains($slug, 'roles')) return 20;
-        if (str_contains($slug, 'infraestructura')) return 100;
-        return 50;
+        
+        $parts = explode('.', $slug);
+        $entity = count($parts) > 1 ? $parts[count($parts) - 2] : 'General';
+
+        $orderMapping = [
+            'products'       => 10,
+            'categories'     => 11,
+            'purchases'      => 12,
+            'suppliers'      => 13,
+            'sales'          => 20,
+            'abonos'         => 21,
+            'clients'        => 22,
+            'cash-registers' => 30,
+            'usuarios'       => 100,
+            'roles'          => 101,
+            'permissions'    => 102,
+        ];
+
+        return $orderMapping[strtolower($entity)] ?? 50;
     }
 }

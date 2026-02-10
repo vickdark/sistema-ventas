@@ -22,11 +22,10 @@
                 $isOwner = auth('owner')->check();
 
                 if ($isOwner) {
-                    // Owner has their own hardcoded section below, so no dynamic permissions needed here
-                    $userPermissions = collect();
+                    $permissions = collect();
                 } else {
                     $role = $user ? $user->role : null;
-                    $userPermissions = $role 
+                    $permissions = $role 
                         ? $role->permissions()
                             ->where('is_menu', true)
                             ->orderBy('order')
@@ -37,12 +36,11 @@
                                 }
                                 return true;
                             })
-                            ->groupBy('module')
                         : collect();
                 }
             @endphp
 
-            @if($userPermissions->isEmpty() && !$isOwner)
+            @if($permissions->isEmpty() && !$isOwner)
                 <div class="p-3 text-muted small">
                     <i class="fa-solid fa-circle-info me-1"></i>
                     No hay opciones de menú disponibles.
@@ -51,79 +49,24 @@
 
             {{-- Sección de Administración Central --}}
             @if(auth('owner')->check())
-                <div class="sidebar-heading px-4 pt-3 pb-1 text-uppercase text-sidebar-muted fw-bold" style="font-size: 0.65rem; letter-spacing: 0.05em;">
-                    Administración Central
-                </div>
                 <a class="nav-link {{ request()->routeIs('central.tenants.*') || request()->routeIs('central.dashboard') ? 'active' : '' }}" href="{{ route('central.tenants.index') }}">
                     <i class="fa-solid fa-building-shield"></i>
                     <span class="app-link-text">Inquilinos</span>
                 </a>
             @endif
 
-            @foreach($userPermissions as $module => $items)
-                @if($module === 'Dashboard')
-                    @php
-                        // El dashboard es un caso especial: es activo si la ruta es 'dashboard' 
-                        // o cualquier ruta que empiece por 'dashboard.'
-                        $isDashboardActive = request()->routeIs('dashboard') || request()->routeIs('central.dashboard') || request()->routeIs('dashboard.*');
-                        $dashboardRouteName = $isOwner ? 'central.dashboard' : 'dashboard';
-                        
-                        // Buscamos el item que representa el dashboard (generalmente 'Dashboard' o 'dashboard.admin')
-                        // Priorizamos el que tenga el nombre más genérico para el texto del menú
-                        $dashboardItem = $items->firstWhere('slug', 'dashboard') ?? $items->first();
-                    @endphp
-                    <a class="nav-link {{ $isDashboardActive ? 'active' : '' }}" href="{{ route($dashboardRouteName) }}">
-                        <i class="{{ ($dashboardItem->icon ?? '') ?: 'fa-solid fa-gauge-high' }}"></i>
-                        <span class="app-link-text">{{ $dashboardItem->nombre ?? 'Dashboard' }}</span>
-                    </a>
-                @else
-                    @php
-                        $moduleSlug = strtolower($module);
-                        $isActive = false;
-                        $firstItem = $items->first();
-                        // Handle both Eloquent models and standard objects
-                        $firstIcon = is_object($firstItem) ? ($firstItem->icon ?? '') : ($firstItem['icon'] ?? '');
-                        
-                        foreach($items as $item) {
-                             $slug = is_object($item) ? ($item->slug ?? '') : ($item['slug'] ?? '');
-                             if ($slug && request()->routeIs(explode('.', $slug)[0] . '.*')) {
-                                $isActive = true;
-                                break;
-                            }
-                        }
-                    @endphp
-                    
-                    <div class="nav-item">
-                        <a class="nav-link {{ $isActive ? '' : 'collapsed' }}"
-                           data-bs-toggle="collapse" 
-                           href="#menu-{{ $moduleSlug }}" 
-                           role="button" 
-                           aria-expanded="{{ $isActive ? 'true' : 'false' }}">
-                            <i class="{{ $firstIcon ?: 'fa-solid fa-circle-dot' }}"></i>
-                            <span class="app-link-text">{{ $module }}</span>
-                            <i class="fa-solid fa-chevron-down ms-auto nav-chevron"></i>
-                        </a>
-                        <div class="collapse {{ $isActive ? 'show' : '' }}" id="menu-{{ $moduleSlug }}" data-bs-parent="#sidebarAccordion">
-                            <nav class="nav flex-column ms-3 mt-1">
-                                @foreach($items as $item)
-                                    @php
-                                        $itemUrl = '#';
-                                        if (Route::has($item->slug)) {
-                                            try {
-                                                $itemUrl = route($item->slug);
-                                            } catch (\Exception $e) {
-                                                $itemUrl = '#';
-                                            }
-                                        }
-                                    @endphp
-                                    <a class="nav-link py-1 {{ request()->routeIs($item->slug) ? 'active' : '' }}" href="{{ $itemUrl }}">
-                                        <span class="small">{{ $item->nombre }}</span>
-                                    </a>
-                                @endforeach
-                            </nav>
-                        </div>
-                    </div>
-                @endif
+            @foreach($permissions as $item)
+                @php
+                    $isDashboard = $item->slug === 'dashboard' || str_starts_with($item->slug, 'dashboard.');
+                    $isActive = request()->routeIs($item->slug) || request()->routeIs(explode('.', $item->slug)[0] . '.*');
+                    $routeExists = Route::has($item->slug);
+                    $itemUrl = $routeExists ? route($item->slug) : '#';
+                @endphp
+                
+                <a class="nav-link {{ $isActive ? 'active' : '' }}" href="{{ $itemUrl }}">
+                    <i class="{{ $item->icon ?: 'fa-solid fa-circle-dot' }}"></i>
+                    <span class="app-link-text">{{ $item->nombre }}</span>
+                </a>
             @endforeach
         </nav>
 
