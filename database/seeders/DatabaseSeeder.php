@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'Categorías', 'slug' => 'categories.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-tags', 'module' => 'Inventario', 'order' => 11, 'descripcion' => 'Permite Ver Categoría en el sistema'],
             ['nombre' => 'Cajas', 'slug' => 'cash-registers.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-vault', 'module' => 'Caja', 'order' => 30, 'descripcion' => 'Permite Ver Caja en el sistema'],
             ['nombre' => 'Dashboard Admin', 'slug' => 'dashboard.admin', 'is_menu' => 0, 'icon' => 'fa-solid fa-circle-dot', 'module' => 'General', 'order' => 50, 'descripcion' => 'Vista de panel principal personalizada para el rol admin'],
+            ['nombre' => 'Dashboard Vendedor', 'slug' => 'dashboard.vendedor', 'is_menu' => 0, 'icon' => 'fa-solid fa-circle-dot', 'module' => 'General', 'order' => 50, 'descripcion' => 'Vista de panel principal personalizada para el rol vendedor'],
             ['nombre' => 'Usuarios', 'slug' => 'usuarios.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-users', 'module' => 'Configuración', 'order' => 100, 'descripcion' => 'Permite Ver Usuario en el sistema'],
             ['nombre' => 'Crear Usuario', 'slug' => 'usuarios.create', 'is_menu' => 0, 'icon' => 'fa-solid fa-users', 'module' => 'Configuración', 'order' => 100, 'descripcion' => 'Permite Crear Usuario en el sistema'],
             ['nombre' => 'Guardar Usuario', 'slug' => 'usuarios.store', 'is_menu' => 0, 'icon' => 'fa-solid fa-users', 'module' => 'Configuración', 'order' => 100, 'descripcion' => 'Permite Guardar Usuario en el sistema'],
@@ -162,6 +163,22 @@ class DatabaseSeeder extends Seeder
             $allPermissions = Permission::all();
             $adminRole->permissions()->sync($allPermissions->pluck('id'));
             $this->command->info("Se han sincronizado {$allPermissions->count()} permisos al rol de Administrador.");
+        }
+
+        // 4.1 Asignar permisos al rol de Vendedor
+        $vendedorRole = Role::where('slug', 'vendedor')->first();
+        if ($vendedorRole) {
+            $vendedorPermissions = Permission::where(function($query) {
+                $query->where('slug', 'dashboard')
+                      ->orWhere('slug', 'dashboard.vendedor')
+                      ->orWhere('slug', 'like', 'sales.%')
+                      ->orWhere('slug', 'like', 'clients.%')
+                      ->orWhere('slug', 'like', 'cash-registers.%')
+                      ->orWhere('slug', 'like', 'abonos.%');
+            })->get();
+
+            $vendedorRole->permissions()->sync($vendedorPermissions->pluck('id'));
+            $this->command->info("Se han sincronizado {$vendedorPermissions->count()} permisos al rol de Vendedor.");
         }
 
         // 5. Asegurar la existencia del usuario administrador y su vinculación
