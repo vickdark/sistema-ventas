@@ -27,6 +27,31 @@
                         </div>
 
                         <div class="mb-3">
+                            <label for="name" class="form-label">Nombre de la Caja (Identificador)</label>
+                            @if($config && $config->cash_register_names && count($config->cash_register_names) > 0)
+                                <select class="form-select rounded-3 @error('name') is-invalid @enderror" id="name" name="name" required>
+                                    <option value="" disabled {{ old('name') ? '' : 'selected' }}>Seleccione una caja...</option>
+                                    @foreach($config->cash_register_names as $name)
+                                        @php
+                                            $isOccupied = in_array($name, $occupiedRegisters ?? []);
+                                        @endphp
+                                        <option value="{{ $name }}" {{ old('name') == $name ? 'selected' : '' }} {{ $isOccupied ? 'disabled' : '' }}>
+                                            {{ $name }} {{ $isOccupied ? '(Ocupada)' : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <input type="text" class="form-control rounded-3 @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', 'Caja Principal') }}" required placeholder="Ej: Caja 1, Caja Pasillo, etc.">
+                                @if(!($config && $config->cash_register_names))
+                                    <small class="text-muted mt-1 d-block"><i class="fas fa-info-circle me-1"></i> No hay nombres predefinidos en la configuración.</small>
+                                @endif
+                            @endif
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
                             <label for="opening_date" class="form-label">Fecha y Hora de Apertura</label>
                             <input type="datetime-local" class="form-control rounded-3 @error('opening_date') is-invalid @enderror" id="opening_date" name="opening_date" value="{{ old('opening_date', date('Y-m-d\TH:i')) }}" required>
                             @error('opening_date')

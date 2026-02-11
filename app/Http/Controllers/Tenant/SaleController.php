@@ -9,6 +9,7 @@ use App\Models\Tenant\Product;
 use App\Models\Tenant\Client;
 use App\Models\Tenant\CashRegister;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class SaleController extends Controller
@@ -50,11 +51,11 @@ class SaleController extends Controller
 
     public function create()
     {
-        // Check if there is an open cash register
-        $cashRegister = CashRegister::open()->first();
+        // Check if there is an open cash register for THIS user
+        $cashRegister = CashRegister::open()->where('user_id', Auth::id())->first();
         if (!$cashRegister) {
             return redirect()->route('cash-registers.index')
-                ->with('error', 'Debe abrir una caja antes de realizar ventas.');
+                ->with('error', 'Debes abrir tu caja antes de realizar ventas.');
         }
 
         $clients = Client::all();
@@ -76,9 +77,9 @@ class SaleController extends Controller
             'voucher' => 'nullable|string|max:255',
         ]);
 
-        $cashRegister = CashRegister::open()->first();
+        $cashRegister = CashRegister::open()->where('user_id', Auth::id())->first();
         if (!$cashRegister) {
-            return response()->json(['message' => 'Caja cerrada.'], 403);
+            return response()->json(['message' => 'No tienes una caja abierta.'], 403);
         }
 
         return DB::transaction(function () use ($request) {
@@ -100,7 +101,7 @@ class SaleController extends Controller
                 'nro_venta' => $nroVenta,
                 'client_id' => $request->client_id,
                 'total_paid' => $total,
-                'user_id' => auth()->id(),
+                'user_id' => Auth::id(),
                 'sale_date' => now(),
                 'voucher' => $request->voucher,
                 'payment_type' => $request->payment_type,

@@ -8,6 +8,7 @@ use App\Models\Tenant\Configuration;
 use App\Models\Tenant\Sale;
 use App\Models\Tenant\Abono;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 class CashRegisterController extends Controller
@@ -17,6 +18,11 @@ class CashRegisterController extends Controller
         if ($request->ajax() || $request->wantsJson()) {
             $query = CashRegister::with('user');
 
+            // Si no es administrador, solo puede ver sus propias cajas
+            if (!Auth::user()->hasRole('Administrador')) {
+                $query->where('user_id', Auth::id());
+            }
+
             // Grid.js parameters
             $limit = $request->get('limit', 10);
             $offset = $request->get('offset', 0);
@@ -25,6 +31,7 @@ class CashRegisterController extends Controller
             if ($search) {
                 $query->where(function($q) use ($search) {
                     $q->where('status', 'like', "%{$search}%")
+                      ->orWhere('name', 'like', "%{$search}%")
                       ->orWhereHas('user', function($uq) use ($search) {
                           $uq->where('name', 'like', "%{$search}%");
                       });
@@ -33,52 +40,87 @@ class CashRegisterController extends Controller
 
             $total = $query->count();
             
-            $registers = $query->orderBy('id', 'desc')
+            $registers = $query->latest()
                                ->offset($offset)
                                ->limit($limit)
                                ->get();
 
+            // Transformar datos para Grid.js si es necesario (ej: formatear fechas)
+            $data = $registers->map(function($register) {
+                return [
+                    'id' => $register->id,
+                    'name' => $register->name,
+                    'opening_date' => $register->opening_date->format('d/m/Y H:i'),
+                    'closing_date' => $register->closing_date ? $register->closing_date->format('d/m/Y H:i') : null,
+                    'initial_amount' => $register->initial_amount,
+                    'final_amount' => $register->final_amount,
+                    'user' => $register->user,
+                    'status' => $register->status,
+                ];
+            });
+
             return response()->json([
-                'data' => $registers,
+                'data' => $data,
                 'total' => (int) $total,
                 'status' => 'success'
             ]);
         }
 
-        $currentRegister = CashRegister::open()->first();
+        $currentRegister = CashRegister::open()->where('user_id', Auth::id())->first();
         $config = Configuration::firstOrCreate(['id' => 1]);
         return view('tenant.cash_registers.index', compact('currentRegister', 'config'));
     }
 
     public function create()
     {
-        if (CashRegister::open()->exists()) {
-            return redirect()->route('cash-registers.index')->with('error', 'Ya existe una caja abierta.');
+        if (CashRegister::open()->where('user_id', Auth::id())->exists()) {
+            return redirect()->route('cash-registers.index')->with('error', 'Ya tienes una caja abierta.');
         }
 
         $config = Configuration::first();
-        return view('tenant.cash_registers.create', compact('config'));
+        $occupiedRegisters = CashRegister::open()->pluck('name')->toArray();
+
+        return view('tenant.cash_registers.create', compact('config', 'occupiedRegisters'));
     }
 
     public function store(Request $request)
     {
+        $config = Configuration::first();
+        $allowedNames = $config && $config->cash_register_names ? $config->cash_register_names : [];
+
         $request->validate([
+            'name' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) use ($allowedNames) {
+                    if (!empty($allowedNames) && !in_array($value, $allowedNames)) {
+                        $fail('El identificador de caja seleccionado no es válido.');
+                    }
+                    
+                    // Verificar que la caja no esté abierta por otro usuario
+                    if (CashRegister::open()->where('name', $value)->exists()) {
+                        $fail('Esta caja ya se encuentra abierta por otro usuario.');
+                    }
+                },
+            ],
             'initial_amount' => 'required|numeric|min:0',
             'opening_date' => 'required|date',
             'observations' => 'nullable|string',
         ]);
 
-        if (CashRegister::open()->exists()) {
-            return redirect()->route('cash-registers.index')->with('error', 'Ya existe una caja abierta.');
+        if (CashRegister::open()->where('user_id', Auth::id())->exists()) {
+            return redirect()->route('cash-registers.index')->with('error', 'Ya tienes una caja abierta.');
         }
 
         $config = Configuration::first();
         
         CashRegister::create([
+            'name' => $request->name,
             'opening_date' => $request->opening_date,
             'scheduled_closing_time' => $config ? $config->cash_register_closing_time : null,
             'initial_amount' => $request->initial_amount,
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'status' => 'abierta',
             'observations' => $request->observations,
         ]);
@@ -88,6 +130,11 @@ class CashRegisterController extends Controller
 
     public function show(CashRegister $cashRegister)
     {
+        // Si no es administrador y la caja no le pertenece, denegar acceso
+        if (!Auth::user()->hasRole('Administrador') && $cashRegister->user_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para ver esta sesión de caja.');
+        }
+
         $endTime = $cashRegister->closing_date ?? now();
         
         $directSales = Sale::with('client')
@@ -112,6 +159,11 @@ class CashRegisterController extends Controller
 
     public function closeForm(CashRegister $cashRegister)
     {
+        // Si no es administrador y la caja no le pertenece, denegar acceso
+        if (!Auth::user()->hasRole('Administrador') && $cashRegister->user_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para cerrar esta sesión de caja.');
+        }
+
         if ($cashRegister->status !== 'abierta') {
             return redirect()->route('cash-registers.index')->with('error', 'Esta caja ya está cerrada.');
         }
@@ -143,6 +195,11 @@ class CashRegisterController extends Controller
 
     public function close(Request $request, CashRegister $cashRegister)
     {
+        // Si no es administrador y la caja no le pertenece, denegar acceso
+        if (!Auth::user()->hasRole('Administrador') && $cashRegister->user_id !== Auth::id()) {
+            abort(403, 'No tienes permiso para cerrar esta sesión de caja.');
+        }
+
         $request->validate([
             'final_amount' => 'required|numeric|min:0',
             'observations' => 'nullable|string',

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('cash_registers', function (Blueprint $table) {
             $table->id();
+            $table->string('name')->default('Caja Principal'); // Para identificar la caja física
             $table->dateTime('opening_date');
             $table->time('scheduled_closing_time')->nullable();
             $table->dateTime('closing_date')->nullable();

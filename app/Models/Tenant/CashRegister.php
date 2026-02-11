@@ -10,6 +10,7 @@ class CashRegister extends Model
     use HasFactory;
 
     protected $fillable = [
+        'name',
         'opening_date',
         'scheduled_closing_time',
         'closing_date',
@@ -20,6 +21,14 @@ class CashRegister extends Model
         'observations',
         'user_id',
         'status',
+    ];
+
+    protected $casts = [
+        'opening_date' => 'datetime',
+        'closing_date' => 'datetime',
+        'initial_amount' => 'decimal:2',
+        'final_amount' => 'decimal:2',
+        'total_sales' => 'decimal:2',
     ];
 
     public function user()

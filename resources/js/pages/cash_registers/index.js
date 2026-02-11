@@ -8,6 +8,7 @@ export function initCashRegistersIndex(config) {
         url: routes.index,
         columns: [
             { id: 'id', name: "ID", width: "60px" },
+            { id: 'name', name: "Caja" },
             { id: 'opening_date', name: "Apertura" },
             { id: 'closing_date', name: "Cierre" },
             { id: 'initial_amount', name: "Monto Inicial" },
@@ -40,6 +41,7 @@ export function initCashRegistersIndex(config) {
         ],
         mapData: (register) => [
             register.id, 
+            register.name || 'N/A',
             register.opening_date,
             register.closing_date || 'N/A',
             `$${parseFloat(register.initial_amount).toFixed(2)}`,

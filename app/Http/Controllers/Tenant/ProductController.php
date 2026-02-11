@@ -7,6 +7,7 @@ use App\Models\Tenant\Product;
 use App\Models\Tenant\Category;
 use App\Models\Tenant\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
@@ -104,7 +105,7 @@ class ProductController extends Controller
             }
 
             // Agregar el user_id
-            $productData['user_id'] = auth()->id();
+            $productData['user_id'] = Auth::id();
 
             $product = Product::create($productData);
             

@@ -4,7 +4,7 @@
 <div class="container-fluid">
     <div class="row mb-4 align-items-center">
         <div class="col">
-            <h1 class="h3 mb-0 text-gray-800">Cerrar Caja</h1>
+            <h1 class="h3 mb-0 text-gray-800">Cerrar {{ $cashRegister->name }}</h1>
         </div>
         <div class="col-auto">
             <a href="{{ route('cash-registers.index') }}" class="btn btn-outline-secondary rounded-pill px-4">

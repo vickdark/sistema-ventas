@@ -11,5 +11,10 @@ class Configuration extends Model
 
     protected $fillable = [
         'cash_register_closing_time',
+        'cash_register_names',
+    ];
+
+    protected $casts = [
+        'cash_register_names' => 'array',
     ];
 }

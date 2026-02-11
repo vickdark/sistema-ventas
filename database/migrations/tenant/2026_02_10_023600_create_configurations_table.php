@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('configurations', function (Blueprint $table) {
             $table->id();
             $table->time('cash_register_closing_time')->nullable();
+            $table->json('cash_register_names')->nullable(); // Para almacenar ["Caja 1", "Caja 2", ...]
             $table->timestamps();
         });
     }

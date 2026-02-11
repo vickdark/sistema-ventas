@@ -73,6 +73,18 @@ class Usuario extends Authenticatable
     }
 
     /**
+     * Verificar si el usuario tiene un rol específico.
+     */
+    public function hasRole(string $roleName): bool
+    {
+        if (!$this->role) {
+            return false;
+        }
+
+        return $this->role->name === $roleName;
+    }
+
+    /**
      * The attributes that should be hidden for serialization.
      *
      * @var list<string>
