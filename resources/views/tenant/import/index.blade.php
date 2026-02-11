@@ -40,9 +40,15 @@
                             <button type="button" class="btn btn-danger rounded-pill w-100 mb-2 py-2" onclick="openImportModal('purchases')">
                                 <i class="fas fa-upload me-1"></i> Importar Compras
                             </button>
-                            <a href="{{ route('import.template', 'purchases') }}" class="btn btn-sm btn-outline-secondary rounded-pill w-100 text-decoration-none">
-                                <i class="fas fa-download me-1"></i> Descargar Plantilla
-                            </a>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary rounded-pill w-100 dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport">
+                                    <i class="fas fa-download me-1"></i> Plantilla
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3">
+                                    <li><a class="dropdown-item small" href="{{ route('import.template', ['module' => 'purchases', 'format' => 'csv']) }}"><i class="fas fa-file-csv me-2 text-primary"></i>Descargar CSV</a></li>
+                                    <li><a class="dropdown-item small" href="{{ route('import.template', ['module' => 'purchases', 'format' => 'excel']) }}"><i class="fas fa-file-excel me-2 text-success"></i>Descargar Excel</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -74,9 +80,15 @@
                     <button type="button" class="btn btn-outline-primary rounded-pill w-100 mb-2" onclick="openImportModal('categories')">
                         <i class="fas fa-upload me-1"></i> Importar
                     </button>
-                    <a href="{{ route('import.template', 'categories') }}" class="btn btn-sm btn-link text-decoration-none">
-                        <i class="fas fa-download me-1"></i> Descargar Plantilla
-                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-link text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport">
+                            <i class="fas fa-download me-1"></i> Plantilla
+                        </button>
+                        <ul class="dropdown-menu shadow border-0 rounded-3">
+                            <li><a class="dropdown-item small" href="{{ route('import.template', ['module' => 'categories', 'format' => 'csv']) }}"><i class="fas fa-file-csv me-2 text-primary"></i>CSV</a></li>
+                            <li><a class="dropdown-item small" href="{{ route('import.template', ['module' => 'categories', 'format' => 'excel']) }}"><i class="fas fa-file-excel me-2 text-success"></i>Excel</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -103,9 +115,15 @@
                     <button type="button" class="btn btn-outline-success rounded-pill w-100 mb-2" onclick="openImportModal('clients')">
                         <i class="fas fa-upload me-1"></i> Importar
                     </button>
-                    <a href="{{ route('import.template', 'clients') }}" class="btn btn-sm btn-link text-decoration-none">
-                        <i class="fas fa-download me-1"></i> Descargar Plantilla
-                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-link text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport">
+                            <i class="fas fa-download me-1"></i> Plantilla
+                        </button>
+                        <ul class="dropdown-menu shadow border-0 rounded-3">
+                            <li><a class="dropdown-item small" href="{{ route('import.template', ['module' => 'clients', 'format' => 'csv']) }}"><i class="fas fa-file-csv me-2 text-primary"></i>CSV</a></li>
+                            <li><a class="dropdown-item small" href="{{ route('import.template', ['module' => 'clients', 'format' => 'excel']) }}"><i class="fas fa-file-excel me-2 text-success"></i>Excel</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -132,9 +150,15 @@
                     <button type="button" class="btn btn-outline-warning rounded-pill w-100 mb-2" onclick="openImportModal('suppliers')">
                         <i class="fas fa-upload me-1"></i> Importar
                     </button>
-                    <a href="{{ route('import.template', 'suppliers') }}" class="btn btn-sm btn-link text-decoration-none">
-                        <i class="fas fa-download me-1"></i> Descargar Plantilla
-                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-link text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport">
+                            <i class="fas fa-download me-1"></i> Plantilla
+                        </button>
+                        <ul class="dropdown-menu shadow border-0 rounded-3">
+                            <li><a class="dropdown-item small" href="{{ route('import.template', ['module' => 'suppliers', 'format' => 'csv']) }}"><i class="fas fa-file-csv me-2 text-primary"></i>CSV</a></li>
+                            <li><a class="dropdown-item small" href="{{ route('import.template', ['module' => 'suppliers', 'format' => 'excel']) }}"><i class="fas fa-file-excel me-2 text-success"></i>Excel</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -154,16 +178,23 @@
                     <div class="alert alert-light border-info border-start border-3 small mb-3 text-start py-2 px-2" style="font-size: 0.8rem;">
                         <ul class="mb-0 ps-3">
                             <li><strong>Categoría</strong> (nombre).</li>
-                            <li>Se crea si no existe.</li>
+                            <li><strong>Proveedor</strong> (nombre/empresa).</li>
+                            <li>Se crean categorías si no existen.</li>
                         </ul>
                     </div>
 
                     <button type="button" class="btn btn-outline-info rounded-pill w-100 mb-2" onclick="openImportModal('products')">
                         <i class="fas fa-upload me-1"></i> Importar
                     </button>
-                    <a href="{{ route('import.template', 'products') }}" class="btn btn-sm btn-link text-decoration-none">
-                        <i class="fas fa-download me-1"></i> Descargar Plantilla
-                    </a>
+                    <div class="dropdown">
+                        <button class="btn btn-sm btn-link text-decoration-none dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport">
+                            <i class="fas fa-download me-1"></i> Plantilla
+                        </button>
+                        <ul class="dropdown-menu shadow border-0 rounded-3">
+                            <li><a class="dropdown-item small" href="{{ route('import.template', ['module' => 'products', 'format' => 'csv']) }}"><i class="fas fa-file-csv me-2 text-primary"></i>CSV</a></li>
+                            <li><a class="dropdown-item small" href="{{ route('import.template', ['module' => 'products', 'format' => 'excel']) }}"><i class="fas fa-file-excel me-2 text-success"></i>Excel</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
@@ -245,10 +276,24 @@
 <style>
 .hover-lift {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    z-index: 1;
 }
 .hover-lift:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    z-index: 1050;
+}
+/* Clase para cuando el dropdown está abierto */
+.card-dropdown-open {
+    z-index: 1060 !important;
+}
+/* Asegurar que los dropdowns se vean siempre por encima */
+.dropdown-menu {
+    z-index: 9999 !important;
+}
+.card, .card-body, .row, .col, .col-md-3, .col-md-7 {
+    overflow: visible !important;
 }
 </style>
 
@@ -276,6 +321,27 @@ function openImportModal(module) {
     const modal = new bootstrap.Modal(document.getElementById('importModal'));
     modal.show();
 }
+
+// Manejar z-index dinámico para los dropdowns
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdownElements = document.querySelectorAll('.dropdown');
+    
+    dropdownElements.forEach(dropdown => {
+        dropdown.addEventListener('show.bs.dropdown', function () {
+            const card = this.closest('.card');
+            if (card) {
+                card.classList.add('card-dropdown-open');
+            }
+        });
+
+        dropdown.addEventListener('hide.bs.dropdown', function () {
+            const card = this.closest('.card');
+            if (card) {
+                card.classList.remove('card-dropdown-open');
+            }
+        });
+    });
+});
 
 async function submitImport() {
     const form = document.getElementById('importForm');

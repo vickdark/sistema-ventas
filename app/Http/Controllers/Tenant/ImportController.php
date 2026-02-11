@@ -9,39 +9,50 @@ use App\Models\Tenant\Supplier;
 use App\Models\Tenant\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
+use App\Traits\Tenant\HasImportParsers;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class ImportController extends Controller
 {
+    use HasImportParsers;
+
     public function index()
     {
         return view('tenant.import.index');
     }
 
-    public function template($module)
+    public function template(Request $request, $module)
     {
+        $format = $request->query('format', 'csv');
         $templates = [
             'categories' => [
-                'filename' => 'plantilla_categorias.csv',
+                'filename' => 'plantilla_categorias',
                 'headers' => ['nombre'],
                 'example' => ['Electrónica']
             ],
             'clients' => [
-                'filename' => 'plantilla_clientes.csv',
+                'filename' => 'plantilla_clientes',
                 'headers' => ['nombre', 'nit_ci', 'telefono', 'email'],
                 'example' => ['Juan Pérez', '12345678', '555-1234', 'juan@example.com']
             ],
             'suppliers' => [
-                'filename' => 'plantilla_proveedores.csv',
+                'filename' => 'plantilla_proveedores',
                 'headers' => ['nombre', 'empresa', 'telefono', 'telefono_secundario', 'email', 'direccion'],
                 'example' => ['Carlos López', 'Distribuidora XYZ', '555-5678', '555-9012', 'carlos@xyz.com', 'Av. Principal 123']
             ],
             'products' => [
-                'filename' => 'plantilla_productos.csv',
-                'headers' => ['codigo', 'nombre', 'categoria', 'precio_compra', 'precio_venta', 'stock', 'stock_minimo', 'stock_maximo', 'fecha_entrada', 'imagen', 'descripcion'],
-                'example' => ['PROD001', 'Laptop HP', 'Electrónica', '500.00', '750.00', '10', '5', '50', date('Y-m-d'), '', 'Laptop empresarial']
+                'filename' => 'plantilla_productos',
+                'headers' => ['codigo', 'nombre', 'categoria', 'proveedor', 'precio_compra', 'precio_venta', 'stock', 'stock_minimo', 'stock_maximo', 'fecha_entrada', 'imagen', 'descripcion'],
+                'example' => ['PROD001', 'Laptop HP', 'Electrónica', 'Distribuidora XYZ', '500.00', '750.00', '10', '5', '50', date('Y-m-d'), '', 'Laptop empresarial']
             ],
             'purchases' => [
-                'filename' => 'plantilla_compras.csv',
+                'filename' => 'plantilla_compras',
                 'headers' => ['codigo_producto', 'nombre_empresa_proveedor', 'cantidad', 'precio_unitario', 'numero_compra', 'comprobante', 'fecha_compra'],
                 'example' => ['PROD001', 'Distribuidora XYZ', '10', '500.00', 'COMP-001', 'FAC-12345', date('Y-m-d')]
             ]
@@ -52,38 +63,59 @@ class ImportController extends Controller
         }
 
         $template = $templates[$module];
-        
+        $filename = $template['filename'] . '.' . ($format === 'excel' ? 'xlsx' : 'csv');
+
+        if ($format === 'excel') {
+            $spreadsheet = new Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            
+            // Headers
+            $sheet->fromArray([$template['headers']], NULL, 'A1');
+            // Example row
+            $sheet->fromArray([$template['example']], NULL, 'A2');
+
+            $writer = new Xlsx($spreadsheet);
+            
+            return response()->streamDownload(function() use ($writer) {
+                $writer->save('php://output');
+            }, $filename, [
+                'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ]);
+        }
+
+        // CSV logic (default)
         $csv = fopen('php://temp', 'w');
-        
-        // UTF-8 BOM para Excel
-        fprintf($csv, chr(0xEF).chr(0xBB).chr(0xBF));
-        
-        // Headers
+        fprintf($csv, chr(0xEF).chr(0xBB).chr(0xBF)); // BOM
         fputcsv($csv, $template['headers']);
-        
-        // Example row
         fputcsv($csv, $template['example']);
-        
         rewind($csv);
         $content = stream_get_contents($csv);
         fclose($csv);
 
         return response($content)
             ->header('Content-Type', 'text/csv; charset=UTF-8')
-            ->header('Content-Disposition', 'attachment; filename="' . $template['filename'] . '"');
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
     public function importCategories(Request $request)
     {
+        ini_set('memory_limit', '512M');
         $request->validate([
             'file' => 'required|file|extensions:csv,xlsx,xls|max:10240'
         ]);
 
         $file = $request->file('file');
+        $extension = $file->getClientOriginalExtension();
         $skipDuplicates = $request->boolean('skip_duplicates', true);
 
-        $data = $this->parseFile($file);
+        $data = $this->parseFile($file->getRealPath(), $extension);
         
+        if (count($data) > 50) {
+            $path = $file->store('temp_imports');
+            \App\Jobs\Tenant\ImportCategoriesJob::dispatch($path, $extension, $skipDuplicates);
+            return redirect()->back()->with('info', 'El archivo es grande (' . count($data) . ' filas) y se está procesando en segundo plano.');
+        }
+
         $created = 0;
         $duplicates = 0;
         $errors = 0;
@@ -129,15 +161,23 @@ class ImportController extends Controller
 
     public function importClients(Request $request)
     {
+        ini_set('memory_limit', '512M');
         $request->validate([
             'file' => 'required|file|extensions:csv,xlsx,xls|max:10240'
         ]);
 
         $file = $request->file('file');
+        $extension = $file->getClientOriginalExtension();
         $skipDuplicates = $request->boolean('skip_duplicates', true);
 
-        $data = $this->parseFile($file);
+        $data = $this->parseFile($file->getRealPath(), $extension);
         
+        if (count($data) > 50) {
+            $path = $file->store('temp_imports');
+            \App\Jobs\Tenant\ImportClientsJob::dispatch($path, $extension, $skipDuplicates);
+            return redirect()->back()->with('info', 'El archivo es grande (' . count($data) . ' filas) y se está procesando en segundo plano.');
+        }
+
         $created = 0;
         $duplicates = 0;
         $errors = 0;
@@ -197,15 +237,23 @@ class ImportController extends Controller
 
     public function importSuppliers(Request $request)
     {
+        ini_set('memory_limit', '512M');
         $request->validate([
             'file' => 'required|file|extensions:csv,xlsx,xls|max:10240'
         ]);
 
         $file = $request->file('file');
+        $extension = $file->getClientOriginalExtension();
         $skipDuplicates = $request->boolean('skip_duplicates', true);
 
-        $data = $this->parseFile($file);
+        $data = $this->parseFile($file->getRealPath(), $extension);
         
+        if (count($data) > 50) {
+            $path = $file->store('temp_imports');
+            \App\Jobs\Tenant\ImportSuppliersJob::dispatch($path, $extension, $skipDuplicates);
+            return redirect()->back()->with('info', 'El archivo es grande (' . count($data) . ' filas) y se está procesando en segundo plano.');
+        }
+
         $created = 0;
         $duplicates = 0;
         $errors = 0;
@@ -269,15 +317,28 @@ class ImportController extends Controller
 
     public function importProducts(Request $request)
     {
+        // Aumentar memoria para procesar archivos grandes
+        ini_set('memory_limit', '512M');
+        set_time_limit(300);
+
         $request->validate([
             'file' => 'required|file|extensions:csv,xlsx,xls|max:10240'
         ]);
 
         $file = $request->file('file');
+        $extension = $file->getClientOriginalExtension();
         $skipDuplicates = $request->boolean('skip_duplicates', true);
 
-        $data = $this->parseFile($file);
+        $data = $this->parseFile($file->getRealPath(), $extension);
         
+        // Si el archivo tiene más de 50 filas, procesar en segundo plano
+        if (count($data) > 50) {
+            $path = $file->store('temp_imports');
+            \App\Jobs\Tenant\ImportProductsJob::dispatch($path, $extension, Auth::id(), $skipDuplicates);
+            
+            return redirect()->back()->with('info', 'El archivo es grande (' . count($data) . ' filas) y se está procesando en segundo plano. Los productos aparecerán gradualmente.');
+        }
+
         $created = 0;
         $duplicates = 0;
         $errors = 0;
@@ -291,6 +352,7 @@ class ImportController extends Controller
             }
 
             $categoryName = trim($row[2] ?? '');
+            $supplierName = trim($row[3] ?? '');
             
             // Find or create category
             $categoryId = null;
@@ -299,19 +361,45 @@ class ImportController extends Controller
                 $categoryId = $category->id;
             }
 
+            // Find supplier by name or company
+            $supplierId = null;
+            if (!empty($supplierName)) {
+                $supplier = Supplier::where('name', 'LIKE', $supplierName)
+                    ->orWhere('company', 'LIKE', $supplierName)
+                    ->first();
+                if ($supplier) {
+                    $supplierId = $supplier->id;
+                } else {
+                    // Si no existe, crear el proveedor básico con el nombre proporcionado
+                    try {
+                        $supplier = Supplier::create([
+                            'name' => $supplierName,
+                            'company' => $supplierName,
+                            'phone' => 'Pendiente', // Requerido por la tabla
+                            'address' => 'Pendiente' // Requerido por la tabla
+                        ]);
+                        $supplierId = $supplier->id;
+                    } catch (\Exception $e) {
+                        $errors++;
+                        $errorMessages[] = "Fila " . ($index + 1) . ": No se pudo crear el proveedor '{$supplierName}'. " . $e->getMessage();
+                        continue;
+                    }
+                }
+            }
+
             $productData = [
                 'code' => trim($row[0] ?? ''),
                 'name' => trim($row[1] ?? ''),
                 'category_id' => $categoryId,
-                'purchase_price' => trim($row[3] ?? ''),
-                'sale_price' => trim($row[4] ?? ''),
-                'stock' => trim($row[5] ?? ''),
-                'min_stock' => trim($row[6] ?? ''),
-                'max_stock' => trim($row[7] ?? ''),
-                'entry_date' => trim($row[8] ?? date('Y-m-d')),
-                'image' => trim($row[9] ?? '') ?: null,
-                'description' => trim($row[10] ?? '') ?: null,
-                'user_id' => auth()->id()
+                'purchase_price' => trim($row[4] ?? ''),
+                'sale_price' => trim($row[5] ?? ''),
+                'stock' => trim($row[6] ?? ''),
+                'min_stock' => trim($row[7] ?? ''),
+                'max_stock' => trim($row[8] ?? ''),
+                'entry_date' => $this->transformDate($row[9] ?? null),
+                'image' => trim($row[10] ?? '') ?: null,
+                'description' => trim($row[11] ?? '') ?: null,
+                'user_id' => Auth::id()
             ];
 
             // Validate
@@ -342,7 +430,24 @@ class ImportController extends Controller
             }
 
             try {
-                Product::create($productData);
+                // Manejar Imagen si existe
+                $imagePath = null;
+                $imageUrl = trim($row[10] ?? '');
+                
+                if (!empty($imageUrl)) {
+                    $imagePath = $this->downloadAndStoreImage($imageUrl, $productData['code']);
+                    if ($imagePath) {
+                        $productData['image'] = $imagePath;
+                    }
+                }
+
+                $product = Product::create($productData);
+                
+                // Relacionar con el proveedor si existe
+                if ($supplierId) {
+                    $product->suppliers()->attach($supplierId);
+                }
+
                 $created++;
             } catch (\Exception $e) {
                 $errors++;
@@ -361,15 +466,23 @@ class ImportController extends Controller
 
     public function importPurchases(Request $request)
     {
+        ini_set('memory_limit', '512M');
         $request->validate([
             'file' => 'required|file|extensions:csv,xlsx,xls|max:10240'
         ]);
 
         $file = $request->file('file');
+        $extension = $file->getClientOriginalExtension();
         $skipDuplicates = $request->boolean('skip_duplicates', true);
 
-        $data = $this->parseFile($file);
+        $data = $this->parseFile($file->getRealPath(), $extension);
         
+        if (count($data) > 50) {
+            $path = $file->store('temp_imports');
+            \App\Jobs\Tenant\ImportPurchasesJob::dispatch($path, $extension, Auth::id(), $skipDuplicates);
+            return redirect()->back()->with('info', 'El archivo es grande (' . count($data) . ' filas) y se está procesando en segundo plano.');
+        }
+
         $created = 0;
         $duplicates = 0;
         $errors = 0;
@@ -414,7 +527,7 @@ class ImportController extends Controller
                 'nro_compra' => $nroCompra,
                 'voucher' => $voucher,
                 'purchase_date' => $purchaseDate,
-                'user_id' => auth()->id()
+                'user_id' => Auth::id()
             ];
 
             // Validar datos básicos
@@ -471,32 +584,38 @@ class ImportController extends Controller
         ]);
     }
 
-    private function parseFile($file)
+    private function downloadAndStoreImage($url, $code)
     {
-        $extension = $file->getClientOriginalExtension();
-        $path = $file->getRealPath();
-
-        if ($extension === 'csv') {
-            return $this->parseCsv($path);
-        } else {
-            // Nota: Para archivos Excel (.xlsx, .xls) se requiere una librería como PhpSpreadsheet.
-            // Por ahora, intentamos leerlo como CSV por si el usuario solo cambió la extensión,
-            // pero lo ideal es que use archivos CSV reales.
-            return $this->parseCsv($path);
-        }
-    }
-
-    private function parseCsv($path)
-    {
-        $data = [];
-        
-        if (($handle = fopen($path, 'r')) !== false) {
-            while (($row = fgetcsv($handle, 1000, ',')) !== false) {
-                $data[] = $row;
+        try {
+            // Si la URL no empieza con http, ignorar (o manejar como ruta local si fuera necesario)
+            if (!Str::startsWith($url, ['http://', 'https://'])) {
+                return null;
             }
-            fclose($handle);
+
+            // Timeout de 5 segundos por imagen para no bloquear el proceso principal
+            /** @var \Illuminate\Http\Client\Response $response */
+            $response = Http::timeout(5)->get($url);
+
+            if ($response->successful()) {
+                $contentType = $response->header('Content-Type');
+                $extension = 'jpg'; // default
+                
+                if (Str::contains($contentType, 'image/png')) $extension = 'png';
+                elseif (Str::contains($contentType, 'image/jpeg')) $extension = 'jpg';
+                elseif (Str::contains($contentType, 'image/webp')) $extension = 'webp';
+                elseif (Str::contains($contentType, 'image/gif')) $extension = 'gif';
+
+                $filename = 'products/' . $code . '_' . time() . '.' . $extension;
+                
+                Storage::disk('public')->put($filename, $response->body());
+                
+                return $filename;
+            }
+        } catch (\Exception $e) {
+            // Silenciosamente fallar la descarga de imagen pero permitir que el producto se cree
+            return null;
         }
 
-        return $data;
+        return null;
     }
 }

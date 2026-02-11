@@ -11,7 +11,8 @@ Actualmente, el sistema cuenta con la base de multitenencia configurada y los m�
 *   **Multitenancy:** Aislamiento de base de datos por cliente (Single-database per tenant).
 *   **Gestión de Usuarios:** CRUD completo de usuarios por inquilino.
 *   **Roles y Permisos:** Sistema dinámico de permisos con sincronización automática de rutas.
-*   **Módulos de Ventas:** En desarrollo (Próximamente: Inventario, Clientes, Facturación).
+*   **Módulos de Ventas:** En desarrollo (Inventario, Clientes, Facturación).
+*   **Módulo ETL (Importación):** Sistema robusto para carga masiva de datos (CSV/Excel) con soporte para imágenes y procesamiento en segundo plano. [Ver Documentación ETL](ETL_MODULE.md).
 
 ---
 
