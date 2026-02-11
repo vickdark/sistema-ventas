@@ -49,11 +49,19 @@
 
             {{-- Sección de Administración Central --}}
             @if(auth('owner')->check())
-                <a class="nav-link {{ request()->routeIs('central.tenants.*') || request()->routeIs('central.dashboard') ? 'active' : '' }}" href="{{ route('central.tenants.index') }}">
+                <div class="sidebar-heading px-4 mt-3 mb-1 text-sidebar-muted text-uppercase fw-bold" style="font-size: 0.6rem; letter-spacing: 0.05em; opacity: 0.8;">
+                    Administración Central
+                </div>
+                <a class="nav-link {{ request()->routeIs('central.dashboard') ? 'active' : '' }}" href="{{ route('central.dashboard') }}">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span class="app-link-text">Dashboard Central</span>
+                </a>
+                <a class="nav-link {{ request()->routeIs('central.tenants.*') ? 'active' : '' }}" href="{{ route('central.tenants.index') }}">
                     <i class="fa-solid fa-building-shield"></i>
                     <span class="app-link-text">Inquilinos</span>
                 </a>
             @endif
+
 
             @php $currentModule = null; @endphp
             @foreach($permissions as $item)

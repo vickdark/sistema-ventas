@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Prevenir caché del botón atrás
         $middleware->append(\App\Http\Middleware\PreventBackHistory::class);
+        $middleware->append(\App\Http\Middleware\LogRequests::class);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

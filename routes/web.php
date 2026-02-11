@@ -14,9 +14,8 @@ Route::prefix('central')->name('central.')->middleware(EnsureCentralDomain::clas
     Route::post('/login', [App\Http\Controllers\Central\Auth\CentralLoginController::class, 'store'])->name('login.submit');
 
     Route::middleware('auth:owner')->group(function () {
-        Route::get('/dashboard', function() {
-            return redirect()->route('central.tenants.index');
-        })->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\Central\DashboardController::class, 'index'])->name('dashboard');
+
         
         Route::get('/tenants/check-id', [\App\Http\Controllers\Central\TenantController::class, 'checkId'])->name('tenants.check');
         Route::post('/tenants/{tenant}/maintenance', [\App\Http\Controllers\Central\TenantController::class, 'maintenance'])->name('tenants.maintenance');
