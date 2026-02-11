@@ -14,11 +14,17 @@
         <div class="col-md-5">
             <div class="card border-0 shadow rounded-4 overflow-hidden mb-4">
                 <div class="card-header bg-white py-4 border-0 text-center">
-                    <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
-                        <i class="fas fa-receipt text-primary fs-2"></i>
-                    </div>
-                    <h4 class="fw-bold mb-1">Comprobante de Venta</h4>
-                    <p class="text-muted mb-0">Nro. Venta: #{{ str_pad($sale->nro_venta, 6, '0', STR_PAD_LEFT) }}</p>
+                    @if(tenant('logo'))
+                        <div class="mb-3">
+                            <img src="{{ asset('storage/' . tenant('logo')) }}" alt="Logo" class="img-fluid" style="max-height: 80px;">
+                        </div>
+                    @else
+                        <div class="bg-primary bg-opacity-10 rounded-circle d-inline-flex p-3 mb-3">
+                            <i class="fas fa-receipt text-primary fs-2"></i>
+                        </div>
+                    @endif
+                    <h4 class="fw-bold mb-1">{{ tenant('business_name') ?? tenant('id') }}</h4>
+                    <p class="text-muted small mb-0">NIT: {{ tenant('tax_id') ?? 'N/A' }} | Nro. Venta: #{{ str_pad($sale->nro_venta, 6, '0', STR_PAD_LEFT) }}</p>
                 </div>
                 
                 <div class="card-body p-4 border-top">
@@ -107,7 +113,7 @@
                 </div>
                 
                 <div class="card-footer bg-white border-top py-3 text-center text-muted small">
-                    <p class="mb-0">¡Gracias por su compra!</p>
+                    <p class="mb-0">{{ tenant('invoice_footer') ?? '¡Gracias por su compra!' }}</p>
                 </div>
             </div>
         </div>

@@ -1,10 +1,10 @@
 @extends('layouts.guest')
 
 @section('content')
-    <div class="mb-4">
-        <h1 class="h4 fw-semibold">Iniciar sesion</h1>
-        <p class="text-secondary mb-0">Accede a tu cuenta.</p>
-    </div>
+    @include('partials.auth-header', [
+        'title' => 'Bienvenido de nuevo',
+        'subtitle' => 'Ingresa tus credenciales para acceder al sistema.'
+    ])
 
     @if (session('status'))
         <div class="alert alert-success">{{ session('status') }}</div>
@@ -48,11 +48,15 @@
             <label class="form-check-label" for="remember">Recordarme</label>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <a class="small text-decoration-none" href="{{ route('password.request') }}">
-                Olvidaste tu contrasena?
-            </a>
-            <button class="btn btn-primary text-white" type="submit">Entrar</button>
+        <div class="d-grid gap-3 mt-4">
+            <button class="btn btn-primary btn-lg text-white rounded-pill shadow-sm py-2 fw-bold" type="submit">
+                Entrar al Sistema
+            </button>
+            <div class="text-center">
+                <a class="small text-decoration-none text-muted" href="{{ route('password.request') }}">
+                    ¿Olvidaste tu contraseña?
+                </a>
+            </div>
         </div>
     </form>
 @endsection

@@ -91,9 +91,22 @@ class TenantController extends Controller
                     }
                 },
             ],
+            'business_name' => 'nullable|string|max:255',
+            'legal_name'    => 'nullable|string|max:255',
+            'tax_id'        => 'nullable|string|max:50',
+            'phone'         => 'nullable|string|max:50',
+            'email'         => 'nullable|email|max:255',
+            'website'       => 'nullable|url|max:255',
+            'address'       => 'nullable|string',
+            'currency'      => 'nullable|string|max:10',
+            'business_type' => 'nullable|string|max:50',
+            'timezone'      => 'nullable|string|max:50',
+            'logo'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'invoice_footer' => 'nullable|string',
         ], [
             'id.unique' => 'Este nombre de empresa ya está registrado.',
             'id.alpha_dash' => 'El ID solo puede contener letras, números y guiones.',
+            'logo.max' => 'El logo no debe pesar más de 2MB.',
         ]);
 
         try {
@@ -101,18 +114,47 @@ class TenantController extends Controller
             $tenantId = $request->id;
             $tenantDbName = $centralDbName . '_' . $tenantId;
 
+            // Procesar Logo
+            $logoPath = null;
+            if ($request->hasFile('logo')) {
+                $logoPath = $request->file('logo')->store('tenants/logos', 'public');
+            }
+
+            // Recopilar datos adicionales para el campo JSON 'data'
+            $tenantData = [
+                'business_name'  => $request->business_name,
+                'legal_name'     => $request->legal_name,
+                'tax_id'         => $request->tax_id,
+                'phone'          => $request->phone,
+                'email'          => $request->email,
+                'website'        => $request->website,
+                'address'        => $request->address,
+                'currency'       => $request->currency ?? 'COP',
+                'business_type'  => $request->business_type,
+                'timezone'       => $request->timezone ?? 'America/Bogota',
+                'logo'           => $logoPath,
+                'invoice_footer' => $request->invoice_footer,
+            ];
+
             // Primero buscamos si ya existe para evitar duplicados
             $tenant = Tenant::find($tenantId);
             
             if (!$tenant) {
-                // Si no existe, lo creamos PERO sin guardar aún
+                // Si no existe, lo creamos con sus datos iniciales
                 $tenant = Tenant::make(['id' => $tenantId]);
+                // Combinamos los datos base de Stancl con nuestros datos personalizados
+                foreach ($tenantData as $key => $value) {
+                    $tenant->$key = $value;
+                }
+                
                 // Establecemos el nombre de la DB ANTES de guardar
-                // para que el Job de creación use este nombre
                 $tenant->setInternal('db_name', $tenantDbName);
                 $tenant->save();
             } else {
-                // Si ya existe, solo actualizamos el nombre interno por si acaso
+                // Si ya existe (caso raro por la validación unique), actualizamos
+                foreach ($tenantData as $key => $value) {
+                    $tenant->$key = $value;
+                }
                 $tenant->setInternal('db_name', $tenantDbName);
                 $tenant->save();
             }
@@ -240,8 +282,55 @@ class TenantController extends Controller
 
     public function update(Request $request, Tenant $tenant)
     {
-        return redirect()->route('central.tenants.index')
-            ->with('success', "Información de la empresa {$tenant->id} verificada.");
+        $request->validate([
+            'business_name' => 'nullable|string|max:255',
+            'legal_name'    => 'nullable|string|max:255',
+            'tax_id'        => 'nullable|string|max:50',
+            'phone'         => 'nullable|string|max:50',
+            'email'         => 'nullable|email|max:255',
+            'website'       => 'nullable|url|max:255',
+            'address'       => 'nullable|string',
+            'currency'      => 'nullable|string|max:10',
+            'business_type' => 'nullable|string|max:50',
+            'timezone'      => 'nullable|string|max:50',
+            'logo'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'invoice_footer' => 'nullable|string',
+        ]);
+
+        try {
+            // Recopilar datos para actualizar
+            $tenantData = [
+                'business_name'  => $request->business_name,
+                'legal_name'     => $request->legal_name,
+                'tax_id'         => $request->tax_id,
+                'phone'          => $request->phone,
+                'email'          => $request->email,
+                'website'        => $request->website,
+                'address'        => $request->address,
+                'currency'       => $request->currency,
+                'business_type'  => $request->business_type,
+                'timezone'       => $request->timezone,
+                'invoice_footer' => $request->invoice_footer,
+            ];
+
+            // Procesar Logo solo si se subió uno nuevo
+            if ($request->hasFile('logo')) {
+                // Podríamos eliminar el logo anterior aquí si quisiéramos
+                $tenantData['logo'] = $request->file('logo')->store('tenants/logos', 'public');
+            }
+
+            // Actualizar el tenant
+            foreach ($tenantData as $key => $value) {
+                $tenant->$key = $value;
+            }
+            $tenant->save();
+
+            return redirect()->route('central.tenants.index')
+                ->with('success', "Información de la empresa {$tenant->id} actualizada correctamente.");
+
+        } catch (\Exception $e) {
+            return back()->withInput()->with('error', 'Error al actualizar: ' . $e->getMessage());
+        }
     }
 
     public function destroy(Tenant $tenant)

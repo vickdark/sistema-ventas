@@ -121,6 +121,9 @@ php artisan key:generate
 # Migrar base de datos central (tablas tenants y domains)
 php artisan migrate
 
+# Crear enlace simbólico para logos y archivos
+php artisan storage:link
+
 # Compilar assets
 npm run build
 ```

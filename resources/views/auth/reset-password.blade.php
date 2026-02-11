@@ -1,10 +1,10 @@
 @extends('layouts.guest')
 
 @section('content')
-    <div class="mb-4">
-        <h1 class="h4 fw-semibold">Restablecer contrasena</h1>
-        <p class="text-secondary mb-0">Define una nueva contrasena.</p>
-    </div>
+    @include('partials.auth-header', [
+        'title' => 'Restablecer contraseña',
+        'subtitle' => 'Define una nueva contraseña para tu cuenta.'
+    ])
 
     <form method="POST" action="{{ route('password.store') }}">
         @csrf
@@ -52,6 +52,10 @@
             >
         </div>
 
-        <button class="btn btn-brand text-white w-100" type="submit">Restablecer</button>
+        <div class="d-grid mt-4">
+            <button class="btn btn-primary btn-lg text-white rounded-pill shadow-sm py-2 fw-bold" type="submit">
+                Restablecer Contraseña
+            </button>
+        </div>
     </form>
 @endsection

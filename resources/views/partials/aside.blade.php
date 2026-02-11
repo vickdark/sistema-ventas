@@ -1,17 +1,26 @@
 <aside class="app-sidebar">
     <div class="app-sidebar-inner">
         <div class="app-sidebar-brand px-4 py-3 d-flex align-items-center gap-3">
-            <div class="app-brand-logo bg-primary bg-opacity-10 rounded-3 d-flex align-items-center justify-content-center shadow-sm" style="width: 40px; height: 40px; min-width: 40px;">
-                <i class="fa-solid fa-rocket text-primary fs-4"></i>
-            </div>
             @php
                 $isTenant = function_exists('tenant') && tenant();
-                $brandTitle = $isTenant ? ucfirst(tenant('id')) : config('app.name', 'Laravel');
+                $logo = $isTenant ? tenant('logo') : null;
+                $brandTitle = $isTenant ? (tenant('business_name') ?? ucfirst(tenant('id'))) : config('app.name', 'Laravel');
                 $brandSubtitle = $isTenant ? 'Portal de Empresa' : 'Administración Central';
             @endphp
+
+            <div class="app-brand-logo bg-white bg-opacity-10 rounded-3 d-flex align-items-center justify-content-center shadow-sm overflow-hidden" style="width: 45px; height: 45px; min-width: 45px;">
+                @if($logo)
+                    <img src="{{ asset('storage/' . $logo) }}" alt="Logo" style="width: 100%; height: 100%; object-fit: contain; padding: 4px;">
+                @else
+                    <div class="bg-primary bg-opacity-10 w-100 h-100 d-flex align-items-center justify-content-center">
+                        <i class="fa-solid fa-rocket text-primary fs-4"></i>
+                    </div>
+                @endif
+            </div>
+
             <div class="app-brand-info overflow-hidden">
-                <span class="app-brand-text fw-bold text-white fs-5 lh-1 d-block">{{ $brandTitle }}</span>
-                <span class="text-sidebar-muted fw-medium" style="font-size: 0.65rem; letter-spacing: 0.05em; text-transform: uppercase;">{{ $brandSubtitle }}</span>
+                <span class="app-brand-text fw-bold text-white fs-5 lh-1 d-block text-truncate">{{ $brandTitle }}</span>
+                <span class="text-sidebar-muted fw-medium d-block text-truncate" style="font-size: 0.65rem; letter-spacing: 0.05em; text-transform: uppercase;">{{ $brandSubtitle }}</span>
             </div>
         </div>
 

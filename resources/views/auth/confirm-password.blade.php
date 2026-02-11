@@ -1,10 +1,10 @@
 @extends('layouts.guest')
 
 @section('content')
-    <div class="mb-4">
-        <h1 class="h4 fw-semibold">Confirmar contrasena</h1>
-        <p class="text-secondary mb-0">Confirma tu contrasena para continuar.</p>
-    </div>
+    @include('partials.auth-header', [
+        'title' => 'Confirmar contraseña',
+        'subtitle' => 'Confirma tu contraseña para continuar.'
+    ])
 
     <form method="POST" action="{{ route('password.confirm') }}">
         @csrf
@@ -24,6 +24,10 @@
             @enderror
         </div>
 
-        <button class="btn btn-brand text-white w-100" type="submit">Confirmar</button>
+        <div class="d-grid mt-4">
+            <button class="btn btn-primary btn-lg text-white rounded-pill shadow-sm py-2 fw-bold" type="submit">
+                Confirmar Contraseña
+            </button>
+        </div>
     </form>
 @endsection

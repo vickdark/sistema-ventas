@@ -238,3 +238,30 @@ $middleware->validateCsrfTokens(except: [
     'central/tenants/*/maintenance'
 ]);
 ```
+## 16. Personalización y Almacenamiento de Inquilinos
+Se ha extendido el modelo de registro de inquilinos para capturar información corporativa detallada, almacenada de forma flexible en la columna JSON `data`.
+
+### Campos Adicionales Soportados:
+*   **Identificación:** Nombre Comercial, Razón Social, NIT/RUC.
+*   **Contacto:** Teléfono, Email, Sitio Web, Dirección física.
+*   **Configuración Local:** Moneda (Soporta COP y USD) y Zona Horaria (Optimizado para América del Sur).
+*   **Documentación:** Logo de la empresa y pie de página personalizado para facturas.
+
+### Almacenamiento de Logos:
+Los logos se almacenan en el disco público para facilitar su acceso desde las vistas y reportes.
+*   **Ruta Física:** `storage/app/public/tenants/logos/`
+*   **Acceso URL:** `asset('storage/' . $tenant->logo)`
+
+### Requisito Crítico de Almacenamiento:
+Para que los logos sean visibles en el navegador, es obligatorio crear el enlace simbólico:
+```bash
+php artisan storage:link
+```
+
+### Implementación Técnica (Controlador):
+La persistencia se realiza aprovechando las propiedades dinámicas de `stancl/tenancy`, las cuales se mapean automáticamente al campo `data`:
+```php
+$tenant->business_name = $request->business_name;
+$tenant->logo = $request->file('logo')->store('tenants/logos', 'public');
+$tenant->save();
+```

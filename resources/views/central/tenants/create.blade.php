@@ -21,7 +21,7 @@
                     <h5 class="card-title mb-0 fw-bold">Información de Configuración</h5>
                 </div>
                 <div class="card-body p-4">
-                    <form action="{{ route('central.tenants.store') }}" method="POST" id="tenant-form">
+                    <form action="{{ route('central.tenants.store') }}" method="POST" id="tenant-form" enctype="multipart/form-data">
                         @csrf
                         
                         <div class="row g-4">
@@ -56,6 +56,130 @@
                                 @error('id')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
+                            </div>
+
+                            <!-- Información de la Empresa (Colapsable) -->
+                            <div class="col-12">
+                                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-4 border shadow-sm mb-2" 
+                                     style="cursor: pointer;" 
+                                     data-bs-toggle="collapse" 
+                                     data-bs-target="#businessInfoCollapse" 
+                                     aria-expanded="false">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-primary bg-opacity-10 p-2 rounded-circle me-3">
+                                            <i class="fas fa-building text-primary"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">Información de la Empresa</h6>
+                                            <small class="text-muted">Nombre comercial, NIT, logo y contacto</small>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-down text-muted transition-all" id="business-info-icon"></i>
+                                </div>
+
+                                <div class="collapse mt-3" id="businessInfoCollapse">
+                                    <div class="card card-body border-0 shadow-none bg-transparent p-0">
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <label for="business_name" class="form-label fw-semibold">Nombre Comercial</label>
+                                                <input type="text" class="form-control" id="business_name" name="business_name" 
+                                                       value="{{ old('business_name') }}" placeholder="Ej: Mi Tienda">
+                                                <small class="text-muted">Nombre que aparecerá en facturas y reportes</small>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="legal_name" class="form-label fw-semibold">Razón Social</label>
+                                                <input type="text" class="form-control" id="legal_name" name="legal_name" 
+                                                       value="{{ old('legal_name') }}" placeholder="Ej: Mi Tienda S.R.L.">
+                                                <small class="text-muted">Nombre legal de la empresa</small>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="tax_id" class="form-label fw-semibold">NIT/RUC</label>
+                                                <input type="text" class="form-control" id="tax_id" name="tax_id" 
+                                                       value="{{ old('tax_id') }}" placeholder="Ej: 123456789">
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="phone" class="form-label fw-semibold">Teléfono</label>
+                                                <input type="text" class="form-control" id="phone" name="phone" 
+                                                       value="{{ old('phone') }}" placeholder="Ej: +591 12345678">
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="email" class="form-label fw-semibold">Email</label>
+                                                <input type="email" class="form-control" id="email" name="email" 
+                                                       value="{{ old('email') }}" placeholder="contacto@miempresa.com">
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="website" class="form-label fw-semibold">Sitio Web (Opcional)</label>
+                                                <input type="url" class="form-control" id="website" name="website" 
+                                                       value="{{ old('website') }}" placeholder="https://miempresa.com">
+                                            </div>
+
+                                            <div class="col-12">
+                                                <label for="address" class="form-label fw-semibold">Dirección</label>
+                                                <textarea class="form-control" id="address" name="address" rows="2" 
+                                                          placeholder="Dirección completa del negocio">{{ old('address') }}</textarea>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label for="currency" class="form-label fw-semibold">Moneda</label>
+                                                <select class="form-select" id="currency" name="currency">
+                                                    <option value="COP" selected>Pesos Colombianos (COP)</option>
+                                                    <option value="USD">Dólares (USD)</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label for="business_type" class="form-label fw-semibold">Tipo de Negocio</label>
+                                                <select class="form-select" id="business_type" name="business_type">
+                                                    <option value="">Seleccionar...</option>
+                                                    <option value="retail">Retail / Minorista</option>
+                                                    <option value="wholesale">Mayorista</option>
+                                                    <option value="services">Servicios</option>
+                                                    <option value="restaurant">Restaurante</option>
+                                                    <option value="other">Otro</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-md-4">
+                                                <label for="timezone" class="form-label fw-semibold">Zona Horaria</label>
+                                                <select class="form-select" id="timezone" name="timezone">
+                                                    <option value="America/Bogota" selected>Bogotá / Lima / Quito</option>
+                                                    <option value="America/Caracas">Caracas</option>
+                                                    <option value="America/La_Paz">La Paz / Asunción</option>
+                                                    <option value="America/Santiago">Santiago</option>
+                                                    <option value="America/Argentina/Buenos_Aires">Buenos Aires</option>
+                                                    <option value="America/Sao_Paulo">Sao Paulo</option>
+                                                </select>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <label for="logo" class="form-label fw-semibold">
+                                                    <i class="fas fa-image me-2"></i>Logo de la Empresa
+                                                </label>
+                                                <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                                                <small class="text-muted">Formatos: JPG, PNG. Tamaño máximo: 2MB</small>
+                                            </div>
+
+                                            <div class="col-12">
+                                                <label for="invoice_footer" class="form-label fw-semibold">Pie de Página para Facturas (Opcional)</label>
+                                                <textarea class="form-control" id="invoice_footer" name="invoice_footer" rows="2" 
+                                                          placeholder="Texto que aparecerá al final de las facturas">{{ old('invoice_footer') }}</textarea>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Configuración Técnica -->
+                            <div class="col-12">
+                                <hr class="my-4">
+                                <h6 class="text-uppercase text-muted fw-bold mb-3">
+                                    <i class="fas fa-cog me-2"></i>Configuración Técnica
+                                </h6>
                             </div>
 
                             <div class="col-md-12">

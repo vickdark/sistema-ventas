@@ -20,10 +20,19 @@
         <div class="col-md-4 mb-4">
             <div class="card border-0 shadow-soft rounded-4 h-100 text-center">
                 <div class="card-body p-4 d-flex flex-column justify-content-center align-items-center">
-                    <div class="rounded-circle bg-primary bg-opacity-10 p-4 mb-3">
-                        <i class="fas fa-shopping-cart fa-3x text-primary"></i>
-                    </div>
-                    <h5 class="fw-bold mb-1">Monto Total</h5>
+                    @if(tenant('logo'))
+                        <div class="mb-3">
+                            <img src="{{ asset('storage/' . tenant('logo')) }}" alt="Logo" class="img-fluid rounded shadow-sm" style="max-height: 80px;">
+                        </div>
+                    @else
+                        <div class="rounded-circle bg-primary bg-opacity-10 p-4 mb-3">
+                            <i class="fas fa-shopping-cart fa-3x text-primary"></i>
+                        </div>
+                    @endif
+                    <h5 class="fw-bold mb-1">{{ tenant('business_name') ?? tenant('id') }}</h5>
+                    <p class="text-muted small mb-3">NIT: {{ tenant('tax_id') ?? 'N/A' }}</p>
+                    <hr class="w-100 my-2">
+                    <h5 class="fw-bold mb-1 mt-2">Monto Total</h5>
                     <h2 class="text-primary fw-bold mb-3">${{ number_format($purchase->quantity * $purchase->price, 2) }}</h2>
                     <p class="text-muted small mb-0">Comprobante: <strong>{{ $purchase->voucher }}</strong></p>
                     <p class="text-muted small mb-0">Fecha: {{ \Carbon\Carbon::parse($purchase->purchase_date)->format('d/m/Y') }}</p>

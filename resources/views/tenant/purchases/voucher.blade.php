@@ -6,9 +6,23 @@
         <div class="card shadow-sm border-0 print-card">
             <div class="card-body p-5">
                 <!-- Header -->
-                <div class="text-center mb-5">
-                    <h2 class="fw-bold text-uppercase mb-1">{{ tenant('id') }}</h2>
-                    <p class="text-muted mb-0">Comprobante de Ingreso de Mercancía</p>
+                <div class="row mb-5 align-items-center">
+                    <div class="col-md-6">
+                        @if(tenant('logo'))
+                            <img src="{{ asset('storage/' . tenant('logo')) }}" alt="Logo" class="img-fluid mb-2" style="max-height: 80px;">
+                        @endif
+                        <h2 class="fw-bold text-uppercase mb-1">{{ tenant('business_name') ?? tenant('id') }}</h2>
+                        <h6 class="text-muted mb-0">NIT/RUC: {{ tenant('tax_id') ?? 'N/A' }}</h6>
+                    </div>
+                    <div class="col-md-6 text-md-end mt-3 mt-md-0">
+                        <p class="text-muted small mb-1"><i class="fas fa-map-marker-alt me-2"></i>{{ tenant('address') ?? 'Dirección no especificada' }}</p>
+                        <p class="text-muted small mb-1"><i class="fas fa-phone me-2"></i>{{ tenant('phone') ?? 'S/N' }}</p>
+                        <p class="text-muted small mb-0"><i class="fas fa-envelope me-2"></i>{{ tenant('email') ?? '---' }}</p>
+                    </div>
+                    <div class="col-12 text-center mt-4">
+                        <p class="text-muted fw-bold mb-0">Comprobante de Ingreso de Mercancía</p>
+                        <hr class="my-2">
+                    </div>
                 </div>
 
                 <!-- Info Compra -->

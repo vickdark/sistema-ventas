@@ -1,12 +1,10 @@
 @extends('layouts.guest')
 
 @section('content')
-    <div class="mb-4">
-        <h1 class="h4 fw-semibold">Verifica tu email</h1>
-        <p class="text-secondary mb-0">
-            Te enviamos un enlace de verificacion. Revisa tu correo para continuar.
-        </p>
-    </div>
+    @include('partials.auth-header', [
+        'title' => 'Verifica tu email',
+        'subtitle' => 'Te enviamos un enlace de verificación. Revisa tu correo para continuar.'
+    ])
 
     @if (session('status') === 'verification-link-sent')
         <div class="alert alert-success">
@@ -14,13 +12,19 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('verification.send') }}">
-        @csrf
-        <button class="btn btn-brand text-white w-100" type="submit">Reenviar enlace</button>
-    </form>
-
-    <form method="POST" action="{{ route('logout') }}" class="mt-3">
-        @csrf
-        <button class="btn btn-outline-secondary w-100" type="submit">Cerrar sesion</button>
-    </form>
+    <div class="d-grid gap-3 mt-4">
+        <form method="POST" action="{{ route('verification.send') }}">
+            @csrf
+            <button class="btn btn-primary btn-lg text-white rounded-pill shadow-sm py-2 fw-bold w-100" type="submit">
+                Reenviar Enlace
+            </button>
+        </form>
+    
+        <form method="POST" action="{{ route('logout') }}" class="text-center">
+            @csrf
+            <button type="submit" class="btn btn-link btn-sm text-decoration-none text-muted">
+                Cerrar sesión
+            </button>
+        </form>
+    </div>
 @endsection

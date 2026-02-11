@@ -103,10 +103,13 @@
 
     <div class="ticket-container">
         <div class="header">
-            <h2 style="margin: 0; padding: 5px 0;" class="uppercase">{{ tenant('id') }}</h2>
-            <div class="mb-1">RUC: 20601234567</div>
-            <div class="mb-1">Dirección: Av. Principal 123 - Centro</div>
-            <div class="mb-2">Tel: (01) 123-4567</div>
+            @if(tenant('logo'))
+                <img src="{{ asset('storage/' . tenant('logo')) }}" alt="Logo" style="width: 40mm; height: auto; max-height: 20mm; object-fit: contain; margin-bottom: 2mm;">
+            @endif
+            <h2 style="margin: 0; padding: 2px 0;" class="uppercase">{{ tenant('business_name') ?? tenant('id') }}</h2>
+            @if(tenant('tax_id')) <div class="mb-1">NIT/RUC: {{ tenant('tax_id') }}</div> @endif
+            <div class="mb-1">Dir: {{ tenant('address') ?? 'S/D' }}</div>
+            <div class="mb-2">Tel: {{ tenant('phone') ?? 'S/N' }}</div>
             
             <div class="separator"></div>
             
@@ -176,7 +179,7 @@
         <div class="separator"></div>
 
         <div class="footer">
-            <p class="mb-1">¡GRACIAS POR SU PREFERENCIA!</p>
+            <p class="mb-1 uppercase font-bold">{{ tenant('invoice_footer') ?? '¡GRACIAS POR SU PREFERENCIA!' }}</p>
             <p class="mb-1" style="font-size: 10px;">Este documento no tiene valor fiscal</p>
             <p style="font-size: 10px;">Sistema de Ventas v1.0</p>
         </div>

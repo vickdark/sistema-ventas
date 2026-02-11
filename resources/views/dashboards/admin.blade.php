@@ -2,10 +2,26 @@
 
 @section('content')
 <div class="container-fluid">
-    <div class="row mb-4">
-        <div class="col-12">
-            <h1 class="h3 mb-0 text-gray-800">Dashboard Administrativo</h1>
-            <p class="text-muted">Resumen general del sistema y gestión de accesos.</p>
+    <div class="row mb-4 align-items-center">
+        <div class="col-md-auto mb-3 mb-md-0">
+            @if(tenant('logo'))
+                <div class="bg-white p-2 rounded-4 shadow-sm d-inline-block border">
+                    <img src="{{ asset('storage/' . tenant('logo')) }}" alt="Logo" class="img-fluid" style="max-height: 85px; width: auto; object-fit: contain;">
+                </div>
+            @else
+                <div class="bg-primary bg-opacity-10 p-4 rounded-4 shadow-sm d-inline-block">
+                    <i class="fa-solid fa-rocket fa-3x text-primary"></i>
+                </div>
+            @endif
+        </div>
+        <div class="col">
+            <h1 class="h3 mb-1 text-gray-800 fw-bold">Dashboard Administrativo</h1>
+            <p class="text-muted mb-0 d-flex align-items-center gap-2">
+                <span class="badge bg-primary bg-opacity-10 text-primary px-3 rounded-pill">Admin</span>
+                <span class="opacity-50">|</span>
+                <i class="fa-solid fa-building opacity-50"></i>
+                <span class="fw-medium">{{ tenant('business_name') ?? tenant('id') }}</span>
+            </p>
         </div>
     </div>
 
