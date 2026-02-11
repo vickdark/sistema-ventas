@@ -16,6 +16,8 @@ return new class extends Migration
             $table->unsignedBigInteger('client_id');
             $table->unsignedBigInteger('sale_id')->nullable();
             $table->decimal('amount', 10, 2);
+            $table->enum('payment_type', ['CONTADO', 'TRANSFERENCIA'])->default('CONTADO');
+            $table->string('voucher')->nullable();
             $table->timestamps();
 
             $table->foreign('client_id')->references('id')->on('clients')->onDelete('cascade');

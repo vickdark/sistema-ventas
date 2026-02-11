@@ -1,5 +1,5 @@
 export function initReportsIndex(data) {
-    const { ventasSemana, topProductos, datosCaja, catProductos, balanceMensual, metodosPago } = data;
+    const { ventasSemana, topProductos, datosCaja, catProductos, balanceMensual, metodosPago, efectivoVsTransferencia } = data;
 
     // Helper para gradientes
     const getGradient = (ctx, color1, color2) => {
@@ -205,6 +205,56 @@ export function initReportsIndex(data) {
         });
     }
 
+    // 7. EFECTIVO VS TRANSFERENCIA (Doughnut Chart)
+    const ctxCashTransfer = document.getElementById('cashTransferChart');
+    if (ctxCashTransfer && efectivoVsTransferencia) {
+        const labels = efectivoVsTransferencia.map(e => {
+            if (e.payment_type === 'CONTADO') return 'Efectivo';
+            if (e.payment_type === 'TRANSFERENCIA') return 'Transferencia';
+            return e.payment_type;
+        });
+        
+        new Chart(ctxCashTransfer, {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: efectivoVsTransferencia.map(e => e.total),
+                    backgroundColor: ['#10b981', '#6366f1'],
+                    borderWidth: 3,
+                    borderColor: '#fff',
+                    hoverOffset: 15
+                }]
+            },
+            options: { 
+                responsive: true, 
+                maintainAspectRatio: false, 
+                cutout: '65%',
+                plugins: { 
+                    legend: { 
+                        position: 'bottom',
+                        labels: { 
+                            usePointStyle: true, 
+                            padding: 20,
+                            font: { size: 13, weight: '600' }
+                        }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.parsed || 0;
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((value / total) * 100).toFixed(1);
+                                return `${label}: $${value.toLocaleString()} (${percentage}%)`;
+                            }
+                        }
+                    }
+                } 
+            }
+        });
+    }
+
     // EXPORTAR A EXCEL (Keep simple but functional)
     const exportBtn = document.getElementById('exportExcel');
     if (exportBtn) {
@@ -220,7 +270,7 @@ export function initReportsIndex(data) {
                 ["Ingresos del Año", "$ " + data.stats.ingresoAnual],
                 ["Cartera por Cobrar", "$ " + data.stats.deudaTotalClientes],
                 ["Créditos Pendientes", data.stats.cantidadCreditosPendientes],
-                ["Inversión Total en Almacén", "$ " + data.stats.valorInversion],
+                ["Valor Inventario Actual", "$ " + data.stats.valorInventario],
                 [],
                 ["PRODUCTOS CON MAYOR ROTACIÓN"],
                 ["Nombre del Producto", "Unidades Vendidas"]

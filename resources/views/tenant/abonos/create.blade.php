@@ -65,6 +65,30 @@
                             </select>
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Método de Pago</label>
+                            <div class="row g-2">
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="payment_type" id="payment_cash" value="CONTADO" checked>
+                                    <label class="btn btn-outline-success w-100 rounded-3" for="payment_cash">
+                                        <i class="fas fa-money-bill-wave me-2"></i>Efectivo
+                                    </label>
+                                </div>
+                                <div class="col-6">
+                                    <input type="radio" class="btn-check" name="payment_type" id="payment_transfer" value="TRANSFERENCIA">
+                                    <label class="btn btn-outline-primary w-100 rounded-3" for="payment_transfer">
+                                        <i class="fas fa-university me-2"></i>Transferencia
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="voucherContainer" class="mb-3 d-none">
+                            <label for="voucher" class="form-label fw-bold small">Nro. Comprobante/Referencia (Opcional)</label>
+                            <input type="text" class="form-control rounded-3 border-light bg-light shadow-sm" id="voucher" name="voucher" placeholder="Ej: 123456789">
+                            <small class="text-muted">Ingrese el número de comprobante de la transferencia</small>
+                        </div>
+
                         <div class="mb-4">
                             <label for="amount" class="form-label fw-bold">Monto a abonar</label>
                             <div class="input-group">
@@ -96,6 +120,7 @@
                                 <tr>
                                     <th>FECHA</th>
                                     <th>REFERENCIA</th>
+                                    <th>TIPO</th>
                                     <th class="text-end">MONTO</th>
                                 </tr>
                             </thead>

@@ -2,6 +2,14 @@
 
 @section('content')
 <div class="container-fluid">
+    <div class="row mb-3 no-print">
+        <div class="col">
+            <a href="{{ route('sales.index') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="fas fa-arrow-left me-2"></i> Volver al Listado
+            </a>
+        </div>
+    </div>
+
     <div class="row justify-content-center">
         <div class="col-md-5">
             <div class="card border-0 shadow rounded-4 overflow-hidden mb-4">
@@ -23,7 +31,7 @@
                         </div>
                         <div class="d-flex justify-content-between mb-1">
                             <span class="text-muted">ID/Nit:</span>
-                            <span class="fw-bold text-truncate">{{ $sale->client->nit ?? '---' }}</span>
+                            <span class="fw-bold text-truncate">{{ $sale->client->nit_ci ?? '---' }}</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span class="text-muted">Fecha:</span>
@@ -91,13 +99,10 @@
                     </div>
                     @endif
 
-                    <div class="d-grid gap-2">
-                        <button onclick="window.print()" class="btn btn-outline-dark rounded-pill py-2 no-print">
-                            <i class="fas fa-print me-2"></i> Imprimir Ticket
+                    <div class="d-grid">
+                        <button onclick="window.print()" class="btn btn-primary rounded-pill py-2 no-print">
+                            <i class="fas fa-print me-2"></i> Imprimir
                         </button>
-                        <a href="{{ route('sales.index') }}" class="btn btn-primary rounded-pill py-2 no-print">
-                            <i class="fas fa-list me-2"></i> Volver al Listado
-                        </a>
                     </div>
                 </div>
                 

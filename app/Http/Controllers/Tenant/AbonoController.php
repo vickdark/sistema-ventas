@@ -177,6 +177,8 @@ class AbonoController extends Controller
             'client_id' => 'required|exists:clients,id',
             'amount' => 'required|numeric|min:0.01',
             'sale_id' => 'nullable|exists:sales,id',
+            'payment_type' => 'required|in:CONTADO,TRANSFERENCIA',
+            'voucher' => 'nullable|string|max:255',
         ]);
 
         $cashRegister = CashRegister::open()->first();
@@ -204,7 +206,9 @@ class AbonoController extends Controller
                 $abono = Abono::create([
                     'client_id' => $request->client_id,
                     'sale_id' => $request->sale_id,
-                    'amount' => $amountToDistribute
+                    'amount' => $amountToDistribute,
+                    'payment_type' => $request->payment_type,
+                    'voucher' => $request->voucher
                 ]);
 
                 $this->checkIfSaleIsPaid($sale);
@@ -232,7 +236,9 @@ class AbonoController extends Controller
                     $abono = Abono::create([
                         'client_id' => $request->client_id,
                         'sale_id' => $sale->id,
-                        'amount' => $paymentForThisSale
+                        'amount' => $paymentForThisSale,
+                        'payment_type' => $request->payment_type,
+                        'voucher' => $request->voucher
                     ]);
 
                     $amountToDistribute -= $paymentForThisSale;
@@ -245,7 +251,9 @@ class AbonoController extends Controller
                     $abono = Abono::create([
                         'client_id' => $request->client_id,
                         'sale_id' => null,
-                        'amount' => $amountToDistribute
+                        'amount' => $amountToDistribute,
+                        'payment_type' => $request->payment_type,
+                        'voucher' => $request->voucher
                     ]);
                     $abonosCreated[] = $abono;
                 }

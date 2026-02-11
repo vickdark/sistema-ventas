@@ -53,6 +53,16 @@ export function initAbonosIndex(config) {
             { id: 'id', name: "ID", width: "60px" },
             { id: 'client', name: "Cliente" },
             { id: 'sale', name: "Nro. Venta" },
+            { 
+                id: 'payment_type', 
+                name: "Tipo Pago",
+                formatter: (cell) => {
+                    const type = cell || 'CONTADO';
+                    const badgeClass = type === 'CONTADO' ? 'bg-success' : 'bg-primary';
+                    const badgeText = type === 'CONTADO' ? 'Efectivo' : 'Transferencia';
+                    return DataGrid.html(`<span class="badge ${badgeClass} rounded-pill">${badgeText}</span>`);
+                }
+            },
             { id: 'amount', name: "Monto" },
             { id: 'created_at', name: "Fecha" },
             { 
@@ -77,6 +87,7 @@ export function initAbonosIndex(config) {
             abono.id, 
             abono.client ? abono.client.name : 'N/A',
             abono.sale ? `#${abono.sale.nro_venta}` : 'PAGO GENERAL',
+            abono.payment_type,
             `$${parseFloat(abono.amount).toLocaleString()}`,
             new Date(abono.created_at).toLocaleDateString(),
             null

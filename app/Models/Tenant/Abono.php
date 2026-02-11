@@ -13,9 +13,8 @@ class Abono extends Model
         'client_id',
         'sale_id',
         'amount',
-        'user_id', // Added mentally, let's check migration if it has it. It doesn't in schema but I should probably add it or just use what's there.
-        'method', // Added mentally
-        'date', // Added mentally
+        'payment_type',
+        'voucher',
     ];
 
     // The migration only has client_id, sale_id, amount. I will stick to that to avoid errors as user requested NOT to change structure.

@@ -91,16 +91,22 @@ class ReportController extends Controller
             ->groupBy('payment_type')
             ->get();
 
-        // 9. VALOR TOTAL DEL INVENTARIO
-        $valorInversion = Product::select(DB::raw('SUM(purchase_price * stock) as total'))
+        // 9. VALOR TOTAL DEL INVENTARIO ACTUAL
+        $valorInventario = Product::select(DB::raw('SUM(purchase_price * stock) as total'))
             ->first()
             ->total ?? 0;
+
+        // 10. EFECTIVO VS TRANSFERENCIA (solo pagos inmediatos)
+        $efectivoVsTransferencia = Sale::select('payment_type', DB::raw('SUM(total_paid) as total'))
+            ->whereIn('payment_type', ['CONTADO', 'TRANSFERENCIA'])
+            ->groupBy('payment_type')
+            ->get();
 
         return view('tenant.reports.index', compact(
             'topProductos', 'ventasSemana', 'datosCaja', 'catProductos',
             'ingresoDiario', 'ingresoMensual', 'ingresoAnual',
             'deudaTotalClientes', 'cantidadCreditosPendientes', 
-            'balanceMensual', 'metodosPago', 'valorInversion'
+            'balanceMensual', 'metodosPago', 'valorInventario', 'efectivoVsTransferencia'
         ));
     }
 }

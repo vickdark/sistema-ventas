@@ -20,8 +20,27 @@ export function initAbonosCreate(config) {
     const historyBody = document.getElementById('historyBody');
     
     const amountInput = document.getElementById('amount');
+    const voucherInput = document.getElementById('voucher');
+    const voucherContainer = document.getElementById('voucherContainer');
     const form = document.getElementById('abonoForm');
     const btnSubmit = document.getElementById('btnSubmit');
+
+    // Payment type radio buttons
+    const paymentCash = document.getElementById('payment_cash');
+    const paymentTransfer = document.getElementById('payment_transfer');
+
+    // Show/hide voucher field based on payment type
+    const toggleVoucherField = () => {
+        if (paymentTransfer.checked) {
+            voucherContainer.classList.remove('d-none');
+        } else {
+            voucherContainer.classList.add('d-none');
+            voucherInput.value = ''; // Clear voucher when switching to cash
+        }
+    };
+
+    paymentCash.addEventListener('change', toggleVoucherField);
+    paymentTransfer.addEventListener('change', toggleVoucherField);
 
     // Cards Elements
     const totalInvoicedCard = document.getElementById('totalInvoicedCard');
@@ -79,10 +98,17 @@ export function initAbonosCreate(config) {
                     const ref = item.sale ? `Venta #${item.sale.nro_venta}` : 'Distribución General';
                     const amount = `$${parseFloat(item.amount).toLocaleString()}`;
                     
+                    // Payment type badge
+                    const paymentType = item.payment_type || 'CONTADO';
+                    const badgeClass = paymentType === 'CONTADO' ? 'bg-success' : 'bg-primary';
+                    const badgeText = paymentType === 'CONTADO' ? 'Efectivo' : 'Transferencia';
+                    const paymentBadge = `<span class="badge ${badgeClass} rounded-pill">${badgeText}</span>`;
+                    
                     historyBody.innerHTML += `
                         <tr>
                             <td>${date}</td>
                             <td>${ref}</td>
+                            <td>${paymentBadge}</td>
                             <td class="text-end fw-bold text-primary">${amount}</td>
                         </tr>
                     `;
@@ -115,15 +141,19 @@ export function initAbonosCreate(config) {
         const client_id = clientSelect.getValue();
         const sale_id = saleSelect.getValue();
         const amount = amountInput.value;
+        const payment_type = document.querySelector('input[name="payment_type"]:checked').value;
+        const voucher = voucherInput.value.trim() || null;
 
         if (!client_id || !amount) {
             Notify.error('Error', 'Debe completar los campos obligatorios.');
             return;
         }
 
+        const paymentLabel = payment_type === 'CONTADO' ? 'Efectivo' : 'Transferencia';
+        const voucherInfo = voucher ? `<br><small>Comprobante: ${voucher}</small>` : '';
         const confirmed = await Notify.confirm({
             title: '¿Registrar abono?',
-            text: `Se registrará un abono por $${parseFloat(amount).toLocaleString()}`,
+            html: `Se registrará un abono por $${parseFloat(amount).toLocaleString()} (${paymentLabel})${voucherInfo}`,
             confirmButtonText: 'Sí, registrar'
         });
 
@@ -139,7 +169,7 @@ export function initAbonosCreate(config) {
                         'X-CSRF-TOKEN': tokens.csrf,
                         'Accept': 'application/json'
                     },
-                    body: JSON.stringify({ client_id, sale_id, amount })
+                    body: JSON.stringify({ client_id, sale_id, amount, payment_type, voucher })
                 });
 
                 const result = await response.json();

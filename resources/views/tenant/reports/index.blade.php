@@ -85,13 +85,13 @@
             </div>
         </div>
 
-        <!-- Inversion (Standard Card now) -->
+        <!-- Inventario (Standard Card now) -->
         <div class="col-xl-2 col-md-4 col-6">
             <div class="report-card dark compact">
                 <div class="card-body p-3 position-relative overflow-hidden">
                     <div class="z-1 position-relative">
-                        <div class="stat-label">INVERSIÓN</div>
-                        <div class="stat-value-sm">$ {{ number_format($valorInversion, 0) }}</div>
+                        <div class="stat-label">INVENTARIO</div>
+                        <div class="stat-value-sm">$ {{ number_format($valorInventario, 0) }}</div>
                     </div>
                     <i class="fas fa-warehouse icon-bg-sm"></i>
                 </div>
@@ -121,8 +121,24 @@
             </div>
         </div>
 
-        <!-- Payment Methods -->
+        <!-- Placeholder Card -->
         <div class="col-xl-4 col-lg-5">
+            <div class="card border-0 shadow-sm rounded-4 h-100 chart-card">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="fw-bold text-dark mb-0">Próximamente</h5>
+                    <small class="text-muted">Nuevas métricas en desarrollo</small>
+                </div>
+                <div class="card-body px-4 pb-4 d-flex align-items-center justify-content-center">
+                    <div class="text-center py-5">
+                        <i class="fas fa-chart-pie fa-4x text-muted opacity-25 mb-3"></i>
+                        <p class="text-muted mb-0">Espacio reservado para<br>futuras estadísticas</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Payment Methods -->
+        <div class="col-xl-6 col-lg-6">
             <div class="card border-0 shadow-sm rounded-4 h-100 chart-card">
                 <div class="card-header bg-transparent border-0 pt-4 px-4">
                     <h5 class="fw-bold text-dark mb-0">Métodos de Pago</h5>
@@ -131,6 +147,21 @@
                 <div class="card-body px-4 pb-4 d-flex align-items-center">
                     <div class="chart-container w-100" style="height: 300px;">
                         <canvas id="metodosChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cash vs Transfer -->
+        <div class="col-xl-6 col-lg-6">
+            <div class="card border-0 shadow-sm rounded-4 h-100 chart-card">
+                <div class="card-header bg-transparent border-0 pt-4 px-4">
+                    <h5 class="fw-bold text-dark mb-0">Efectivo vs Transferencia</h5>
+                    <small class="text-muted">Comparativa de pagos inmediatos</small>
+                </div>
+                <div class="card-body px-4 pb-4 d-flex align-items-center">
+                    <div class="chart-container w-100" style="height: 300px;">
+                        <canvas id="cashTransferChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -207,13 +238,14 @@
             catProductos: @json($catProductos->map(fn($c) => ['name' => $c->name, 'products_count' => $c->products_count])),
             balanceMensual: @json($balanceMensual),
             metodosPago: @json($metodosPago->map(fn($m) => ['payment_type' => $m->payment_type, 'total' => $m->total])),
+            efectivoVsTransferencia: @json($efectivoVsTransferencia->map(fn($e) => ['payment_type' => $e->payment_type, 'total' => $e->total])),
             stats: {
                 ingresoDiario: "{{ number_format($ingresoDiario, 2) }}",
                 ingresoMensual: "{{ number_format($ingresoMensual, 2) }}",
                 ingresoAnual: "{{ number_format($ingresoAnual, 2) }}",
                 deudaTotalClientes: "{{ number_format($deudaTotalClientes, 2) }}",
                 cantidadCreditosPendientes: "{{ $cantidadCreditosPendientes }}",
-                valorInversion: "{{ number_format($valorInversion, 2) }}"
+                valorInventario: "{{ number_format($valorInventario, 2) }}"
             }
         });
     });
