@@ -17,7 +17,7 @@
         <div class="col-md-8">
             <div class="card border-0 shadow-soft rounded-4">
                 <div class="card-body p-4">
-                    <form action="{{ route('products.update', $product) }}" method="POST">
+                    <form action="{{ route('products.update', $product) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         @method('PUT')
                         <div class="row">
@@ -107,9 +107,19 @@
                                 @enderror
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="image" class="form-label">URL de Imagen (Opcional)</label>
-                                <input type="text" class="form-control rounded-3 @error('image') is-invalid @enderror" id="image" name="image" value="{{ old('image', $product->image) }}">
-                                @error('image')
+                                <label for="image_file" class="form-label">Imagen del Producto (Opcional)</label>
+                                @if($product->image)
+                                    <div class="mb-2">
+                                        <img src="{{ asset('storage/' . $product->image) }}" alt="Preview" class="img-thumbnail" style="height: 60px;">
+                                        <small class="text-muted d-block">Imagen actual</small>
+                                    </div>
+                                @endif
+                                <input type="file" class="form-control rounded-3 @error('image_file') is-invalid @enderror" id="image_file" name="image_file" accept="image/*">
+                                <div class="form-text small opacity-75">
+                                    El archivo debe ser una imagen.<br>
+                                    Formatos permitidos: jpeg, png, jpg, gif.
+                                </div>
+                                @error('image_file')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                 @enderror
                             </div>

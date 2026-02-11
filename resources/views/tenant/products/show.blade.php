@@ -21,7 +21,7 @@
             <div class="card border-0 shadow-soft rounded-4 overflow-hidden h-100">
                 <div class="card-body p-0 text-center bg-light d-flex align-items-center justify-content-center" style="min-height: 300px;">
                     @if($product->image)
-                        <img src="{{ $product->image }}" alt="{{ $product->name }}" class="img-fluid" style="max-height: 300px; object-fit: contain;">
+                        <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="img-fluid shadow-sm rounded-3" style="max-height: 300px; object-fit: contain;">
                     @else
                         <div class="text-muted">
                             <i class="fas fa-box fa-5x mb-3 d-block"></i>
@@ -75,6 +75,12 @@
                                 <span class="badge {{ $product->stock <= $product->min_stock ? 'bg-danger' : 'bg-primary' }} rounded-pill px-3 py-2 fs-6">
                                     {{ $product->stock }} unidades
                                 </span>
+                                @if($product->image)
+                                    <div class="mb-2">
+                                        <img src="{{ asset('storage/' . $product->image) }}" alt="Preview" class="img-thumbnail" style="height: 60px;">
+                                        <small class="text-muted d-block">Imagen actual</small>
+                                    </div>
+                                @endif
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="text-muted d-block small">Stock Mínimo</label>

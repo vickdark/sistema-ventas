@@ -8,6 +8,14 @@ export function initProductsIndex(config) {
         url: routes.index,
         columns: [
             { id: 'id', name: "ID", width: "80px" },
+            { 
+                id: 'image', 
+                name: "Imagen",
+                formatter: (cell) => {
+                    if (!cell) return DataGrid.html('<div class="text-center"><i class="fas fa-image text-light"></i></div>');
+                    return DataGrid.html(`<img src="/storage/${cell}" class="rounded shadow-sm" style="width: 40px; height: 40px; object-fit: cover;">`);
+                }
+            },
             { id: 'code', name: "Código" },
             { id: 'name', name: "Nombre" },
             { id: 'sale_price', name: "Precio Venta" },
@@ -43,6 +51,7 @@ export function initProductsIndex(config) {
         ],
         mapData: (product) => [
             product.id, 
+            product.image,
             product.code, 
             product.name,
             `$${product.sale_price}`,

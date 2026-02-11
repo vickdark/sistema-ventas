@@ -49,13 +49,18 @@
                                      data-id="{{ $product->id }}" 
                                      data-name="{{ $product->name }}" 
                                      data-price="{{ $product->sale_price }}"
-                                     data-stock="{{ $product->stock }}">
+                                     data-stock="{{ $product->stock }}"
+                                     data-image="{{ $product->image ? asset('storage/' . $product->image) : '' }}">
                                     <div class="product-card-img">
+                                        @if($product->image)
+                                            <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="product-img-pos">
+                                        @else
+                                            <i class="fas fa-box fa-3x text-slate-200" style="color: #e2e8f0;"> z-index: 1;"></i>
+                                        @endif
                                         <span class="stock-badge {{ $product->stock < 10 ? 'bg-danger bg-opacity-10 text-danger' : 'bg-emerald-50 text-emerald-600' }}" 
-                                              style="{{ $product->stock >= 10 ? 'background: #ecfdf5; color: #059669;' : '' }}">
+                                              style="{{ $product->stock >= 10 ? 'background: #ecfdf5; color: #059669;' : '' }}; z-index: 2;">
                                             {{ $product->stock }} disp.
                                         </span>
-                                        <i class="fas fa-box fa-3x text-slate-200" style="color: #e2e8f0;"></i>
                                     </div>
                                     <div class="card-body p-3">
                                         <h6 class="fw-bold text-slate-700 mb-1 text-truncate">{{ $product->name }}</h6>
@@ -233,11 +238,21 @@
 
 <template id="cartItemTemplate">
     <div class="cart-item-modern shadow-sm">
-        <div class="d-flex justify-content-between align-items-start mb-2">
-            <span class="fw-bold text-slate-800 item-name small text-truncate pe-2"></span>
-            <button class="btn btn-link text-danger p-0 btn-remove-item border-0 outline-0" title="Eliminar">
-                <i class="fas fa-times-circle"></i>
-            </button>
+        <div class="d-flex align-items-center mb-2">
+            <div class="cart-item-img-container me-3">
+                <img src="" alt="" class="cart-item-img rounded-3 d-none" style="width: 45px; height: 45px; object-fit: cover;">
+                <div class="cart-item-icon-placeholder rounded-3 bg-light d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                    <i class="fas fa-box text-muted small"></i>
+                </div>
+            </div>
+            <div class="flex-grow-1 min-w-0">
+                <div class="d-flex justify-content-between align-items-start">
+                    <span class="fw-bold text-slate-800 item-name small text-truncate pe-2"></span>
+                    <button class="btn btn-link text-danger p-0 btn-remove-item border-0 outline-0" title="Eliminar">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+            </div>
         </div>
         <div class="d-flex justify-content-between align-items-center">
             <div class="qty-control" style="background: white; border-radius: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; padding: 2px;">

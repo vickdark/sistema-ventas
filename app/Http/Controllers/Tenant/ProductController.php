@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Tenant\Product;
 use App\Models\Tenant\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -71,22 +72,30 @@ class ProductController extends Controller
             'products.*.purchase_price' => 'required|numeric|min:0',
             'products.*.sale_price' => 'required|numeric|min:0',
             'products.*.entry_date' => 'required|date',
-            'products.*.image' => 'nullable|string|max:255',
+            'products.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'products.*.category_id' => 'required|exists:categories,id',
         ], [
             'products.required' => 'Debe agregar al menos un producto.',
             'products.max' => 'Solo puede registrar hasta 5 productos a la vez.',
             'products.*.code.distinct' => 'No puede haber códigos duplicados.',
+            'products.*.image.image' => 'El archivo debe ser una imagen.',
+            'products.*.image.max' => 'El tamaño máximo de la imagen es 2MB.',
         ]);
 
         $created = 0;
         $duplicates = [];
 
-        foreach ($request->products as $productData) {
+        foreach ($request->products as $index => $productData) {
             // Verificar si ya existe por código
             if (Product::where('code', $productData['code'])->exists()) {
                 $duplicates[] = $productData['code'];
                 continue;
+            }
+
+            // Procesar Imagen si existe
+            if ($request->hasFile("products.{$index}.image")) {
+                $path = $request->file("products.{$index}.image")->store('products', 'public');
+                $productData['image'] = $path;
             }
 
             // Agregar el user_id
@@ -141,11 +150,21 @@ class ProductController extends Controller
             'purchase_price' => 'required|numeric|min:0',
             'sale_price' => 'required|numeric|min:0',
             'entry_date' => 'required|date',
-            'image' => 'nullable|string|max:255',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'category_id' => 'required|exists:categories,id',
         ]);
 
-        $product->update($request->all());
+        $data = $request->except('image_file');
+
+        if ($request->hasFile('image_file')) {
+            // Eliminar imagen anterior si existe
+            if ($product->image) {
+                Storage::disk('public')->delete($product->image);
+            }
+            $data['image'] = $request->file('image_file')->store('products', 'public');
+        }
+
+        $product->update($data);
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
 

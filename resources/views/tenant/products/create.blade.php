@@ -17,7 +17,7 @@
         <div class="col-md-11">
             <div class="card border-0 shadow-soft rounded-4">
                 <div class="card-body p-4">
-                    <form action="{{ route('products.store') }}" method="POST" id="productsForm">
+                    <form action="{{ route('products.store') }}" method="POST" id="productsForm" enctype="multipart/form-data">
                         @csrf
                         
                         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -86,8 +86,12 @@
                                         <input type="date" class="form-control rounded-3" name="products[0][entry_date]" value="{{ date('Y-m-d') }}" required>
                                     </div>
                                     <div class="col-md-6 mb-3">
-                                        <label class="form-label">URL Imagen (Opcional)</label>
-                                        <input type="text" class="form-control rounded-3" name="products[0][image]">
+                                        <label class="form-label">Imagen del Producto</label>
+                                        <input type="file" class="form-control rounded-3" name="products[0][image]" accept="image/*">
+                                        <div class="form-text small opacity-75">
+                                            El archivo debe ser una imagen.<br>
+                                            Formatos permitidos: jpeg, png, jpg, gif.
+                                        </div>
                                     </div>
                                     <div class="col-12 mb-3">
                                         <label class="form-label">Descripción (Opcional)</label>
@@ -191,8 +195,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     <input type="date" class="form-control rounded-3" name="products[${productCount}][entry_date]" value="{{ date('Y-m-d') }}" required>
                 </div>
                 <div class="col-md-6 mb-3">
-                    <label class="form-label">URL Imagen (Opcional)</label>
-                    <input type="text" class="form-control rounded-3" name="products[${productCount}][image]">
+                    <label class="form-label">Imagen del Producto</label>
+                    <input type="file" class="form-control rounded-3" name="products[${productCount}][image]" accept="image/*">
+                    <div class="form-text small opacity-75">
+                        El archivo debe ser una imagen.<br>
+                        Formatos permitidos: jpeg, png, jpg, gif.
+                    </div>
                 </div>
                 <div class="col-12 mb-3">
                     <label class="form-label">Descripción (Opcional)</label>

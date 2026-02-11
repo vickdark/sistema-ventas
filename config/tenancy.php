@@ -103,7 +103,7 @@ return [
         'suffix_base' => 'tenant',
         'disks' => [
             'local',
-            'public',
+            // 'public', // Removed to keep public storage central and accessible via symlink
             // 's3',
         ],
 

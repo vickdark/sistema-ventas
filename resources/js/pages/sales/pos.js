@@ -172,7 +172,8 @@ export function initSalesPOS(config) {
             id: btn.dataset.id,
             name: btn.dataset.name,
             price: parseFloat(btn.dataset.price),
-            stock: parseInt(btn.dataset.stock)
+            stock: parseInt(btn.dataset.stock),
+            image: btn.dataset.image
         };
         addToCart(product);
         
@@ -221,6 +222,17 @@ export function initSalesPOS(config) {
             const row = clone.querySelector('.cart-item-modern');
             
             row.querySelector('.item-name').textContent = item.name;
+            
+            // Image handling in cart
+            const imgEl = row.querySelector('.cart-item-img');
+            const placeholderEl = row.querySelector('.cart-item-icon-placeholder');
+            if (item.image) {
+                imgEl.src = item.image;
+                imgEl.alt = item.name;
+                imgEl.classList.remove('d-none');
+                placeholderEl.classList.add('d-none');
+            }
+
             row.querySelector('.item-qty').value = item.quantity;
             row.querySelector('.item-price-unit').textContent = `$${item.price.toLocaleString()} c/u`;
             row.querySelector('.item-price-total').textContent = `$${(item.price * item.quantity).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
