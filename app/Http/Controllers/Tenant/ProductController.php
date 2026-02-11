@@ -193,4 +193,9 @@ class ProductController extends Controller
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
+
+    public function bySupplier(Supplier $supplier)
+    {
+        return response()->json($supplier->products()->with('suppliers')->get());
+    }
 }

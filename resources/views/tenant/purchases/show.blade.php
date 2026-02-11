@@ -17,6 +17,18 @@
     </div>
 
     <div class="row">
+        @php
+            // Obtener todos los proveedores únicos de los productos comprados
+            $allSuppliers = $purchase->items->flatMap(function($item) {
+                return $item->product->suppliers;
+            })->unique('id');
+            
+            // Si por alguna razón no hay proveedores en los productos, usar el proveedor principal de la compra
+            if ($allSuppliers->isEmpty() && $purchase->supplier) {
+                $allSuppliers = collect([$purchase->supplier]);
+            }
+        @endphp
+
         <div class="col-md-4 mb-4">
             <div class="card border-0 shadow-soft rounded-4 h-100 text-center">
                 <div class="card-body p-4 d-flex flex-column justify-content-center align-items-center">
@@ -33,50 +45,32 @@
                     <p class="text-muted small mb-3">NIT: {{ tenant('tax_id') ?? 'N/A' }}</p>
                     <hr class="w-100 my-2">
                     <h5 class="fw-bold mb-1 mt-2">Monto Total</h5>
-                    <h2 class="text-primary fw-bold mb-3">${{ number_format($purchase->quantity * $purchase->price, 2) }}</h2>
+                    <h2 class="text-primary fw-bold mb-3">${{ number_format($purchase->total, 2) }}</h2>
                     <p class="text-muted small mb-0">Comprobante: <strong>{{ $purchase->voucher }}</strong></p>
                     <p class="text-muted small mb-0">Fecha: {{ \Carbon\Carbon::parse($purchase->purchase_date)->format('d/m/Y') }}</p>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-8">
+        <div class="col-md-8 mb-4">
             <div class="card border-0 shadow-soft rounded-4 h-100">
                 <div class="card-body p-4">
                     <div class="mb-4">
-                        <h6 class="text-uppercase text-muted fw-bold small mb-3">Proveedor</h6>
-                        <div class="d-flex align-items-center">
-                            <div class="bg-light rounded p-3 me-3">
-                                <i class="fas fa-truck text-secondary"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-0">{{ $purchase->supplier->name }}</h5>
-                                <p class="text-muted mb-0">{{ $purchase->supplier->company }} - {{ $purchase->supplier->phone }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="mb-4">
-                        <h6 class="text-uppercase text-muted fw-bold small mb-3">Producto Comprado</h6>
-                        <div class="d-flex align-items-center">
-                            <div class="bg-light rounded p-3 me-3">
-                                <i class="fas fa-box text-secondary"></i>
-                            </div>
-                            <div>
-                                <h5 class="mb-0">{{ $purchase->product->name }}</h5>
-                                <p class="text-muted mb-0">Código: {{ $purchase->product->code }}</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-md-6 mb-4">
-                            <h6 class="text-uppercase text-muted fw-bold small mb-3">Cantidad</h6>
-                            <div class="fs-5 fw-bold">{{ $purchase->quantity }} unidades</div>
-                        </div>
-                        <div class="col-md-6 mb-4">
-                            <h6 class="text-uppercase text-muted fw-bold small mb-3">Precio Unitario</h6>
-                            <div class="fs-5 fw-bold text-success">${{ number_format($purchase->price, 2) }}</div>
+                        <h6 class="text-uppercase text-muted fw-bold small mb-3">Proveedores involucrados</h6>
+                        <div class="row g-3">
+                            @foreach($allSuppliers as $supplier)
+                                <div class="col-md-6">
+                                    <div class="d-flex align-items-center p-2 border rounded-3 bg-light bg-opacity-50">
+                                        <div class="bg-white rounded-circle shadow-sm p-2 me-3" style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-truck text-primary small"></i>
+                                        </div>
+                                        <div class="overflow-hidden">
+                                            <h6 class="mb-0 text-truncate fw-bold">{{ $supplier->name }}</h6>
+                                            <p class="text-muted small mb-0 text-truncate">{{ $supplier->company }}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endforeach
                         </div>
                     </div>
 
@@ -96,6 +90,56 @@
                 </div>
             </div>
         </div>
+
+        <div class="col-12">
+            <div class="card border-0 shadow-soft rounded-4 overflow-hidden">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h5 class="mb-0 fw-bold">Productos Comprados</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="px-4 py-3 border-0">Producto</th>
+                                    <th class="py-3 border-0 text-center">Cantidad</th>
+                                    <th class="py-3 border-0 text-center">Precio Unit.</th>
+                                    <th class="px-4 py-3 border-0 text-end">Subtotal</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($purchase->items as $item)
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <div class="fw-bold">{{ $item->product->name }}</div>
+                                        <div class="small text-muted">{{ $item->product->code }}</div>
+                                    </td>
+                                    <td class="py-3 text-center">{{ $item->quantity }}</td>
+                                    <td class="py-3 text-center">${{ number_format($item->price, 2) }}</td>
+                                    <td class="px-4 py-3 text-end fw-bold">${{ number_format($item->subtotal, 2) }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot class="bg-light fw-bold">
+                                <tr>
+                                    <td colspan="3" class="px-4 py-3 text-end">TOTAL</td>
+                                    <td class="px-4 py-3 text-end text-primary fs-5">${{ number_format($purchase->total, 2) }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+    .shadow-soft {
+        box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03) !important;
+    }
+    .rounded-4 {
+        border-radius: 1rem !important;
+    }
+</style>
 @endsection

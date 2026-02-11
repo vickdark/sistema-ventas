@@ -45,16 +45,44 @@ export function initPurchasesIndex(config) {
                 }
             }
         ],
-        mapData: (purchase) => [
-            purchase.id, 
-            purchase.nro_compra,
-            purchase.supplier ? purchase.supplier.name : 'N/A', 
-            purchase.product ? purchase.product.name : 'N/A',
-            purchase.quantity,
-            `$${(purchase.quantity * purchase.price).toLocaleString()}`,
-            purchase.purchase_date,
-            null
-        ]
+        mapData: (purchase) => {
+            // Calcular proveedores únicos
+            let suppliers = [];
+            if (purchase.items && purchase.items.length > 0) {
+                const suppliersMap = new Map();
+                purchase.items.forEach(item => {
+                    if (item.product && item.product.suppliers) {
+                        item.product.suppliers.forEach(s => suppliersMap.set(s.id, s.name));
+                    }
+                });
+                suppliers = Array.from(suppliersMap.values());
+            }
+
+            if (suppliers.length === 0 && purchase.supplier) {
+                suppliers = [purchase.supplier.name];
+            }
+
+            const supplierDisplay = suppliers.length > 1 
+                ? `${suppliers[0]} (+${suppliers.length - 1})` 
+                : (suppliers[0] || 'N/A');
+
+            return [
+                purchase.id, 
+                purchase.nro_compra,
+                supplierDisplay,
+                purchase.items && purchase.items.length > 0 
+                    ? (purchase.items.length > 1 
+                        ? `${purchase.items[0].product.name} (+${purchase.items.length - 1})` 
+                        : purchase.items[0].product.name)
+                    : (purchase.product ? purchase.product.name : 'N/A'),
+                purchase.items && purchase.items.length > 0 
+                    ? purchase.items.reduce((sum, item) => sum + item.quantity, 0)
+                    : purchase.quantity,
+                `$${(purchase.total || (purchase.quantity * purchase.price)).toLocaleString()}`,
+                purchase.purchase_date,
+                null
+            ];
+        }
     }).render();
 
     window.deletePurchase = async function(url) {

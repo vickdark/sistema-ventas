@@ -25,13 +25,26 @@
                     </div>
                 </div>
 
+                @php
+                    $allSuppliers = $purchase->items->flatMap(function($item) {
+                        return $item->product->suppliers;
+                    })->unique('id');
+                    
+                    if ($allSuppliers->isEmpty() && $purchase->supplier) {
+                        $allSuppliers = collect([$purchase->supplier]);
+                    }
+                @endphp
+
                 <!-- Info Compra -->
                 <div class="row mb-4">
                     <div class="col-6">
-                        <small class="text-uppercase text-muted fw-bold">Proveedor</small>
-                        <h5 class="mb-0">{{ $purchase->supplier->name }}</h5>
-                        <p class="text-muted small mb-0">{{ $purchase->supplier->company }}</p>
-                        <p class="text-muted small">RUC/DNI: {{ $purchase->supplier->contact_name }}</p>
+                        <small class="text-uppercase text-muted fw-bold">Proveedores</small>
+                        @foreach($allSuppliers as $supplier)
+                            <div class="mb-2">
+                                <h6 class="mb-0 fw-bold">{{ $supplier->name }}</h6>
+                                <p class="text-muted small mb-0">{{ $supplier->company }}</p>
+                            </div>
+                        @endforeach
                     </div>
                     <div class="col-6 text-end">
                         <small class="text-uppercase text-muted fw-bold">Detalles</small>
@@ -53,20 +66,28 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @foreach($purchase->items as $item)
                             <tr>
                                 <td class="py-3">
-                                    <span class="fw-bold d-block">{{ $purchase->product->name }}</span>
-                                    <small class="text-muted">{{ $purchase->product->code }}</small>
+                                    <span class="fw-bold d-block">{{ $item->product->name }}</span>
+                                    <small class="text-muted">{{ $item->product->code }}</small>
+                                    @php
+                                        $itemSupplier = $item->product->suppliers->first();
+                                    @endphp
+                                    @if($itemSupplier)
+                                        <div class="small text-info" style="font-size: 0.75rem;">Prov: {{ $itemSupplier->name }}</div>
+                                    @endif
                                 </td>
-                                <td class="text-end py-3">{{ $purchase->quantity }}</td>
-                                <td class="text-end py-3">$ {{ number_format($purchase->price, 2) }}</td>
-                                <td class="text-end py-3 fw-bold">$ {{ number_format($purchase->price * $purchase->quantity, 2) }}</td>
+                                <td class="text-end py-3">{{ $item->quantity }}</td>
+                                <td class="text-end py-3">$ {{ number_format($item->price, 2) }}</td>
+                                <td class="text-end py-3 fw-bold">$ {{ number_format($item->subtotal, 2) }}</td>
                             </tr>
+                            @endforeach
                         </tbody>
                         <tfoot class="border-top">
                             <tr>
                                 <td colspan="3" class="text-end pt-3 text-uppercase small fw-bold">Total Pagado</td>
-                                <td class="text-end pt-3 fw-bold fs-5">$ {{ number_format($purchase->price * $purchase->quantity, 2) }}</td>
+                                <td class="text-end pt-3 fw-bold fs-5">$ {{ number_format($purchase->total, 2) }}</td>
                             </tr>
                         </tfoot>
                     </table>

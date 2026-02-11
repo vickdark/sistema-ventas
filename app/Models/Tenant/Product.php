@@ -6,9 +6,28 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 /**
+ * @property int $id
+ * @property string $code
+ * @property string $name
+ * @property string|null $description
+ * @property int $stock
+ * @property int $min_stock
+ * @property int $max_stock
+ * @property float $purchase_price
+ * @property float $sale_price
+ * @property string $entry_date
+ * @property string|null $image
+ * @property int $category_id
+ * @property int $user_id
+ * @property-read \App\Models\Tenant\Category $category
+ * @property-read \App\Models\Usuarios\Usuario $user
+ * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\Supplier[] $suppliers
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product find($id)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product findOrFail($id)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Product create(array $attributes = [])
  * @mixin \Eloquent
  */
 class Product extends Model

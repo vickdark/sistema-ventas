@@ -19,6 +19,14 @@
         </div>
     </div>
 
+    @if(session('new_purchase_id'))
+        <div id="new-purchase-data" 
+             data-id="{{ session('new_purchase_id') }}" 
+             data-voucher-url="{{ route('purchases.voucher', session('new_purchase_id')) }}" 
+             style="display: none;">
+        </div>
+    @endif
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             initPurchasesIndex({
@@ -33,7 +41,10 @@
                 }
             });
 
-            @if(session('new_purchase_id'))
+            const newPurchaseData = document.getElementById('new-purchase-data');
+            if (newPurchaseData) {
+                const voucherUrl = newPurchaseData.getAttribute('data-voucher-url');
+                
                 Swal.fire({
                     title: 'Compra Registrada',
                     text: "¿Desea imprimir el comprobante de ingreso?",
@@ -45,10 +56,10 @@
                     cancelButtonColor: '#858796',
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.open("{{ route('purchases.voucher', session('new_purchase_id')) }}", '_blank');
+                        window.open(voucherUrl, '_blank');
                     }
                 });
-            @endif
+            }
         });
     </script>
 </div>

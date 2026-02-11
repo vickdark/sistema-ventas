@@ -7,6 +7,8 @@ use App\Models\Tenant\Purchase;
 use App\Models\Tenant\Product;
 use App\Models\Tenant\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;    
 
 class PurchaseController extends Controller
 {
@@ -16,7 +18,7 @@ class PurchaseController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {
-            $query = Purchase::with(['product', 'supplier']);
+            $query = Purchase::with(['items.product.suppliers', 'supplier']);
 
             // Grid.js parameters
             $limit = $request->get('limit', 10);
@@ -27,7 +29,7 @@ class PurchaseController extends Controller
                 $query->where(function($q) use ($search) {
                     $q->where('nro_compra', 'like', "%{$search}%")
                       ->orWhere('voucher', 'like', "%{$search}%")
-                      ->orWhereHas('product', function($pq) use ($search) {
+                      ->orWhereHas('items.product', function($pq) use ($search) {
                           $pq->where('name', 'like', "%{$search}%");
                       })
                       ->orWhereHas('supplier', function($sq) use ($search) {
@@ -57,7 +59,7 @@ class PurchaseController extends Controller
      */
     public function create()
     {
-        $products = Product::all();
+        $products = Product::with('suppliers')->get();
         $suppliers = Supplier::all();
         $lastPurchase = Purchase::latest()->first();
         $nextNroCompra = $lastPurchase ? (int)$lastPurchase->nro_compra + 1 : 1;
@@ -71,40 +73,65 @@ class PurchaseController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'product_id' => 'required|exists:products,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'quantity' => [
+            'purchase_date' => 'required|date',
+            'voucher' => 'required|string|max:255',
+            'nro_compra' => 'required|unique:purchases,nro_compra',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => [
                 'required',
                 'integer',
                 'min:1',
                 function ($attribute, $value, $fail) use ($request) {
-                    if ($request->product_id) {
-                        $product = Product::find($request->product_id);
+                    $index = explode('.', $attribute)[1];
+                    $productId = $request->input("items.$index.product_id");
+                    if ($productId) {
+                        $product = Product::find($productId);
                         if ($product && $product->max_stock > 0 && ($product->stock + $value) > $product->max_stock) {
-                            $fail("La cantidad ingresada supera el stock máximo permitido ({$product->max_stock}). Stock actual: {$product->stock}.");
+                            $fail("La cantidad del producto '{$product->name}' supera el stock máximo permitido ({$product->max_stock}). Stock actual: {$product->stock}.");
                         }
                     }
                 },
             ],
-            'price' => 'required|numeric|min:0',
-            'purchase_date' => 'required|date',
-            'voucher' => 'required|string|max:255',
-            'nro_compra' => 'required|unique:purchases,nro_compra',
+            'items.*.price' => 'required|numeric|min:0',
         ]);
 
-        $data = $request->all();
-        $data['user_id'] = auth()->id();
+        return DB::transaction(function () use ($request) {
+            $total = 0;
+            foreach ($request->items as $item) {
+                $total += $item['quantity'] * $item['price'];
+            }
 
-        $purchase = Purchase::create($data);
+            $purchaseData = $request->only(['supplier_id', 'purchase_date', 'voucher', 'nro_compra']);
+            $purchaseData['user_id'] = Auth::id();
+            $purchaseData['total'] = $total;
 
-        // Update product stock
-        $product = Product::find($request->product_id);
-        $product->stock += $request->quantity;
-        $product->save();
+            $purchase = Purchase::create($purchaseData);
 
-        return redirect()->route('purchases.index')
-            ->with('success', 'Compra registrada correctamente.')
-            ->with('new_purchase_id', $purchase->id);
+            foreach ($request->items as $itemData) {
+                $subtotal = $itemData['quantity'] * $itemData['price'];
+                
+                $purchase->items()->create([
+                    'product_id' => $itemData['product_id'],
+                    'quantity' => $itemData['quantity'],
+                    'price' => $itemData['price'],
+                    'subtotal' => $subtotal,
+                ]);
+
+                // Update product stock
+                /** @var Product $product */
+                $product = Product::find($itemData['product_id']);
+                if ($product) {
+                    $product->stock += $itemData['quantity'];
+                    $product->save();
+                }
+            }
+
+            return redirect()->route('purchases.index')
+                ->with('success', 'Compra registrada correctamente.')
+                ->with('new_purchase_id', $purchase->id);
+        });
     }
 
     /**
@@ -112,7 +139,7 @@ class PurchaseController extends Controller
      */
     public function show(string $id)
     {
-        $purchase = Purchase::with(['product', 'supplier', 'user'])->findOrFail($id);
+        $purchase = Purchase::with(['items.product', 'supplier', 'user'])->findOrFail($id);
         return view('tenant.purchases.show', compact('purchase'));
     }
 
@@ -121,10 +148,24 @@ class PurchaseController extends Controller
      */
     public function edit(string $id)
     {
-        $purchase = Purchase::findOrFail($id);
-        $products = Product::all();
+        $purchase = Purchase::with(['items.product', 'supplier'])->findOrFail($id);
+        $products = Product::with('suppliers')->get();
         $suppliers = Supplier::all();
-        return view('tenant.purchases.edit', compact('purchase', 'products', 'suppliers'));
+        
+        $purchaseItems = $purchase->items->map(function($item) use ($purchase) {
+            return [
+                'product_id' => $item->product_id,
+                'name' => $item->product->name ?? 'N/A',
+                'code' => $item->product->code ?? 'N/A',
+                'quantity' => (int)$item->quantity,
+                'price' => (float)$item->price,
+                'subtotal' => (float)$item->subtotal,
+                'supplier_id' => $purchase->supplier_id,
+                'supplier_name' => $purchase->supplier->name ?? 'N/A'
+            ];
+        });
+
+        return view('tenant.purchases.edit', compact('purchase', 'products', 'suppliers', 'purchaseItems'));
     }
 
     /**
@@ -135,27 +176,84 @@ class PurchaseController extends Controller
         $purchase = Purchase::findOrFail($id);
 
         $request->validate([
-            'product_id' => 'required|exists:products,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'quantity' => 'required|integer|min:1',
-            'price' => 'required|numeric|min:0',
             'purchase_date' => 'required|date',
             'voucher' => 'required|string|max:255',
             'nro_compra' => 'required|unique:purchases,nro_compra,' . $id,
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => [
+                'required',
+                'integer',
+                'min:1',
+                function ($attribute, $value, $fail) use ($request, $purchase) {
+                    $index = explode('.', $attribute)[1];
+                    $productId = $request->input("items.$index.product_id");
+                    if ($productId) {
+                        $product = Product::find($productId);
+                        if ($product && $product->max_stock > 0) {
+                            // Obtener la cantidad previa de este producto en esta compra (si existe)
+                            $oldItem = $purchase->items->where('product_id', $productId)->first();
+                            $oldQuantity = $oldItem ? $oldItem->quantity : 0;
+                            
+                            // El stock proyectado es: stock actual - cantidad vieja + cantidad nueva
+                            $projectedStock = $product->stock - $oldQuantity + $value;
+                            
+                            if ($projectedStock > $product->max_stock) {
+                                $fail("La cantidad del producto '{$product->name}' supera el stock máximo permitido ({$product->max_stock}). Stock proyectado: {$projectedStock}.");
+                            }
+                        }
+                    }
+                },
+            ],
+            'items.*.price' => 'required|numeric|min:0',
         ]);
 
-        // Adjust product stock
-        $product = Product::find($purchase->product_id);
-        $product->stock -= $purchase->quantity; // Revert old quantity
-        $product->save();
+        return DB::transaction(function () use ($request, $purchase) {
+            // Revert stock for existing items
+            foreach ($purchase->items as $item) {
+                /** @var Product $product */
+                $product = Product::find($item->product_id);
+                if ($product) {
+                    $product->stock -= $item->quantity;
+                    $product->save();
+                }
+            }
 
-        $purchase->update($request->all());
+            // Delete existing items
+            $purchase->items()->delete();
 
-        $newProduct = Product::find($request->product_id);
-        $newProduct->stock += $request->quantity; // Add new quantity
-        $newProduct->save();
+            $total = 0;
+            foreach ($request->items as $item) {
+                $total += $item['quantity'] * $item['price'];
+            }
 
-        return redirect()->route('purchases.index')->with('success', 'Compra actualizada correctamente.');
+            $purchaseData = $request->only(['supplier_id', 'purchase_date', 'voucher', 'nro_compra']);
+            $purchaseData['total'] = $total;
+
+            $purchase->update($purchaseData);
+
+            foreach ($request->items as $itemData) {
+                $subtotal = $itemData['quantity'] * $itemData['price'];
+                
+                $purchase->items()->create([
+                    'product_id' => $itemData['product_id'],
+                    'quantity' => $itemData['quantity'],
+                    'price' => $itemData['price'],
+                    'subtotal' => $subtotal,
+                ]);
+
+                // Update product stock
+                /** @var Product $product */
+                $product = Product::find($itemData['product_id']);
+                if ($product) {
+                    $product->stock += $itemData['quantity'];
+                    $product->save();
+                }
+            }
+
+            return redirect()->route('purchases.index')->with('success', 'Compra actualizada correctamente.');
+        });
     }
 
     /**
@@ -163,19 +261,43 @@ class PurchaseController extends Controller
      */
     public function destroy(string $id)
     {
-        $purchase = Purchase::findOrFail($id);
+        $purchase = Purchase::with('items')->findOrFail($id);
 
-        // Adjust product stock
-        $product = Product::find($purchase->product_id);
-        $product->stock -= $purchase->quantity;
-        $product->save();
+        return DB::transaction(function () use ($purchase) {
+            foreach ($purchase->items as $item) {
+                // Adjust product stock
+                /** @var Product $product */
+                $product = Product::find($item->product_id);
+                if ($product) {
+                    $product->stock -= $item->quantity;
+                    $product->save();
+                }
+            }
 
-        $purchase->delete();
-        return redirect()->route('purchases.index')->with('success', 'Compra eliminada correctamente.');
+            $purchase->delete();
+            return redirect()->route('purchases.index')->with('success', 'Compra eliminada correctamente y stock revertido.');
+        });
     }
 
     public function voucher(Purchase $purchase)
     {
+        $purchase->load(['items.product', 'supplier', 'user']);
         return view('tenant.purchases.voucher', compact('purchase'));
+    }
+
+    public function quickStoreSupplier(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'company' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:20',
+        ]);
+
+        $supplier = Supplier::create($validated);
+
+        return response()->json([
+            'status' => 'success',
+            'supplier' => $supplier
+        ]);
     }
 }

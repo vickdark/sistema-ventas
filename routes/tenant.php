@@ -54,6 +54,7 @@ Route::middleware([
             // Purchase & Supplier Extras
             Route::get('purchases/{purchase}/voucher', [\App\Http\Controllers\Tenant\PurchaseController::class, 'voucher'])->name('purchases.voucher');
             Route::post('purchases/quick-supplier', [\App\Http\Controllers\Tenant\PurchaseController::class, 'quickStoreSupplier'])->name('purchases.quick-supplier');
+            Route::get('products/by-supplier/{supplier}', [\App\Http\Controllers\Tenant\ProductController::class, 'bySupplier'])->name('products.by-supplier');
 
             // Sale Ticket
             Route::get('sales/{sale}/ticket', [\App\Http\Controllers\Tenant\SaleController::class, 'ticket'])->name('sales.ticket');
