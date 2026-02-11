@@ -23,9 +23,8 @@ class Category extends Model
         'description',
     ];
 
-    // Define relationship with Products if applicable
-    // public function products()
-    // {
-    //     return $this->hasMany(Product::class);
-    // }
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }

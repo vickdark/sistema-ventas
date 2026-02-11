@@ -85,7 +85,7 @@
             </div>
         </div>
 
-        <!-- Inventario (Standard Card now) -->
+        <!-- Inventario -->
         <div class="col-xl-2 col-md-4 col-6">
             <div class="report-card dark compact">
                 <div class="card-body p-3 position-relative overflow-hidden">
@@ -229,23 +229,36 @@
     </div>
 </div>
 
+<div id="reports-data" 
+    data-ventas-semana="{{ json_encode($ventasSemana) }}"
+    data-top-productos="{{ json_encode($topProductos) }}"
+    data-datos-caja="{{ json_encode($datosCaja) }}"
+    data-cat-productos="{{ json_encode($catProductos) }}"
+    data-balance-mensual="{{ json_encode($balanceMensual) }}"
+    data-metodos-pago="{{ json_encode($metodosPago) }}"
+    data-efectivo-transferencia="{{ json_encode($efectivoVsTransferencia) }}"
+    style="display: none;">
+</div>
+
 <script>
     document.addEventListener('DOMContentLoaded', function() {
+        const reportsData = document.getElementById('reports-data');
+        
         initReportsIndex({
-            ventasSemana: @json($ventasSemana->map(fn($v) => ['fecha' => $v->fecha, 'total' => $v->total])),
-            topProductos: @json($topProductos->map(fn($tp) => ['product_name' => optional($tp->product)->name, 'total_vendido' => $tp->total_vendido])),
-            datosCaja: @json($datosCaja->map(fn($c) => ['date' => \Carbon\Carbon::parse($c->opening_date)->format('d/m'), 'initial_amount' => $c->initial_amount, 'final_amount' => $c->final_amount])),
-            catProductos: @json($catProductos->map(fn($c) => ['name' => $c->name, 'products_count' => $c->products_count])),
-            balanceMensual: @json($balanceMensual),
-            metodosPago: @json($metodosPago->map(fn($m) => ['payment_type' => $m->payment_type, 'total' => $m->total])),
-            efectivoVsTransferencia: @json($efectivoVsTransferencia->map(fn($e) => ['payment_type' => $e->payment_type, 'total' => $e->total])),
+            ventasSemana: JSON.parse(reportsData.getAttribute('data-ventas-semana')),
+            topProductos: JSON.parse(reportsData.getAttribute('data-top-productos')),
+            datosCaja: JSON.parse(reportsData.getAttribute('data-datos-caja')),
+            catProductos: JSON.parse(reportsData.getAttribute('data-cat-productos')),
+            balanceMensual: JSON.parse(reportsData.getAttribute('data-balance-mensual')),
+            metodosPago: JSON.parse(reportsData.getAttribute('data-metodos-pago')),
+            efectivoVsTransferencia: JSON.parse(reportsData.getAttribute('data-efectivo-transferencia')),
             stats: {
-                ingresoDiario: "{{ number_format($ingresoDiario, 2) }}",
-                ingresoMensual: "{{ number_format($ingresoMensual, 2) }}",
-                ingresoAnual: "{{ number_format($ingresoAnual, 2) }}",
-                deudaTotalClientes: "{{ number_format($deudaTotalClientes, 2) }}",
-                cantidadCreditosPendientes: "{{ $cantidadCreditosPendientes }}",
-                valorInventario: "{{ number_format($valorInventario, 2) }}"
+                ingresoDiario: "{{ $stats['ingresoDiario'] }}",
+                ingresoMensual: "{{ $stats['ingresoMensual'] }}",
+                ingresoAnual: "{{ $stats['ingresoAnual'] }}",
+                deudaTotalClientes: "{{ $stats['deudaTotalClientes'] }}",
+                cantidadCreditosPendientes: "{{ $stats['cantidadCreditosPendientes'] }}",
+                valorInventario: "{{ $stats['valorInventario'] }}"
             }
         });
     });

@@ -87,7 +87,7 @@ export function initReportsIndex(data) {
         new Chart(ctxCaja, {
             type: 'bar',
             data: {
-                labels: datosCaja.map(c => c.date),
+                labels: datosCaja.map(c => `${c.date} (${c.name})`),
                 datasets: [
                     { 
                         label: 'M. Inicial', 
@@ -106,8 +106,42 @@ export function initReportsIndex(data) {
             options: { 
                 responsive: true, 
                 maintainAspectRatio: false,
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            title: function(context) {
+                                const index = context[0].dataIndex;
+                                const item = datosCaja[index];
+                                return `Sesión: ${item.name}`;
+                            },
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed.y !== null) {
+                                    label += new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP' }).format(context.parsed.y);
+                                }
+                                return label;
+                            },
+                            afterBody: function(context) {
+                                const index = context[0].dataIndex;
+                                const item = datosCaja[index];
+                                return `Fecha: ${item.date}`;
+                            }
+                        }
+                    }
+                },
                 scales: {
-                    y: { grid: { color: 'rgba(0,0,0,0.05)' }, border: { display: false } },
+                    y: { 
+                        grid: { color: 'rgba(0,0,0,0.05)' }, 
+                        border: { display: false },
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value.toLocaleString();
+                            }
+                        }
+                    },
                     x: { grid: { display: false }, border: { display: false } }
                 }
             }

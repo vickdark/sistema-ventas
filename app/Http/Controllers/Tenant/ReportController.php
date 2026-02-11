@@ -75,9 +75,7 @@ class ReportController extends Controller
             
             $egresos = Purchase::whereYear('purchase_date', now()->year)
                 ->whereMonth('purchase_date', $i)
-                ->select(DB::raw('SUM(price * quantity) as total'))
-                ->first()
-                ->total ?? 0;
+                ->sum('total');
 
             $balanceMensual[] = [
                 'mes' => $i,
@@ -102,11 +100,48 @@ class ReportController extends Controller
             ->groupBy('payment_type')
             ->get();
 
-        return view('tenant.reports.index', compact(
-            'topProductos', 'ventasSemana', 'datosCaja', 'catProductos',
-            'ingresoDiario', 'ingresoMensual', 'ingresoAnual',
-            'deudaTotalClientes', 'cantidadCreditosPendientes', 
-            'balanceMensual', 'metodosPago', 'valorInventario', 'efectivoVsTransferencia'
-        ));
+        return view('tenant.reports.index', [
+            'ventasSemana' => $ventasSemana->map(fn($v) => [
+                'date' => \Carbon\Carbon::parse($v->fecha)->format('d/m'),
+                'total' => $v->total
+            ]),
+            'topProductos' => $topProductos->map(fn($t) => [
+                'name' => $t->product->name ?? 'Desconocido',
+                'total' => $t->total_vendido
+            ]),
+            'datosCaja' => $datosCaja->map(fn($c) => [
+                'date' => \Carbon\Carbon::parse($c->opening_date)->format('d/m'),
+                'name' => $c->name,
+                'initial_amount' => $c->initial_amount,
+                'final_amount' => $c->final_amount
+            ]),
+            'catProductos' => $catProductos->map(fn($cp) => [
+                'name' => $cp->name,
+                'total' => $cp->products_count
+            ]),
+            'balanceMensual' => $balanceMensual,
+            'metodosPago' => $metodosPago->map(fn($m) => [
+                'type' => $m->payment_type,
+                'total' => $m->total
+            ]),
+            'efectivoVsTransferencia' => $efectivoVsTransferencia->map(fn($e) => [
+                'type' => $e->payment_type,
+                'total' => $e->total
+            ]),
+            'stats' => [
+                'ingresoDiario' => number_format($ingresoDiario, 2),
+                'ingresoMensual' => number_format($ingresoMensual, 2),
+                'ingresoAnual' => number_format($ingresoAnual, 2),
+                'deudaTotalClientes' => number_format($deudaTotalClientes, 2),
+                'cantidadCreditosPendientes' => $cantidadCreditosPendientes,
+                'valorInventario' => number_format($valorInventario, 2)
+            ],
+            'ingresoDiario' => $ingresoDiario,
+            'ingresoMensual' => $ingresoMensual,
+            'ingresoAnual' => $ingresoAnual,
+            'deudaTotalClientes' => $deudaTotalClientes,
+            'cantidadCreditosPendientes' => $cantidadCreditosPendientes,
+            'valorInventario' => $valorInventario
+        ]);
     }
 }

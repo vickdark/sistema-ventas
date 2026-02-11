@@ -66,7 +66,7 @@
     <!-- Quick Totals Summary -->
     <div class="row g-4 py-4 mb-2">
         <div class="col-md-3">
-            <div class="card border-0 shadow-soft rounded-4 border-start border-primary border-2">
+            <div class="card border-0 shadow-soft rounded-4 border-start border-primary">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h6 class="text-muted small text-uppercase fw-bold mb-0">Dinero Inicial</h6>
@@ -79,7 +79,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-soft rounded-4 border-start border-success border-2">
+            <div class="card border-0 shadow-soft rounded-4 border-start border-success">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h6 class="text-muted small text-uppercase fw-bold mb-0">Ventas Turno</h6>
@@ -92,7 +92,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-soft rounded-4 border-start border-info border-2">
+            <div class="card border-0 shadow-soft rounded-4 border-start border-info">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h6 class="text-muted small text-uppercase fw-bold mb-0">Abonos Turno</h6>
@@ -105,7 +105,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card border-0 shadow-soft rounded-4 border-start border-primary border-2 bg-primary bg-opacity-10">
+            <div class="card border-0 shadow-soft rounded-4 border-start border-primary bg-primary bg-opacity-10">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-center justify-content-between mb-3">
                         <h6 class="text-primary small text-uppercase fw-bold mb-0">Ingresos Totales</h6>
