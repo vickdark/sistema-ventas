@@ -42,4 +42,9 @@ class Product extends Model
     {
         return $this->belongsTo(\App\Models\Usuarios\Usuario::class, 'user_id');
     }
+
+    public function suppliers()
+    {
+        return $this->belongsToMany(Supplier::class, 'product_supplier');
+    }
 }

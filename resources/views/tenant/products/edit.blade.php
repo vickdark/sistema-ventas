@@ -125,6 +125,24 @@
                             </div>
                         </div>
 
+                        <div class="mb-3">
+                            <label for="supplier_ids" class="form-label fw-bold">Proveedores (Requerido)</label>
+                            <select class="form-select @error('supplier_ids') is-invalid @enderror" id="supplier_ids" name="supplier_ids[]" multiple placeholder="Busca y selecciona proveedores..." required>
+                                @foreach($suppliers as $supplier)
+                                    <option value="{{ $supplier->id }}" 
+                                        {{ in_array($supplier->id, old('supplier_ids', $product->suppliers->pluck('id')->toArray())) ? 'selected' : '' }}>
+                                        {{ $supplier->name }} {{ $supplier->company ? '('.$supplier->company.')' : '' }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('supplier_ids')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div class="form-text small opacity-75 mt-1">
+                                <i class="fas fa-info-circle me-1"></i> Selecciona uno o varios proveedores para este producto.
+                            </div>
+                        </div>
+
                         <div class="mb-4">
                             <label for="description" class="form-label">Descripción (Opcional)</label>
                             <textarea class="form-control rounded-3 @error('description') is-invalid @enderror" id="description" name="description" rows="3">{{ old('description', $product->description) }}</textarea>
@@ -144,4 +162,22 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    new TomSelect('#supplier_ids', {
+        plugins: ['remove_button'],
+        create: false,
+        placeholder: 'Selecciona uno o más proveedores...',
+        render: {
+            option: function(data, escape) {
+                return '<div><i class="fas fa-truck me-2 opacity-50"></i>' + escape(data.text) + '</div>';
+            },
+            item: function(data, escape) {
+                return '<div title="' + escape(data.text) + '"><i class="fas fa-truck me-2 opacity-50"></i>' + escape(data.text) + '</div>';
+            }
+        }
+    });
+});
+</script>
 @endsection

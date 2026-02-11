@@ -20,9 +20,37 @@
                     <form action="{{ route('products.store') }}" method="POST" id="productsForm" enctype="multipart/form-data">
                         @csrf
                         
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <div class="p-4 border rounded-4 bg-light shadow-sm">
+                                    <h5 class="mb-3 text-primary d-flex align-items-center">
+                                        <i class="fas fa-truck-loading me-2"></i> Información de Proveedores
+                                    </h5>
+                                    <div class="row">
+                                        <div class="col-md-12">
+                                            <label class="form-label fw-bold">Proveedores (Requerido)</label>
+                                            <select class="form-select @error('supplier_ids') is-invalid @enderror" id="supplier_ids" name="supplier_ids[]" multiple placeholder="Selecciona uno o más proveedores..." required>
+                                                @foreach($suppliers as $supplier)
+                                                    <option value="{{ $supplier->id }}" {{ in_array($supplier->id, old('supplier_ids', [])) ? 'selected' : '' }}>
+                                                        {{ $supplier->name }} {{ $supplier->company ? '('.$supplier->company.')' : '' }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('supplier_ids')
+                                                <div class="invalid-feedback">{{ $message }}</div>
+                                            @enderror
+                                            <div class="form-text mt-2">
+                                                Selecciona los proveedores que surten estos productos. Puedes elegir varios.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0">Productos a Registrar</h5>
-                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="addProduct">
+                            <button type="button" class="btn btn-sm btn-outline-primary rounded-pill shadow-sm" id="addProduct">
                                 <i class="fas fa-plus me-1"></i> Agregar Otro (Máx. 5)
                             </button>
                         </div>
@@ -120,6 +148,21 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar TomSelect para proveedores
+    const supplierSelect = new TomSelect('#supplier_ids', {
+        plugins: ['remove_button'],
+        create: false,
+        placeholder: 'Busca y selecciona proveedores...',
+        render: {
+            option: function(data, escape) {
+                return '<div><i class="fas fa-truck me-2 opacity-50"></i>' + escape(data.text) + '</div>';
+            },
+            item: function(data, escape) {
+                return '<div title="' + escape(data.text) + '"><i class="fas fa-truck me-2 opacity-50"></i>' + escape(data.text) + '</div>';
+            }
+        }
+    });
+
     const container = document.getElementById('productsContainer');
     const addBtn = document.getElementById('addProduct');
     let productCount = 1;

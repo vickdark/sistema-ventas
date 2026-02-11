@@ -75,12 +75,6 @@
                                 <span class="badge {{ $product->stock <= $product->min_stock ? 'bg-danger' : 'bg-primary' }} rounded-pill px-3 py-2 fs-6">
                                     {{ $product->stock }} unidades
                                 </span>
-                                @if($product->image)
-                                    <div class="mb-2">
-                                        <img src="{{ asset('storage/' . $product->image) }}" alt="Preview" class="img-thumbnail" style="height: 60px;">
-                                        <small class="text-muted d-block">Imagen actual</small>
-                                    </div>
-                                @endif
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label class="text-muted d-block small">Stock Mínimo</label>
@@ -93,11 +87,25 @@
                         </div>
                     </div>
 
-                    <div class="mb-0">
+                    <div class="mb-4">
                         <h6 class="text-uppercase text-muted fw-bold small mb-3">Descripción</h6>
                         <p class="text-secondary mb-0">
                             {{ $product->description ?: 'Sin descripción detallada.' }}
                         </p>
+                    </div>
+
+                    <div class="mb-0">
+                        <h6 class="text-uppercase text-muted fw-bold small mb-3">Proveedores</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            @forelse($product->suppliers as $supplier)
+                                <span class="badge bg-light text-primary border rounded-pill px-3 py-2">
+                                    <i class="fas fa-truck-moving me-1"></i>
+                                    {{ $supplier->name }} {{ $supplier->company ? '('.$supplier->company.')' : '' }}
+                                </span>
+                            @empty
+                                <span class="text-muted small">No hay proveedores asociados.</span>
+                            @endforelse
+                        </div>
                     </div>
                 </div>
                 <div class="card-footer bg-light border-0 px-4 py-3">

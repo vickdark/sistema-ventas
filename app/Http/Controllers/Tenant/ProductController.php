@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Product;
 use App\Models\Tenant\Category;
+use App\Models\Tenant\Supplier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -53,7 +54,8 @@ class ProductController extends Controller
     public function create()
     {
         $categories = Category::all();
-        return view('tenant.products.create', compact('categories'));
+        $suppliers = Supplier::all();
+        return view('tenant.products.create', compact('categories', 'suppliers'));
     }
 
     /**
@@ -74,12 +76,15 @@ class ProductController extends Controller
             'products.*.entry_date' => 'required|date',
             'products.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'products.*.category_id' => 'required|exists:categories,id',
+            'supplier_ids' => 'required|array|min:1',
+            'supplier_ids.*' => 'exists:suppliers,id',
         ], [
             'products.required' => 'Debe agregar al menos un producto.',
             'products.max' => 'Solo puede registrar hasta 5 productos a la vez.',
             'products.*.code.distinct' => 'No puede haber códigos duplicados.',
             'products.*.image.image' => 'El archivo debe ser una imagen.',
             'products.*.image.max' => 'El tamaño máximo de la imagen es 2MB.',
+            'supplier_ids.required' => 'Debe seleccionar al menos un proveedor.',
         ]);
 
         $created = 0;
@@ -101,7 +106,11 @@ class ProductController extends Controller
             // Agregar el user_id
             $productData['user_id'] = auth()->id();
 
-            Product::create($productData);
+            $product = Product::create($productData);
+            
+            // Sincronizar proveedores
+            $product->suppliers()->sync($request->supplier_ids);
+            
             $created++;
         }
 
@@ -128,9 +137,10 @@ class ProductController extends Controller
      */
     public function edit(string $id)
     {
-        $product = Product::with('category')->findOrFail($id);
+        $product = Product::with(['category', 'suppliers'])->findOrFail($id);
         $categories = Category::all();
-        return view('tenant.products.edit', compact('product', 'categories'));
+        $suppliers = Supplier::all();
+        return view('tenant.products.edit', compact('product', 'categories', 'suppliers'));
     }
 
     /**
@@ -152,6 +162,8 @@ class ProductController extends Controller
             'entry_date' => 'required|date',
             'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'category_id' => 'required|exists:categories,id',
+            'supplier_ids' => 'required|array|min:1',
+            'supplier_ids.*' => 'exists:suppliers,id',
         ]);
 
         $data = $request->except('image_file');
@@ -165,6 +177,10 @@ class ProductController extends Controller
         }
 
         $product->update($data);
+        
+        // Sincronizar proveedores
+        $product->suppliers()->sync($request->supplier_ids);
+
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
 

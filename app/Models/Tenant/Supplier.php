@@ -32,4 +32,9 @@ class Supplier extends Model
     // {
     //     return $this->hasMany(Purchase::class);
     // }
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'product_supplier');
+    }
 }
