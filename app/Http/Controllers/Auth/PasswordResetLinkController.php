@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\Usuarios\Usuario;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Password;
@@ -26,6 +27,16 @@ class PasswordResetLinkController extends Controller
         $request->validate([
             'email' => ['required', 'email'],
         ]);
+
+        // Verificar si el usuario existe y si no es administrador
+        $user = Usuario::where('email', $request->email)->first();
+
+        if ($user) {
+            // Asumiendo que el slug del rol de administrador es 'admin'
+            if (!$user->role || $user->role->slug !== 'admin') {
+                return back()->with('restricted_role', 'No tienes permisos para restablecer tu contraseña de forma autónoma. Por favor, contacta con el administrador del sistema o con gerencia para solucionar problemas con tu acceso.');
+            }
+        }
 
         $status = Password::sendResetLink(
             $request->only('email')

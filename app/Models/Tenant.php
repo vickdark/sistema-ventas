@@ -17,6 +17,10 @@ use Stancl\Tenancy\Contracts\TenantWithDatabase;
  * @method mixed run(callable $callback)
  * @property-read \Illuminate\Database\Eloquent\Collection|\Stancl\Tenancy\Database\Models\Domain[] $domains
  * @property string $id
+ * @property string $service_type
+ * @property int|null $subscription_period
+ * @property string|null $next_payment_date
+ * @property bool $is_paid
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property array<array-key, mixed>|null $data

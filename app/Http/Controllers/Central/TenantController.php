@@ -103,6 +103,10 @@ class TenantController extends Controller
             'timezone'      => 'nullable|string|max:50',
             'logo'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'invoice_footer' => 'nullable|string',
+            'service_type'  => 'required|in:subscription,purchase',
+            'subscription_period' => 'required_if:service_type,subscription|nullable|in:30,90,365',
+            'next_payment_date' => 'required|date',
+            'is_paid'       => 'nullable|boolean',
         ], [
             'id.unique' => 'Este nombre de empresa ya está registrado.',
             'id.alpha_dash' => 'El ID solo puede contener letras, números y guiones.',
@@ -134,6 +138,10 @@ class TenantController extends Controller
                 'timezone'       => $request->timezone ?? 'America/Bogota',
                 'logo'           => $logoPath,
                 'invoice_footer' => $request->invoice_footer,
+                'service_type'   => $request->service_type,
+                'subscription_period' => $request->subscription_period,
+                'next_payment_date' => $request->next_payment_date,
+                'is_paid'        => $request->boolean('is_paid', true),
             ];
 
             // Primero buscamos si ya existe para evitar duplicados
@@ -275,6 +283,32 @@ class TenantController extends Controller
         }
     }
 
+    public function markAsPaid(Tenant $tenant)
+    {
+        try {
+            $tenant->is_paid = true;
+            
+            // Si es suscripción, extender la fecha de pago desde hoy
+            if ($tenant->service_type === 'subscription') {
+                $days = (int) ($tenant->subscription_period ?? 30);
+                $tenant->next_payment_date = now()->addDays($days)->format('Y-m-d');
+            }
+            
+            $tenant->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => "La empresa '{$tenant->id}' ha sido marcada como pagada. Próximo pago: {$tenant->next_payment_date}",
+                'next_payment_date' => $tenant->next_payment_date
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error al actualizar el estado de pago: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function edit(Tenant $tenant)
     {
         return view('central.tenants.edit', compact('tenant'));
@@ -295,6 +329,10 @@ class TenantController extends Controller
             'timezone'      => 'nullable|string|max:50',
             'logo'          => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'invoice_footer' => 'nullable|string',
+            'service_type'  => 'required|in:subscription,purchase',
+            'subscription_period' => 'required_if:service_type,subscription|nullable|in:30,90,365',
+            'next_payment_date' => 'required|date',
+            'is_paid'       => 'nullable|boolean',
         ]);
 
         try {
@@ -311,6 +349,10 @@ class TenantController extends Controller
                 'business_type'  => $request->business_type,
                 'timezone'       => $request->timezone,
                 'invoice_footer' => $request->invoice_footer,
+                'service_type'   => $request->service_type,
+                'subscription_period' => $request->subscription_period,
+                'next_payment_date' => $request->next_payment_date,
+                'is_paid'        => $request->boolean('is_paid', false),
             ];
 
             // Procesar Logo solo si se subió uno nuevo

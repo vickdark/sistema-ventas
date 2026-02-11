@@ -174,6 +174,71 @@
                                 </div>
                             </div>
 
+                            <!-- Información de Facturación -->
+                            <div class="col-12">
+                                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-4 border shadow-sm mb-2" 
+                                     style="cursor: pointer;" 
+                                     data-bs-toggle="collapse" 
+                                     data-bs-target="#billingInfoCollapse" 
+                                     aria-expanded="true">
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-success bg-opacity-10 p-2 rounded-circle me-3">
+                                            <i class="fas fa-file-invoice-dollar text-success"></i>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-0 fw-bold">Información de Facturación</h6>
+                                            <small class="text-muted">Tipo de servicio, periodos y fechas de pago</small>
+                                        </div>
+                                    </div>
+                                    <i class="fas fa-chevron-up text-muted transition-all" id="billing-info-icon"></i>
+                                </div>
+
+                                <div class="collapse show mt-3" id="billingInfoCollapse">
+                                    <div class="card card-body border-0 shadow-none bg-transparent p-0">
+                                        <div class="row g-4">
+                                            <div class="col-md-6">
+                                                <label for="service_type" class="form-label fw-semibold">Tipo de Servicio</label>
+                                                <select class="form-select @error('service_type') is-invalid @enderror" id="service_type" name="service_type" required>
+                                                    <option value="subscription" {{ old('service_type') == 'subscription' ? 'selected' : '' }}>Suscripción</option>
+                                                    <option value="purchase" {{ old('service_type') == 'purchase' ? 'selected' : '' }}>Compra / Mantenimiento</option>
+                                                </select>
+                                                @error('service_type')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-md-6" id="subscription_period_container">
+                                                <label for="subscription_period" class="form-label fw-semibold">Periodo de Suscripción</label>
+                                                <select class="form-select @error('subscription_period') is-invalid @enderror" id="subscription_period" name="subscription_period">
+                                                    <option value="30" {{ old('subscription_period') == '30' ? 'selected' : '' }}>Mensual (30 días)</option>
+                                                    <option value="90" {{ old('subscription_period') == '90' ? 'selected' : '' }}>Trimestral (90 días)</option>
+                                                    <option value="365" {{ old('subscription_period') == '365' ? 'selected' : '' }}>Anual (365 días)</option>
+                                                </select>
+                                                @error('subscription_period')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <label for="next_payment_date" class="form-label fw-semibold" id="next_payment_date_label">Fecha de Facturación</label>
+                                                <input type="date" class="form-control @error('next_payment_date') is-invalid @enderror" 
+                                                       id="next_payment_date" name="next_payment_date" value="{{ old('next_payment_date', date('Y-m-d')) }}" required>
+                                                @error('next_payment_date')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+
+                                            <div class="col-md-6 d-flex align-items-end">
+                                                <div class="form-check form-switch p-2 border rounded-3 w-100 bg-white shadow-sm">
+                                                    <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="is_paid" name="is_paid" value="1" checked>
+                                                    <label class="form-check-label fw-bold" for="is_paid">¿Pago Realizado?</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Configuración Técnica -->
                             <div class="col-12">
                                 <hr class="my-4">
@@ -270,10 +335,13 @@
                                 <div class="text-secondary opacity-50 mb-2 border-bottom border-secondary pb-1">> Terminal de Despliegue v1.0 - Logs de Sistema</div>
                             </div>
 
-                            <div id="final-actions" class="d-none">
-                                <button type="button" class="btn btn-success rounded-pill px-5 py-2 fw-bold shadow-sm" onclick="window.location.href='{{ route('central.tenants.index') }}'">
-                                    <i class="fas fa-check me-2"></i> FINALIZAR Y CONTINUAR AL LISTADO
-                                </button>
+                            <div id="final-actions" class="d-none d-flex justify-content-center gap-3">
+                                <a id="btn-visit-tenant" href="#" target="_blank" class="btn btn-primary rounded-pill px-5 py-2 fw-bold shadow-sm">
+                                    <i class="fas fa-external-link-alt me-2"></i> VISITAR EMPRESA
+                                </a>
+                                <a href="{{ route('central.tenants.index') }}" class="btn btn-success rounded-pill px-5 py-2 fw-bold shadow-sm">
+                                    <i class="fas fa-check me-2"></i> FINALIZAR
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -319,6 +387,24 @@
         const dbWarningText = document.getElementById('db-warning-text');
         const dbHelperText = document.getElementById('db-helper-text');
         const seederContainer = document.getElementById('seeder-toggle-container');
+
+        // Lógica para campos de facturación
+        const serviceTypeSelect = document.getElementById('service_type');
+        const subscriptionPeriodContainer = document.getElementById('subscription_period_container');
+        const nextPaymentDateLabel = document.getElementById('next_payment_date_label');
+
+        function toggleBillingFields() {
+            if (serviceTypeSelect.value === 'subscription') {
+                subscriptionPeriodContainer.classList.remove('d-none');
+                nextPaymentDateLabel.innerText = 'Próxima Fecha de Facturación';
+            } else {
+                subscriptionPeriodContainer.classList.add('d-none');
+                nextPaymentDateLabel.innerText = 'Próxima Fecha de Cobro Mantenimiento';
+            }
+        }
+
+        serviceTypeSelect.addEventListener('change', toggleBillingFields);
+        toggleBillingFields(); // Ejecutar al cargar
 
         createDbToggle.addEventListener('change', function() {
             if (!this.checked) {
@@ -485,6 +571,16 @@
             document.getElementById('success-icon').classList.remove('d-none');
             document.getElementById('process-title').innerText = '¡Proceso Completado!';
             document.getElementById('process-subtitle').innerText = 'La empresa ha sido configurada con éxito y está lista para operar.';
+            
+            // Configurar el botón de visita
+            const visitBtn = document.getElementById('btn-visit-tenant');
+            if (idInput.value) {
+                const protocol = window.location.protocol;
+                visitBtn.href = `${protocol}//${idInput.value}${host}`;
+            } else {
+                visitBtn.classList.add('d-none');
+            }
+
             document.getElementById('final-actions').classList.remove('d-none');
             logToConsole('--- FIN DEL PROCESO: LISTO PARA USAR ---', 'success');
         }

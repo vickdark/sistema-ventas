@@ -76,4 +76,25 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Enviar la notificación de restablecimiento de contraseña.
+     *
+     * @param  string  $token
+     * @return void
+     */
+    public function sendPasswordResetNotification($token): void
+    {
+        $this->notify(new \App\Notifications\Auth\ResetPasswordNotification($token));
+    }
+
+    /**
+     * Enviar la notificación de verificación de email.
+     *
+     * @return void
+     */
+    public function sendEmailVerificationNotification(): void
+    {
+        $this->notify(new \App\Notifications\Auth\VerifyEmailNotification());
+    }
 }

@@ -19,7 +19,12 @@ Route::prefix('central')->name('central.')->middleware(EnsureCentralDomain::clas
         
         Route::get('/tenants/check-id', [\App\Http\Controllers\Central\TenantController::class, 'checkId'])->name('tenants.check');
         Route::post('/tenants/{tenant}/maintenance', [\App\Http\Controllers\Central\TenantController::class, 'maintenance'])->name('tenants.maintenance');
+        Route::post('/tenants/{tenant}/mark-as-paid', [\App\Http\Controllers\Central\TenantController::class, 'markAsPaid'])->name('tenants.mark-as-paid');
         Route::resource('tenants', \App\Http\Controllers\Central\TenantController::class);
+
+        // Global Settings
+        Route::get('/settings', [\App\Http\Controllers\Central\SettingController::class, 'index'])->name('settings.index');
+        Route::post('/settings', [\App\Http\Controllers\Central\SettingController::class, 'update'])->name('settings.update');
     });
     
     Route::post('/logout', [App\Http\Controllers\Central\Auth\CentralLoginController::class, 'destroy'])->name('logout');

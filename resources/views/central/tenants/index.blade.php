@@ -28,7 +28,8 @@
                 routes: {
                     index: "{{ route('central.tenants.index') }}",
                     edit: "{{ route('central.tenants.edit', ':id') }}",
-                    destroy: "{{ route('central.tenants.destroy', ':id') }}"
+                    destroy: "{{ route('central.tenants.destroy', ':id') }}",
+                    markPaid: "{{ route('central.tenants.mark-as-paid', ':id') }}"
                 },
                 db_prefix: "{{ config('database.connections.central.database') }}",
                 tokens: {
