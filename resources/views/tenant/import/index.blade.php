@@ -153,8 +153,8 @@
 
                     <div class="alert alert-light border-info border-start border-3 small mb-3 text-start py-2 px-2" style="font-size: 0.8rem;">
                         <ul class="mb-0 ps-3">
-                            <li><strong>Código</strong> único.</li>
-                            <li>Category ID existe.</li>
+                            <li><strong>Categoría</strong> (nombre).</li>
+                            <li>Se crea si no existe.</li>
                         </ul>
                     </div>
 
@@ -205,19 +205,21 @@
             <div class="modal-body p-4">
                 <form id="importForm" enctype="multipart/form-data">
                     @csrf
-                    <input type="hidden" id="importModule" name="module">
-                    
-                    <div class="mb-3">
-                        <label for="importFile" class="form-label">Archivo (CSV o Excel)</label>
-                        <input type="file" class="form-control rounded-3" id="importFile" name="file" accept=".csv,.xlsx,.xls" required>
-                        <small class="text-muted">Formatos aceptados: CSV, XLSX, XLS</small>
-                    </div>
+                    <div id="formFields">
+                        <input type="hidden" id="importModule" name="module">
+                        
+                        <div class="mb-3">
+                            <label for="importFile" class="form-label">Archivo (CSV o Excel)</label>
+                            <input type="file" class="form-control rounded-3" id="importFile" name="file" accept=".csv,.xlsx,.xls" required>
+                            <small class="text-muted">Formatos aceptados: CSV, XLSX, XLS</small>
+                        </div>
 
-                    <div class="form-check mb-3">
-                        <input class="form-check-input" type="checkbox" id="skipDuplicates" name="skip_duplicates" checked>
-                        <label class="form-check-label" for="skipDuplicates">
-                            Omitir registros duplicados
-                        </label>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="checkbox" id="skipDuplicates" name="skip_duplicates" checked>
+                            <label class="form-check-label" for="skipDuplicates">
+                                Omitir registros duplicados
+                            </label>
+                        </div>
                     </div>
 
                     <div id="importProgress" class="d-none">
@@ -230,9 +232,9 @@
                     <div id="importResult" class="d-none"></div>
                 </form>
             </div>
-            <div class="modal-footer border-0 pt-0">
-                <button type="button" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary rounded-pill" onclick="submitImport()">
+            <div class="modal-footer border-0 pt-0" id="modalFooter">
+                <button type="button" id="btnCancel" class="btn btn-outline-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" id="btnSubmit" class="btn btn-primary rounded-pill" onclick="submitImport()">
                     <i class="fas fa-upload me-1"></i> Importar Datos
                 </button>
             </div>
@@ -263,8 +265,13 @@ function openImportModal(module) {
     document.getElementById('importModule').value = module;
     document.getElementById('modalModuleName').textContent = moduleNames[module];
     document.getElementById('importForm').reset();
+    document.getElementById('formFields').classList.remove('d-none');
     document.getElementById('importProgress').classList.add('d-none');
     document.getElementById('importResult').classList.add('d-none');
+    
+    // Reset footer
+    document.getElementById('btnSubmit').classList.remove('d-none');
+    document.getElementById('btnCancel').textContent = 'Cancelar';
     
     const modal = new bootstrap.Modal(document.getElementById('importModal'));
     modal.show();
@@ -274,9 +281,12 @@ async function submitImport() {
     const form = document.getElementById('importForm');
     const formData = new FormData(form);
     const module = document.getElementById('importModule').value;
+    const formFields = document.getElementById('formFields');
     const progressDiv = document.getElementById('importProgress');
     const resultDiv = document.getElementById('importResult');
     const progressBar = progressDiv.querySelector('.progress-bar');
+    const btnSubmit = document.getElementById('btnSubmit');
+    const btnCancel = document.getElementById('btnCancel');
 
     // Validar archivo
     if (!formData.get('file') || !formData.get('file').name) {
@@ -284,9 +294,12 @@ async function submitImport() {
         return;
     }
 
-    // Mostrar progreso
+    // Preparar UI
+    formFields.classList.add('d-none');
     progressDiv.classList.remove('d-none');
     resultDiv.classList.add('d-none');
+    btnSubmit.classList.add('d-none');
+    
     progressBar.style.width = '30%';
     progressBar.textContent = '30%';
 
@@ -304,29 +317,49 @@ async function submitImport() {
         progressBar.textContent = '70%';
 
         const result = await response.json();
-
         progressBar.style.width = '100%';
         progressBar.textContent = '100%';
+
+        if (response.status === 422) {
+            let errorMessage = result.message || 'Error de validación';
+            if (result.errors) {
+                const errors = Object.values(result.errors).flat().join('<br>');
+                errorMessage = `<strong>${errorMessage}</strong>:<br>${errors}`;
+            }
+            throw new Error(errorMessage);
+        }
 
         setTimeout(() => {
             progressDiv.classList.add('d-none');
             
-            if (response.ok && result.status === 'success') {
+            if (response.status === 200 && result.status === 'success') {
                 resultDiv.innerHTML = `
-                    <div class="alert alert-success">
-                        <h6 class="alert-heading"><i class="fas fa-check-circle me-1"></i> Importación Exitosa</h6>
-                        <p class="mb-1"><strong>${result.created}</strong> registro(s) creado(s)</p>
-                        ${result.duplicates > 0 ? `<p class="mb-0 small"><strong>${result.duplicates}</strong> registro(s) duplicado(s) omitido(s)</p>` : ''}
-                        ${result.errors > 0 ? `<p class="mb-0 small text-danger"><strong>${result.errors}</strong> error(es) encontrado(s)</p>` : ''}
+                    <div class="alert ${result.created > 0 ? 'alert-success' : 'alert-warning'} border-0 shadow-sm">
+                        <h6 class="alert-heading fw-bold"><i class="fas ${result.created > 0 ? 'fa-check-circle' : 'fa-exclamation-circle'} me-1"></i> Resumen de Importación</h6>
+                        <p class="mb-1"><strong>${result.created}</strong> registro(s) creado(s) con éxito.</p>
+                        ${result.duplicates > 0 ? `<p class="mb-1 small"><strong>${result.duplicates}</strong> registro(s) omitido(s) por duplicados.</p>` : ''}
+                        
+                        ${result.errors > 0 ? `
+                            <div class="mt-3 p-2 bg-white rounded border">
+                                <p class="mb-1 small text-danger fw-bold"><i class="fas fa-times-circle me-1"></i> ${result.errors} Errores encontrados:</p>
+                                <ul class="small text-danger mb-0 text-start" style="max-height: 200px; overflow-y: auto;">
+                                    ${result.error_messages.map(msg => `<li>${msg}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                    <div class="text-center mt-3">
+                        <button type="button" class="btn btn-primary rounded-pill px-4" data-bs-dismiss="modal" onclick="window.location.reload()">Aceptar y Recargar</button>
                     </div>
                 `;
                 resultDiv.classList.remove('d-none');
+                btnCancel.classList.add('d-none'); // Ocultar el cancelar original
                 
-                Notify.success('Importación Completada', `Se importaron ${result.created} registro(s)`);
-                
-                setTimeout(() => {
-                    window.location.reload();
-                }, 2000);
+                if (result.errors === 0) {
+                    Notify.success('Éxito', 'Importación completada correctamente');
+                } else {
+                    Notify.warning('Importación Parcial', 'Se completó con algunos errores');
+                }
             } else {
                 throw new Error(result.message || 'Error al importar');
             }
@@ -334,14 +367,17 @@ async function submitImport() {
 
     } catch (error) {
         progressDiv.classList.add('d-none');
+        formFields.classList.remove('d-none');
+        btnSubmit.classList.remove('d-none');
+        
         resultDiv.innerHTML = `
-            <div class="alert alert-danger">
-                <h6 class="alert-heading"><i class="fas fa-exclamation-triangle me-1"></i> Error</h6>
-                <p class="mb-0">${error.message}</p>
+            <div class="alert alert-danger border-0 shadow-sm">
+                <h6 class="alert-heading fw-bold"><i class="fas fa-exclamation-triangle me-1"></i> Error de Sistema</h6>
+                <div class="mb-0 small">${error.message}</div>
             </div>
         `;
         resultDiv.classList.remove('d-none');
-        Notify.error('Error', error.message);
+        Notify.error('Error', 'No se pudo completar la operación');
     }
 }
 </script>

@@ -37,8 +37,8 @@ class ImportController extends Controller
             ],
             'products' => [
                 'filename' => 'plantilla_productos.csv',
-                'headers' => ['codigo', 'nombre', 'categoria_id', 'precio_compra', 'precio_venta', 'stock', 'stock_minimo', 'stock_maximo', 'fecha_entrada', 'imagen', 'descripcion'],
-                'example' => ['PROD001', 'Laptop HP', '1', '500.00', '750.00', '10', '5', '50', date('Y-m-d'), '', 'Laptop empresarial']
+                'headers' => ['codigo', 'nombre', 'categoria', 'precio_compra', 'precio_venta', 'stock', 'stock_minimo', 'stock_maximo', 'fecha_entrada', 'imagen', 'descripcion'],
+                'example' => ['PROD001', 'Laptop HP', 'Electrónica', '500.00', '750.00', '10', '5', '50', date('Y-m-d'), '', 'Laptop empresarial']
             ],
             'purchases' => [
                 'filename' => 'plantilla_compras.csv',
@@ -76,7 +76,7 @@ class ImportController extends Controller
     public function importCategories(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,xlsx,xls|max:10240'
+            'file' => 'required|file|extensions:csv,xlsx,xls|max:10240'
         ]);
 
         $file = $request->file('file');
@@ -91,7 +91,8 @@ class ImportController extends Controller
 
         foreach ($data as $index => $row) {
             // Skip header if exists
-            if ($index === 0 && strtolower($row[0] ?? '') === 'nombre') {
+            $firstCell = trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $row[0] ?? ''));
+            if ($index === 0 && strtolower($firstCell) === 'nombre') {
                 continue;
             }
 
@@ -129,7 +130,7 @@ class ImportController extends Controller
     public function importClients(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,xlsx,xls|max:10240'
+            'file' => 'required|file|extensions:csv,xlsx,xls|max:10240'
         ]);
 
         $file = $request->file('file');
@@ -144,7 +145,8 @@ class ImportController extends Controller
 
         foreach ($data as $index => $row) {
             // Skip header
-            if ($index === 0 && (strtolower($row[0] ?? '') === 'nombre' || strtolower($row[0] ?? '') === 'name')) {
+            $firstCell = trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $row[0] ?? ''));
+            if ($index === 0 && (strtolower($firstCell) === 'nombre' || strtolower($firstCell) === 'name')) {
                 continue;
             }
 
@@ -196,7 +198,7 @@ class ImportController extends Controller
     public function importSuppliers(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,xlsx,xls|max:10240'
+            'file' => 'required|file|extensions:csv,xlsx,xls|max:10240'
         ]);
 
         $file = $request->file('file');
@@ -211,7 +213,8 @@ class ImportController extends Controller
 
         foreach ($data as $index => $row) {
             // Skip header
-            if ($index === 0 && (strtolower($row[0] ?? '') === 'nombre' || strtolower($row[0] ?? '') === 'name')) {
+            $firstCell = trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $row[0] ?? ''));
+            if ($index === 0 && (strtolower($firstCell) === 'nombre' || strtolower($firstCell) === 'name')) {
                 continue;
             }
 
@@ -267,7 +270,7 @@ class ImportController extends Controller
     public function importProducts(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,xlsx,xls|max:10240'
+            'file' => 'required|file|extensions:csv,xlsx,xls|max:10240'
         ]);
 
         $file = $request->file('file');
@@ -282,14 +285,24 @@ class ImportController extends Controller
 
         foreach ($data as $index => $row) {
             // Skip header
-            if ($index === 0 && (strtolower($row[0] ?? '') === 'codigo' || strtolower($row[0] ?? '') === 'code')) {
+            $firstCell = trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $row[0] ?? ''));
+            if ($index === 0 && (strtolower($firstCell) === 'codigo' || strtolower($firstCell) === 'code')) {
                 continue;
+            }
+
+            $categoryName = trim($row[2] ?? '');
+            
+            // Find or create category
+            $categoryId = null;
+            if (!empty($categoryName)) {
+                $category = Category::firstOrCreate(['name' => $categoryName]);
+                $categoryId = $category->id;
             }
 
             $productData = [
                 'code' => trim($row[0] ?? ''),
                 'name' => trim($row[1] ?? ''),
-                'category_id' => trim($row[2] ?? ''),
+                'category_id' => $categoryId,
                 'purchase_price' => trim($row[3] ?? ''),
                 'sale_price' => trim($row[4] ?? ''),
                 'stock' => trim($row[5] ?? ''),
@@ -349,7 +362,7 @@ class ImportController extends Controller
     public function importPurchases(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:csv,xlsx,xls|max:10240'
+            'file' => 'required|file|extensions:csv,xlsx,xls|max:10240'
         ]);
 
         $file = $request->file('file');
@@ -364,7 +377,8 @@ class ImportController extends Controller
 
         foreach ($data as $index => $row) {
             // Skip header
-            if ($index === 0 && (strtolower($row[0] ?? '') === 'codigo_producto' || strtolower($row[0] ?? '') === 'product_code')) {
+            $firstCell = trim(preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $row[0] ?? ''));
+            if ($index === 0 && (strtolower($firstCell) === 'codigo_producto' || strtolower($firstCell) === 'product_code')) {
                 continue;
             }
 
@@ -465,8 +479,9 @@ class ImportController extends Controller
         if ($extension === 'csv') {
             return $this->parseCsv($path);
         } else {
-            // For Excel files, we'll use a simple approach
-            // In production, you'd use PhpSpreadsheet
+            // Nota: Para archivos Excel (.xlsx, .xls) se requiere una librería como PhpSpreadsheet.
+            // Por ahora, intentamos leerlo como CSV por si el usuario solo cambió la extensión,
+            // pero lo ideal es que use archivos CSV reales.
             return $this->parseCsv($path);
         }
     }
