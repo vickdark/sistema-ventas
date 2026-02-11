@@ -6,9 +6,9 @@
 @endpush
 
 <div class="container-fluid p-0 pos-container">
-    <div class="row h-100 g-0">
+    <div class="row h-100 g-0 position-relative">
         <!-- Dashboard de Ventas (Izquierda) -->
-        <div class="col-md-8 product-panel">
+        <div class="col-lg-8 product-panel">
             <!-- Buscador Superior -->
             <div class="search-header">
                 <div class="position-relative flex-grow-1">
@@ -36,53 +36,65 @@
                 @endforeach
             </div>
 
-            <!-- Listado de Productos -->
+            <!-- Listado de Productos en Carousel -->
             <div class="product-grid-scroll">
-                <div id="productsGrid" class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-xl-4 g-4">
-                    @foreach($products as $product)
-                        <div class="col product-item" 
-                             data-name="{{ strtolower($product->name) }}" 
-                             data-code="{{ strtolower($product->code) }}"
-                             data-category="{{ strtolower($product->category->name ?? '') }}">
-                            <div class="card modern-product-card btn-add-product" 
-                                 data-id="{{ $product->id }}" 
-                                 data-name="{{ $product->name }}" 
-                                 data-price="{{ $product->sale_price }}"
-                                 data-stock="{{ $product->stock }}">
-                                <div class="product-card-img">
-                                    <span class="stock-badge {{ $product->stock < 10 ? 'bg-danger bg-opacity-10 text-danger' : 'bg-emerald-50 text-emerald-600' }}" 
-                                          style="{{ $product->stock >= 10 ? 'background: #ecfdf5; color: #059669;' : '' }}">
-                                        {{ $product->stock }} disp.
-                                    </span>
-                                    <i class="fas fa-box fa-3x text-slate-200" style="color: #e2e8f0;"></i>
-                                </div>
-                                <div class="card-body p-3">
-                                    <h6 class="fw-bold text-slate-700 mb-1 text-truncate">{{ $product->name }}</h6>
-                                    <p class="text-muted small mb-3 letter-spacing-1">#{{ $product->code }}</p>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span class="h5 fw-extrabold text-indigo-600 mb-0" style="color: #4f46e5;">${{ number_format($product->sale_price, 2) }}</span>
-                                        <div class="bg-indigo-50 p-2 rounded-lg" style="background: #eef2ff; color: #4f46e5; border-radius: 10px;">
-                                            <i class="fas fa-plus"></i>
+                <div class="swiper swiper-products">
+                    <div id="productsGrid" class="swiper-wrapper">
+                        @foreach($products as $product)
+                            <div class="swiper-slide product-item" 
+                                 data-name="{{ strtolower($product->name) }}" 
+                                 data-code="{{ strtolower($product->code) }}"
+                                 data-category="{{ strtolower($product->category->name ?? '') }}">
+                                <div class="card modern-product-card btn-add-product" 
+                                     data-id="{{ $product->id }}" 
+                                     data-name="{{ $product->name }}" 
+                                     data-price="{{ $product->sale_price }}"
+                                     data-stock="{{ $product->stock }}">
+                                    <div class="product-card-img">
+                                        <span class="stock-badge {{ $product->stock < 10 ? 'bg-danger bg-opacity-10 text-danger' : 'bg-emerald-50 text-emerald-600' }}" 
+                                              style="{{ $product->stock >= 10 ? 'background: #ecfdf5; color: #059669;' : '' }}">
+                                            {{ $product->stock }} disp.
+                                        </span>
+                                        <i class="fas fa-box fa-3x text-slate-200" style="color: #e2e8f0;"></i>
+                                    </div>
+                                    <div class="card-body p-3">
+                                        <h6 class="fw-bold text-slate-700 mb-1 text-truncate">{{ $product->name }}</h6>
+                                        <p class="text-muted small mb-3 letter-spacing-1">#{{ $product->code }}</p>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="h5 fw-extrabold text-indigo-600 mb-0" style="color: #4f46e5;">${{ number_format($product->sale_price, 2) }}</span>
+                                            <div class="bg-indigo-50 p-2 rounded-lg" style="background: #eef2ff; color: #4f46e5; border-radius: 10px;">
+                                                <i class="fas fa-plus"></i>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
+                        @endforeach
+                    </div>
+                    
+                    <!-- Controles del Swiper -->
+                    <div class="swiper-pagination mt-4"></div>
+                    <div class="swiper-button-prev"></div>
+                    <div class="swiper-button-next"></div>
                 </div>
             </div>
         </div>
 
         <!-- Panel de Carrito (Derecha) -->
-        <div class="col-md-4 cart-sidebar">
+        <div class="col-lg-4 cart-sidebar" id="cartSidebar">
             <div class="cart-header">
                 <div>
                     <h5 class="fw-extrabold text-slate-800 mb-0">Detalle de Venta</h5>
                     <span class="text-muted small">Ticket #{{ str_pad($nextNroVenta, 6, '0', STR_PAD_LEFT) }}</span>
                 </div>
-                <button class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold flex-shrink-0" id="btnClearCart">
-                    <i class="fas fa-trash-alt me-2"></i>Vaciar
-                </button>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-danger btn-sm rounded-pill px-3 fw-bold flex-shrink-0" id="btnClearCart">
+                        <i class="fas fa-trash-alt me-2"></i>Vaciar
+                    </button>
+                    <button class="btn btn-light d-lg-none rounded-pill" id="btnCloseCart">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
             </div>
 
             <div class="p-3 bg-slate-50" style="background: #f8fafc;">
@@ -173,6 +185,12 @@
             </div>
         </div>
     </div>
+
+    <!-- Botón Flotante para Carrito en Móvil -->
+    <button class="btn-floating-cart d-lg-none" id="btnToggleCart">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="badge bg-danger rounded-pill cart-count">0</span>
+    </button>
 </div>
 
 <!-- Modal Cliente Rápido -->

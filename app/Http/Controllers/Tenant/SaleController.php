@@ -60,7 +60,7 @@ class SaleController extends Controller
         $clients = Client::all();
         $products = Product::with('category')->where('stock', '>', 0)->get();
         $lastSale = Sale::latest()->first();
-        $nextNroVenta = $lastSale ? $lastSale->nro_venta + 1 : 1;
+        $nextNroVenta = $lastSale ? (int)$lastSale->nro_venta + 1 : 1;
 
         return view('tenant.sales.create', compact('clients', 'products', 'nextNroVenta'));
     }
@@ -94,7 +94,7 @@ class SaleController extends Controller
             $paymentStatus = in_array($request->payment_type, ['CONTADO', 'TRANSFERENCIA']) ? 'PAGADO' : 'PENDIENTE';
             
             $lastSale = Sale::latest()->first();
-            $nroVenta = $lastSale ? $lastSale->nro_venta + 1 : 1;
+            $nroVenta = $lastSale ? (int)$lastSale->nro_venta + 1 : 1;
 
             $sale = Sale::create([
                 'nro_venta' => $nroVenta,

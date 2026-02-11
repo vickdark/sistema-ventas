@@ -1,4 +1,10 @@
 import Notifications from '../../modules/Notifications';
+import Swiper from 'swiper';
+import { Navigation, Pagination, Grid } from 'swiper/modules';
+import 'swiper/css';
+import 'swiper/css/navigation';
+import 'swiper/css/pagination';
+import 'swiper/css/grid';
 
 export function initSalesPOS(config) {
     const { routes, tokens } = config;
@@ -29,11 +35,52 @@ export function initSalesPOS(config) {
     const receivedAmountInput = document.getElementById('received_amount');
     const changeLabel = document.getElementById('changeLabel');
 
+    // Mobile Elements
+    const cartSidebar = document.getElementById('cartSidebar');
+    const btnToggleCart = document.getElementById('btnToggleCart');
+    const btnCloseCart = document.getElementById('btnCloseCart');
+    const cartCountBadge = document.querySelector('.cart-count');
+
     // Quick Client Elements
     const btnSaveQuickClient = document.getElementById('btnSaveQuickClient');
     const quickClientForm = document.getElementById('quickClientForm');
     const quickClientModal = document.getElementById('quickClientModal') ? new bootstrap.Modal(document.getElementById('quickClientModal')) : null;
     const btnOpenQuickClient = document.querySelector('[title="Nuevo Cliente"]');
+    
+    // Initialize Swiper
+    let productSwiper = null;
+
+    const initSwiper = () => {
+        if (productSwiper) {
+            productSwiper.destroy(true, true);
+        }
+
+        productSwiper = new Swiper('.swiper-products', {
+            modules: [Navigation, Pagination, Grid],
+            slidesPerView: 1,
+            grid: {
+                fill: 'row',
+                rows: 2,
+            },
+            spaceBetween: 20,
+            pagination: {
+                el: '.swiper-pagination',
+                clickable: true,
+                dynamicBullets: true,
+            },
+            navigation: {
+                nextEl: '.swiper-button-next',
+                prevEl: '.swiper-button-prev',
+            },
+            breakpoints: {
+                640: { slidesPerView: 2, grid: { rows: 2 } },
+                1024: { slidesPerView: 3, grid: { rows: 2 } },
+                1400: { slidesPerView: 4, grid: { rows: 2 } }
+            },
+            observer: true,
+            observeParents: true,
+        });
+    };
 
     // Search Logic
     const filterProducts = () => {
@@ -49,11 +96,18 @@ export function initSalesPOS(config) {
             const matchesCategory = activeCategory === 'todos los productos' || category === activeCategory;
 
             if (matchesSearch && matchesCategory) {
+                item.style.display = 'block'; // Swiper needs display block/flex
                 item.classList.remove('d-none');
             } else {
+                item.style.display = 'none';
                 item.classList.add('d-none');
             }
         });
+        
+        if (productSwiper) {
+            productSwiper.update();
+            productSwiper.slideTo(0);
+        }
     };
 
     productSearch.addEventListener('input', filterProducts);
@@ -66,6 +120,19 @@ export function initSalesPOS(config) {
             filterProducts();
         });
     });
+
+    // Mobile Cart Toggles
+    if (btnToggleCart) {
+        btnToggleCart.addEventListener('click', () => {
+            cartSidebar.classList.toggle('show');
+        });
+    }
+
+    if (btnCloseCart) {
+        btnCloseCart.addEventListener('click', () => {
+            cartSidebar.classList.remove('show');
+        });
+    }
 
     // Payment Type Toggle
     paymentRadios.forEach(radio => {
@@ -147,6 +214,7 @@ export function initSalesPOS(config) {
 
         const template = document.getElementById('cartItemTemplate');
         let total = 0;
+        let itemCount = 0;
 
         cart.forEach((item, index) => {
             const clone = template.content.cloneNode(true);
@@ -183,7 +251,14 @@ export function initSalesPOS(config) {
 
             cartItems.appendChild(row);
             total += item.price * item.quantity;
+            itemCount += item.quantity;
         });
+
+        // Update mobile cart count
+        if (cartCountBadge) {
+            cartCountBadge.textContent = itemCount;
+            cartCountBadge.classList.toggle('d-none', itemCount === 0);
+        }
 
         saleTotal = total;
         totalLabel.textContent = `$${total.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
@@ -349,4 +424,5 @@ export function initSalesPOS(config) {
     });
 
     renderCart();
+    initSwiper();
 }

@@ -60,7 +60,7 @@ class PurchaseController extends Controller
         $products = Product::all();
         $suppliers = Supplier::all();
         $lastPurchase = Purchase::latest()->first();
-        $nextNroCompra = $lastPurchase ? $lastPurchase->nro_compra + 1 : 1;
+        $nextNroCompra = $lastPurchase ? (int)$lastPurchase->nro_compra + 1 : 1;
 
         return view('tenant.purchases.create', compact('products', 'suppliers', 'nextNroCompra'));
     }
