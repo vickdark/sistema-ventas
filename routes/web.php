@@ -51,16 +51,16 @@ Route::middleware([EnsureCentralDomain::class, 'auth:owner'])->group(function ()
     Route::put('/central/password-update', [\App\Http\Controllers\Profile\PasswordController::class, 'update'])->name('password.update.ajax');
 });
 
-Route::match(['get', 'post'], '/login', function () {
-    if (in_array(request()->getHost(), config('tenancy.central_domains'))) {
+// Redirect /login to /central/login ONLY on central domains
+// This prevents conflicting with tenant /login routes
+foreach (config('tenancy.central_domains', []) as $domain) {
+    Route::domain($domain)->match(['get', 'post'], '/login', function () {
         if (request()->isMethod('post')) {
-            // Note: If you reach here, it means you submitted to /login instead of /central/login
             return redirect()->route('central.login.submit')->withInput();
         }
         return redirect()->route('central.login');
-    }
-    abort(404);
-});
+    });
+}
 
 Route::get('/welcome', WelcomeController::class)->name('welcome');
 
