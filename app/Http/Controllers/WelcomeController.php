@@ -12,6 +12,7 @@ class WelcomeController extends Controller
      */
     public function __invoke(): View
     {
+        dd('WelcomeController alcanzado!');
         $quote = Inspiring::quote();
         
         // Limpiar etiquetas de formato de consola (como <options=bold>, <fg=gray>, etc.)
