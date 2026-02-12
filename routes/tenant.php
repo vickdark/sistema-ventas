@@ -24,13 +24,10 @@ Route::middleware([
     PreventAccessFromCentralDomains::class,
     \App\Http\Middleware\CheckTenantPaymentStatus::class,
 ])->group(function () {
-    // Only register these routes if we are NOT on a central domain.
-    // This prevents these routes from hijacking the central domain routes.
-    if (!in_array(request()->getHost(), config('tenancy.central_domains', []))) {
-        Route::get('payment-pending', function () {
-            $tenant = tenant();
-            return view('tenant.payment-pending', compact('tenant'));
-        })->name('tenant.payment-pending');
+    Route::get('payment-pending', function () {
+        $tenant = tenant();
+        return view('tenant.payment-pending', compact('tenant'));
+    })->name('tenant.payment-pending');
 
         Route::post('payment-notification', [\App\Http\Controllers\Tenant\PaymentNotificationController::class, 'send'])
             ->name('tenant.payment-notification.send');
@@ -99,5 +96,4 @@ Route::middleware([
             // Perfil y Seguridad
             Route::put('/password', [\App\Http\Controllers\Profile\PasswordController::class, 'update'])->name('password.update.ajax');
         });
-    }
 });
