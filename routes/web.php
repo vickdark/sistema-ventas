@@ -9,7 +9,7 @@ foreach (config('tenancy.central_domains', []) as $domain) {
     Route::domain($domain)->group(function () {
         Route::get('/', WelcomeController::class);
     });
-}
+} // ruta de entrada
 
 // Central Management (Owner only)
 Route::prefix('central')->name('central.')->middleware(EnsureCentralDomain::class)->group(function () {
