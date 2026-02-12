@@ -5,9 +5,11 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Mail\PaymentNotificationMail;
 use App\Models\CentralSetting;
+use App\Models\CentralPaymentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class PaymentNotificationController extends Controller
 {
@@ -48,14 +50,30 @@ class PaymentNotificationController extends Controller
         Log::info("Destinatarios finales (antes de enviar): " . implode(', ', $finalEmails));
 
         $attachmentPath = null;
+        $relativePath = null;
         if ($request->hasFile('attachment')) {
             // Guardar el archivo en una carpeta temporal para que el Mailable pueda acceder a él
             // Usamos storeAs para mantener el nombre original o uno controlado
             $file = $request->file('attachment');
             $fileName = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('payment_proofs', $fileName, 'public');
-            $attachmentPath = storage_path('app/public/' . $path);
+            $relativePath = $file->storeAs('payment_proofs', $fileName, 'public');
+            $attachmentPath = Storage::disk('public')->path($relativePath);
             Log::info("Adjunto guardado en: " . $attachmentPath);
+        }
+
+        // 3. Guardar en la bandeja central
+        try {
+            CentralPaymentNotification::create([
+                'tenant_id' => $tenant->id,
+                'client_email' => $request->client_email,
+                'message' => $request->message,
+                'attachment_path' => $relativePath, // Guardamos la ruta relativa al disco public
+                'status' => 'pending',
+            ]);
+            Log::info("Notificación guardada en la base de datos central.");
+        } catch (\Exception $e) {
+            Log::error("Error al guardar en la base de datos central: " . $e->getMessage());
+            // No bloqueamos el proceso si falla el guardado central, pero lo registramos
         }
 
         try {

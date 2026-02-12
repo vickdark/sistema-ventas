@@ -34,6 +34,13 @@ Route::prefix('central')->name('central.')->middleware(EnsureCentralDomain::clas
         // Métricas y Logs HTTP
         Route::get('/metrics', [\App\Http\Controllers\Central\MetricsController::class, 'index'])->name('metrics.index');
         Route::post('/metrics/clear', [\App\Http\Controllers\Central\MetricsController::class, 'clearLogs'])->name('metrics.clear');
+
+        // Payment Notifications
+        Route::get('/payment-notifications', [\App\Http\Controllers\Central\PaymentNotificationController::class, 'index'])->name('payment-notifications.index');
+        Route::get('/payment-notifications/{notification}', [\App\Http\Controllers\Central\PaymentNotificationController::class, 'show'])->name('payment-notifications.show');
+        Route::get('/payment-notifications/{notification}/download', [\App\Http\Controllers\Central\PaymentNotificationController::class, 'download'])->name('payment-notifications.download');
+        Route::post('/payment-notifications/{notification}/review', [\App\Http\Controllers\Central\PaymentNotificationController::class, 'markAsReviewed'])->name('payment-notifications.review');
+        Route::delete('/payment-notifications/{notification}', [\App\Http\Controllers\Central\PaymentNotificationController::class, 'destroy'])->name('payment-notifications.destroy');
     });
     
     Route::post('/logout', [App\Http\Controllers\Central\Auth\CentralLoginController::class, 'destroy'])->name('logout');

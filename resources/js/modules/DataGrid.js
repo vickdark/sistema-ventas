@@ -2,6 +2,30 @@ export default class DataGrid {
     constructor(elementId, options = {}) {
         this.elementId = elementId;
         this.instance = null;
+
+        // Inyectar automáticamente data-label en las columnas para el modo responsivo
+        if (options.columns) {
+            options.columns = options.columns.map(col => {
+                const colName = typeof col === 'string' ? col : (col.name || '');
+                const colObj = typeof col === 'string' ? { name: col } : { ...col };
+                
+                // Preservar atributos existentes si los hay
+                const existingAttributes = colObj.attributes || {};
+                
+                colObj.attributes = (cell, row, column) => {
+                    const attrs = typeof existingAttributes === 'function' 
+                        ? existingAttributes(cell, row, column) 
+                        : { ...existingAttributes };
+                    
+                    return {
+                        ...attrs,
+                        'data-label': colName
+                    };
+                };
+                return colObj;
+            });
+        }
+
         this.options = {
             language: {
                 'search': { 'placeholder': 'Buscar...' },
@@ -22,13 +46,27 @@ export default class DataGrid {
             },
             resizable: true,
             sort: true,
-            pagination: { 
-                limit: 10,
-                server: options.url ? true : false
-            },
-            search: {
-                server: options.url ? true : false
-            },
+            pagination: options.url ? {
+                limit: options.limit || 10,
+                server: {
+                    url: (prev, page, limit) => {
+                        const url = new URL(prev, prev.startsWith('http') ? undefined : window.location.origin);
+                        url.searchParams.set('limit', limit);
+                        url.searchParams.set('offset', page * limit);
+                        return url.toString();
+                    }
+                }
+            } : { limit: options.limit || 10 },
+            search: options.url ? {
+                server: {
+                    url: (prev, keyword) => {
+                        if (!keyword) return prev;
+                        const url = new URL(prev, prev.startsWith('http') ? undefined : window.location.origin);
+                        url.searchParams.set('search', keyword);
+                        return url.toString();
+                    }
+                }
+            } : true,
             server: options.url ? {
                 url: options.url,
                 headers: {
@@ -36,15 +74,15 @@ export default class DataGrid {
                     'X-Requested-With': 'XMLHttpRequest'
                 },
                 then: data => {
-                    this.lastData = data.data;
-                    return data.data.map(item => options.mapData ? options.mapData(item) : Object.values(item));
+                    const records = data.data || [];
+                    this.lastData = records;
+                    return records.map(item => options.mapData ? options.mapData(item) : Object.values(item));
                 },
-                total: data => data.total,
+                total: data => data.total || 0,
                 handle: (res) => {
                     if (res.status === 404) return { data: [], total: 0 };
                     if (res.ok) return res.json();
                     
-                    // Si el error es un error de servidor (HTML), mostramos algo útil en consola
                     return res.text().then(text => {
                         console.error('Error del servidor (no es JSON):', text.substring(0, 200));
                         return { data: [], total: 0 };
@@ -78,13 +116,13 @@ export default class DataGrid {
         if (!wrapper) return;
 
         const container = document.createElement('div');
-        container.className = 'd-flex justify-content-end gap-2 mb-3 mt-2';
+        container.className = 'd-flex justify-content-end gap-2 mb-3 mt-2 export-buttons-container';
         container.innerHTML = `
             <button class="btn btn-sm btn-outline-danger rounded-pill px-3 export-pdf">
-                <i class="fas fa-file-pdf me-1"></i> PDF
+                <i class="fas fa-file-pdf me-1"></i> <span class="d-none d-sm-inline">PDF</span>
             </button>
             <button class="btn btn-sm btn-outline-success rounded-pill px-3 export-excel">
-                <i class="fas fa-file-excel me-1"></i> Excel
+                <i class="fas fa-file-excel me-1"></i> <span class="d-none d-sm-inline">Excel</span>
             </button>
         `;
 

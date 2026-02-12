@@ -69,6 +69,10 @@
                     <i class="fa-solid fa-building-shield"></i>
                     <span class="app-link-text">Inquilinos</span>
                 </a>
+                <a class="nav-link {{ request()->routeIs('central.payment-notifications.*') ? 'active' : '' }}" href="{{ route('central.payment-notifications.index') }}">
+                    <i class="fa-solid fa-receipt"></i>
+                    <span class="app-link-text">Bandeja de Pagos</span>
+                </a>
                 <a class="nav-link {{ request()->routeIs('central.settings.*') ? 'active' : '' }}" href="{{ route('central.settings.index') }}">
                     <i class="fa-solid fa-gears"></i>
                     <span class="app-link-text">Configuraciones</span>

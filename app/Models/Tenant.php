@@ -39,4 +39,9 @@ use Stancl\Tenancy\Contracts\TenantWithDatabase;
 class Tenant extends BaseTenant implements TenantWithDatabase
 {
     use HasDomains, HasDatabase;
+
+    public function paymentNotifications()
+    {
+        return $this->hasMany(CentralPaymentNotification::class);
+    }
 }
