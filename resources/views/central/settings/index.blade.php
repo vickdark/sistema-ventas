@@ -50,7 +50,7 @@
                 </div>
             </div>
 
-            <div class="card border-0 shadow-soft rounded-4 overflow-hidden border-start border-warning border-4">
+            <div class="card border-0 shadow-soft rounded-4 overflow-hidden border-start border-warning">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-start">
                         <div class="flex-shrink-0 bg-warning bg-opacity-10 rounded-3 p-3 text-warning">

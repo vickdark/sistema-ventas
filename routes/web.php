@@ -20,11 +20,20 @@ Route::prefix('central')->name('central.')->middleware(EnsureCentralDomain::clas
         Route::get('/tenants/check-id', [\App\Http\Controllers\Central\TenantController::class, 'checkId'])->name('tenants.check');
         Route::post('/tenants/{tenant}/maintenance', [\App\Http\Controllers\Central\TenantController::class, 'maintenance'])->name('tenants.maintenance');
         Route::post('/tenants/{tenant}/mark-as-paid', [\App\Http\Controllers\Central\TenantController::class, 'markAsPaid'])->name('tenants.mark-as-paid');
+        Route::post('/tenants/{tenant}/suspend', [\App\Http\Controllers\Central\TenantController::class, 'suspend'])->name('tenants.suspend');
         Route::resource('tenants', \App\Http\Controllers\Central\TenantController::class);
 
         // Global Settings
         Route::get('/settings', [\App\Http\Controllers\Central\SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [\App\Http\Controllers\Central\SettingController::class, 'update'])->name('settings.update');
+
+        // Mantenimiento y Comandos
+        Route::get('/maintenance', [\App\Http\Controllers\Central\MaintenanceController::class, 'index'])->name('maintenance.index');
+        Route::post('/maintenance/run', [\App\Http\Controllers\Central\MaintenanceController::class, 'runCommand'])->name('maintenance.run');
+
+        // Métricas y Logs HTTP
+        Route::get('/metrics', [\App\Http\Controllers\Central\MetricsController::class, 'index'])->name('metrics.index');
+        Route::post('/metrics/clear', [\App\Http\Controllers\Central\MetricsController::class, 'clearLogs'])->name('metrics.clear');
     });
     
     Route::post('/logout', [App\Http\Controllers\Central\Auth\CentralLoginController::class, 'destroy'])->name('logout');

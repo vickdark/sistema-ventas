@@ -60,8 +60,15 @@ export default class DataGrid {
             console.error('Grid.js is not loaded');
             return;
         }
+        
+        const container = document.getElementById(this.elementId);
+        if (!container) {
+            console.warn(`DataGrid: Container element with ID "${this.elementId}" not found. Skipping render.`);
+            return;
+        }
+
         this.instance = new window.Gridjs.Grid(this.options);
-        this.instance.render(document.getElementById(this.elementId));
+        this.instance.render(container);
         this.addExportButtons();
         return this.instance;
     }

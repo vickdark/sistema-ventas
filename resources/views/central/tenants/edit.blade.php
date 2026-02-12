@@ -1,6 +1,11 @@
 @extends('layouts.app')
 
 @section('content')
+@php
+    $suspendUrl = route('central.tenants.suspend', $tenant->id);
+    $activateUrl = route('central.tenants.mark-as-paid', $tenant->id);
+    $isPaid = $tenant->is_paid;
+@endphp
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
@@ -256,7 +261,7 @@
             </div>
 
             <!-- Acciones Avanzadas -->
-            <div class="card border-0 shadow-soft rounded-4 overflow-hidden border-start border-warning border-5 shadow-sm">
+            <div class="card border-0 shadow-soft rounded-4 overflow-hidden border-start border-warning shadow-sm">
                 <div class="card-body p-4">
                     <div class="row align-items-center">
                         <div class="col-md-7">
@@ -264,6 +269,16 @@
                             <p class="text-muted small mb-0">Gestiona la infraestructura técnica del inquilino de forma manual.</p>
                         </div>
                         <div class="col-md-5 text-md-end mt-3 mt-md-0 d-flex gap-2 justify-content-md-end">
+                            @if ($isPaid)
+                                <button type="button" class="btn btn-outline-danger rounded-pill px-3 fw-bold shadow-sm" id="btn-suspend-tenant">
+                                    <i class="fas fa-ban me-2"></i> Suspender
+                                </button>
+                            @endif
+                            @if (!$isPaid)
+                                <button type="button" class="btn btn-outline-success rounded-pill px-3 fw-bold shadow-sm" id="btn-activate-tenant">
+                                    <i class="fas fa-check me-2"></i> Activar (Marcar Pagado)
+                                </button>
+                            @endif
                             <button type="button" class="btn btn-outline-primary rounded-pill px-3 fw-bold shadow-sm btn-maintenance" data-type="migrate">
                                 <i class="fas fa-server me-2"></i> Migraciones
                             </button>
@@ -342,6 +357,42 @@
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof window.bootstrap === 'undefined') return;
         
+        // Inicializar las funciones globales si no están presentes (por si no se cargó el index.js)
+        if (typeof window.initTenantsIndex === 'function' && !window.markTenantAsPaid) {
+            window.initTenantsIndex({
+                routes: {
+                    index: "{{ route('central.tenants.index') }}",
+                    markPaid: "{{ route('central.tenants.mark-as-paid', ':id') }}"
+                },
+                tokens: {
+                    csrf: "{{ csrf_token() }}"
+                }
+            });
+        }
+
+        const btnSuspend = document.getElementById('btn-suspend-tenant');
+        const btnActivate = document.getElementById('btn-activate-tenant');
+
+        if (btnSuspend) {
+            btnSuspend.addEventListener('click', function() {
+                if (typeof window.suspendTenant === 'function') {
+                    window.suspendTenant('{{ $suspendUrl }}', '{{ $tenant->id }}');
+                } else {
+                    console.error('La función suspendTenant no está definida. Asegúrate de que index.js se haya cargado.');
+                }
+            });
+        }
+
+        if (btnActivate) {
+            btnActivate.addEventListener('click', function() {
+                if (typeof window.markTenantAsPaid === 'function') {
+                    window.markTenantAsPaid('{{ $activateUrl }}', '{{ $tenant->id }}');
+                } else {
+                    console.error('La función markTenantAsPaid no está definida. Asegúrate de que index.js se haya cargado.');
+                }
+            });
+        }
+
         const processModal = new window.bootstrap.Modal(document.getElementById('processModal'));
         const maintenanceButtons = document.querySelectorAll('.btn-maintenance');
         const consoleEl = document.getElementById('terminal-console');
@@ -483,8 +534,35 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Lógica para campos de facturación
         const serviceTypeSelect = document.getElementById('service_type');
+        const subscriptionPeriodSelect = document.getElementById('subscription_period');
         const subscriptionPeriodContainer = document.getElementById('subscription_period_container');
         const nextPaymentDateLabel = document.getElementById('next_payment_date_label');
+        const nextPaymentDateInput = document.getElementById('next_payment_date');
+
+        function calculateNextPaymentDate() {
+            const today = new Date();
+            // Empezamos a contar desde mañana
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() + 1);
+
+            let daysToAdd = 0;
+            if (serviceTypeSelect.value === 'subscription') {
+                daysToAdd = parseInt(subscriptionPeriodSelect.value) || 30;
+            } else {
+                // Para mantenimiento/compra es anual (365 días)
+                daysToAdd = 365; 
+            }
+
+            const nextDate = new Date(startDate);
+            nextDate.setDate(startDate.getDate() + daysToAdd);
+
+            // Formatear a YYYY-MM-DD para el input date
+            const yyyy = nextDate.getFullYear();
+            const mm = String(nextDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(nextDate.getDate()).padStart(2, '0');
+            
+            nextPaymentDateInput.value = `${yyyy}-${mm}-${dd}`;
+        }
 
         function toggleBillingFields() {
             if (serviceTypeSelect.value === 'subscription') {
@@ -497,8 +575,16 @@
         }
 
         if (serviceTypeSelect) {
-            serviceTypeSelect.addEventListener('change', toggleBillingFields);
-            toggleBillingFields(); // Ejecutar al cargar
+            serviceTypeSelect.addEventListener('change', function() {
+                toggleBillingFields();
+                calculateNextPaymentDate();
+            });
+            
+            subscriptionPeriodSelect.addEventListener('change', calculateNextPaymentDate);
+            
+            // Solo calcular automáticamente si el campo está vacío o es un cambio de tipo
+            // En edición, usualmente queremos mantener la fecha actual a menos que cambien el plan
+            toggleBillingFields();
         }
     });
 </script>

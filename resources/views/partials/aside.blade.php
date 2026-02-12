@@ -73,6 +73,14 @@
                     <i class="fa-solid fa-gears"></i>
                     <span class="app-link-text">Configuraciones</span>
                 </a>
+                <a class="nav-link {{ request()->routeIs('central.maintenance.*') ? 'active' : '' }}" href="{{ route('central.maintenance.index') }}">
+                    <i class="fa-solid fa-screwdriver-wrench"></i>
+                    <span class="app-link-text">Mantenimiento</span>
+                </a>
+                <a class="nav-link {{ request()->routeIs('central.metrics.*') ? 'active' : '' }}" href="{{ route('central.metrics.index') }}">
+                    <i class="fa-solid fa-chart-simple"></i>
+                    <span class="app-link-text">Métricas y Logs</span>
+                </a>
             @endif
 
 

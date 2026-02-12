@@ -309,6 +309,24 @@ class TenantController extends Controller
         }
     }
 
+    public function suspend(Tenant $tenant)
+    {
+        try {
+            $tenant->is_paid = false;
+            $tenant->save();
+
+            return response()->json([
+                'status' => 'success',
+                'message' => "La empresa '{$tenant->id}' ha sido SUSPENDIDA correctamente."
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Error al suspender la empresa: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function edit(Tenant $tenant)
     {
         return view('central.tenants.edit', compact('tenant'));

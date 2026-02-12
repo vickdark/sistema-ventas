@@ -1,94 +1,104 @@
 export function initTenantsIndex(config) {
     const { routes, tokens } = config;
 
-    const grid = new DataGrid("tenants-grid", {
-        url: routes.index,
-        columns: [
-            { id: 'id', name: "Empresa / ID", width: "200px" },
-            { 
-                id: 'domain', 
-                name: "Dominio de Acceso",
-                formatter: (cell) => DataGrid.html(`<a href="http://${cell}" target="_blank" class="text-primary text-decoration-none fw-bold"><i class="fas fa-external-link-alt me-1 small"></i>${cell}</a>`)
-            },
-            { 
-                id: 'database', 
-                name: "Base de Datos",
-                formatter: (cell) => DataGrid.html(`<span class="badge bg-light text-dark border"><i class="fas fa-database me-1 small opacity-50"></i>${cell}</span>`)
-            },
-            { 
-                id: 'status', 
-                name: "Estado de Cuenta",
-                formatter: (cell, row) => {
-                    const isPaid = cell === true || cell === 1 || cell === '1';
-                    
-                    let badgeClass = isPaid ? 'bg-success' : 'bg-danger';
-                    let text = isPaid ? 'ACTIVO' : 'SUSPENDIDO';
-                    let icon = isPaid ? 'fa-check-circle' : 'fa-ban';
-                    
-                    return DataGrid.html(`
-                        <span class="badge ${badgeClass} rounded-pill px-3 py-2 shadow-sm" style="font-size: 0.75rem;">
-                            <i class="fas ${icon} me-1"></i>${text}
-                        </span>
-                    `);
-                }
-            },
-            { 
-                id: 'actions',
-                name: "Acciones",
-                formatter: (cell, row) => {
-                    const id = row.cells[0].data;
-                    const tenantData = cell; // El objeto completo pasado en mapData
-                    const editUrl = routes.edit.replace(':id', id);
-                    const deleteUrl = routes.destroy.replace(':id', id);
-                    const markPaidUrl = routes.markPaid.replace(':id', id);
-                    const isPaid = tenantData.is_paid === true || tenantData.is_paid === 1 || tenantData.is_paid === '1';
-                    
-                    if (!tenantData || typeof tenantData !== 'object') {
-                        console.error('Data de inquilino no disponible para el modal', tenantData);
-                        return '';
+    const gridContainer = document.getElementById("tenants-grid");
+    if (gridContainer) {
+        new DataGrid("tenants-grid", {
+            url: routes.index,
+            columns: [
+                { id: 'id', name: "Empresa / ID", width: "200px" },
+                { 
+                    id: 'domain', 
+                    name: "Dominio de Acceso",
+                    formatter: (cell) => DataGrid.html(`<a href="http://${cell}" target="_blank" class="text-primary text-decoration-none fw-bold"><i class="fas fa-external-link-alt me-1 small"></i>${cell}</a>`)
+                },
+                { 
+                    id: 'database', 
+                    name: "Base de Datos",
+                    formatter: (cell) => DataGrid.html(`<span class="badge bg-light text-dark border"><i class="fas fa-database me-1 small opacity-50"></i>${cell}</span>`)
+                },
+                { 
+                    id: 'status', 
+                    name: "Estado de Cuenta",
+                    formatter: (cell, row) => {
+                        const isPaid = cell === true || cell === 1 || cell === '1';
+                        
+                        let badgeClass = isPaid ? 'bg-success' : 'bg-danger';
+                        let text = isPaid ? 'ACTIVO' : 'SUSPENDIDO';
+                        let icon = isPaid ? 'fa-check-circle' : 'fa-ban';
+                        
+                        return DataGrid.html(`
+                            <span class="badge ${badgeClass} rounded-pill px-3 py-2 shadow-sm" style="font-size: 0.75rem;">
+                                <i class="fas ${icon} me-1"></i>${text}
+                            </span>
+                        `);
                     }
+                },
+                { 
+                    id: 'actions',
+                    name: "Acciones",
+                    formatter: (cell, row) => {
+                        const id = row.cells[0].data;
+                        const tenantData = cell; // El objeto completo pasado en mapData
+                        const editUrl = routes.edit.replace(':id', id);
+                        const deleteUrl = routes.destroy.replace(':id', id);
+                        const markPaidUrl = routes.markPaid.replace(':id', id);
+                        const isPaid = tenantData.is_paid === true || tenantData.is_paid === 1 || tenantData.is_paid === '1';
+                        
+                        if (!tenantData || typeof tenantData !== 'object') {
+                            console.error('Data de inquilino no disponible para el modal', tenantData);
+                            return '';
+                        }
 
-                    // Asegurarnos de que el objeto se pase correctamente al modal
-                    const tenantJson = JSON.stringify(tenantData).replace(/'/g, "&apos;");
-                    
-                    return DataGrid.html(`
-                        <div class="btn-group">
-                            ${!isPaid ? `
+                        // Asegurarnos de que el objeto se pase correctamente al modal
+                        const tenantJson = JSON.stringify(tenantData).replace(/'/g, "&apos;");
+                        
+                        return DataGrid.html(`
+                            <div class="btn-group">
+                                ${!isPaid ? `
+                                    <button type="button" 
+                                        class="btn btn-sm btn-outline-success rounded-pill me-2" 
+                                        onclick="window.markTenantAsPaid('${markPaidUrl}', '${id}')"
+                                        title="Activar (Marcar Pagado)">
+                                        <i class="fas fa-check"></i>
+                                    </button>
+                                ` : `
+                                    <button type="button" 
+                                        class="btn btn-sm btn-outline-danger rounded-pill me-2" 
+                                        onclick="window.suspendTenant('${routes.index}/${id}/suspend', '${id}')"
+                                        title="Suspender Servicio">
+                                        <i class="fas fa-ban"></i>
+                                    </button>
+                                `}
                                 <button type="button" 
-                                    class="btn btn-sm btn-outline-success rounded-pill me-2" 
-                                    onclick="window.markTenantAsPaid('${markPaidUrl}', '${id}')"
-                                    title="Marcar como Pagado">
-                                    <i class="fas fa-check"></i>
+                                    class="btn btn-sm btn-outline-info rounded-pill me-2" 
+                                    onclick='window.showTenantDetails(${tenantJson})'
+                                    title="Ver Detalles">
+                                    <i class="fas fa-eye"></i>
                                 </button>
-                            ` : ''}
-                            <button type="button" 
-                                class="btn btn-sm btn-outline-info rounded-pill me-2" 
-                                onclick='window.showTenantDetails(${tenantJson})'
-                                title="Ver Detalles">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <a href="${editUrl}" class="btn btn-sm btn-outline-primary rounded-pill me-2" title="Editar Empresa">
-                                <i class="fas fa-pencil-alt"></i>
-                            </a>
-                            <button type="button" 
-                                class="btn btn-sm btn-outline-danger rounded-pill" 
-                                onclick="window.deleteTenant('${deleteUrl}', '${id}')"
-                                title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    `);
+                                <a href="${editUrl}" class="btn btn-sm btn-outline-primary rounded-pill me-2" title="Editar Empresa">
+                                    <i class="fas fa-pencil-alt"></i>
+                                </a>
+                                <button type="button" 
+                                    class="btn btn-sm btn-outline-danger rounded-pill" 
+                                    onclick="window.deleteTenant('${deleteUrl}', '${id}')"
+                                    title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        `);
+                    }
                 }
-            }
-        ],
-        mapData: (t) => [
-            t.id, 
-            t.domains && t.domains.length > 0 ? t.domains[0].domain : 'N/A',
-            t.tenancy_db_name || `${config.db_prefix}_${t.id}`,
-            t.is_paid,
-            t // Enviamos el objeto completo a la columna 'actions'
-        ]
-    }).render();
+            ],
+            mapData: (t) => [
+                t.id, 
+                t.domains && t.domains.length > 0 ? t.domains[0].domain : 'N/A',
+                t.tenancy_db_name || `${config.db_prefix}_${t.id}`,
+                t.is_paid,
+                t // Enviamos el objeto completo a la columna 'actions'
+            ]
+        }).render();
+    }
 
     window.showTenantDetails = function(tenant) {
         if (!tenant) return;
@@ -109,7 +119,21 @@ export function initTenantsIndex(config) {
         const isPaid = isPaidVal === true || isPaidVal === 1 || isPaidVal === '1';
                        
         const rawServiceType = getVal('service_type', 'subscription');
-        const serviceType = rawServiceType === 'subscription' ? 'Suscripción' : 'Compra / Mantenimiento';
+        const period = getVal('subscription_period', '30');
+        
+        let serviceTypeDisplay = '';
+        let periodDisplay = '';
+
+        if (rawServiceType === 'subscription') {
+            serviceTypeDisplay = 'Suscripción';
+            if (period == '30') periodDisplay = 'Mensual (30 días)';
+            else if (period == '90') periodDisplay = 'Trimestral (90 días)';
+            else if (period == '365') periodDisplay = 'Anual (365 días)';
+            else periodDisplay = `${period} días`;
+        } else {
+            serviceTypeDisplay = 'Compra / Mantenimiento';
+            periodDisplay = 'Anual (Mantenimiento)';
+        }
         
         const statusBadge = isPaid 
             ? '<span class="badge bg-success rounded-pill px-3">ACTIVO</span>' 
@@ -154,13 +178,17 @@ export function initTenantsIndex(config) {
 
                     <div class="col-md-6 border-bottom pb-2">
                         <label class="text-muted small d-block mb-0 font-weight-bold">Tipo de Servicio</label>
-                        <span class="fw-bold text-primary">${serviceType}</span>
+                        <span class="fw-bold text-primary">${serviceTypeDisplay}</span>
                     </div>
                     <div class="col-md-6 border-bottom pb-2">
-                        <label class="text-muted small d-block mb-0 font-weight-bold">Próximo Pago</label>
+                        <label class="text-muted small d-block mb-0 font-weight-bold">Periodo de Renovación</label>
+                        <span class="fw-bold text-info">${periodDisplay}</span>
+                    </div>
+
+                    <div class="col-md-6 border-bottom pb-2">
+                        <label class="text-muted small d-block mb-0 font-weight-bold">Próximo Vencimiento</label>
                         <span class="fw-bold ${!isPaid ? 'text-danger' : 'text-success'}">${nextPaymentDate}</span>
                     </div>
-                    
                     <div class="col-md-6 border-bottom pb-2">
                         <label class="text-muted small d-block mb-0 font-weight-bold">Email de Contacto</label>
                         <span class="fw-bold text-dark">${email}</span>
@@ -271,7 +299,7 @@ export function initTenantsIndex(config) {
                 const result = await response.json();
 
                 if (response.ok) {
-                    Notify.success('Eliminado', 'La empresa ha sido eliminada correctamente.');
+                    await Notify.success('La empresa ha sido eliminada correctamente.', 'Eliminado');
                     window.location.reload(); 
                 } else {
                     Notify.error('Error', result.message || 'No se pudo eliminar la empresa.');
@@ -306,10 +334,45 @@ export function initTenantsIndex(config) {
                 const result = await response.json();
 
                 if (response.ok) {
-                    Notify.success('¡Pago Confirmado!', result.message);
+                    await Notify.success(result.message, '¡Pago Confirmado!');
                     window.location.reload(); 
                 } else {
                     Notify.error('Error', result.message || 'No se pudo actualizar el pago.');
+                }
+            } catch (error) {
+                Notify.error('Error', 'Ocurrió un error inesperado.');
+                console.error(error);
+            }
+        }
+    };
+
+    window.suspendTenant = async function(url, id) {
+        const confirmed = await Notify.confirm({
+            title: '¿Suspender Servicio?',
+            text: `¿Estás seguro de SUSPENDER la empresa "${id}"? El acceso al sistema será bloqueado hasta que se registre un nuevo pago.`,
+            confirmButtonText: 'Sí, suspender',
+            confirmButtonColor: '#e74a3b'
+        });
+
+        if (confirmed) {
+            try {
+                Notify.loading('Suspendiendo empresa...');
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': tokens.csrf,
+                        'Accept': 'application/json'
+                    }
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    await Notify.success(result.message, 'Empresa Suspendida');
+                    window.location.reload(); 
+                } else {
+                    Notify.error('Error', result.message || 'No se pudo suspender la empresa.');
                 }
             } catch (error) {
                 Notify.error('Error', 'Ocurrió un error inesperado.');

@@ -390,8 +390,37 @@
 
         // Lógica para campos de facturación
         const serviceTypeSelect = document.getElementById('service_type');
+        const subscriptionPeriodSelect = document.getElementById('subscription_period');
         const subscriptionPeriodContainer = document.getElementById('subscription_period_container');
         const nextPaymentDateLabel = document.getElementById('next_payment_date_label');
+        const nextPaymentDateInput = document.getElementById('next_payment_date');
+
+        function calculateNextPaymentDate() {
+            const today = new Date();
+            // Empezar a contar desde mañana
+            const startDate = new Date(today);
+            startDate.setDate(today.getDate() + 1);
+
+            let daysToAdd = 0;
+            if (serviceTypeSelect.value === 'subscription') {
+                daysToAdd = parseInt(subscriptionPeriodSelect.value) || 30;
+            } else {
+                // Para mantenimiento, asumimos anual (365 días) por defecto o lo que prefieras
+                // El usuario mencionó "si es mantenimiento automaticamente calcule la fecha"
+                // Asumiremos 365 días para mantenimiento a menos que se indique lo contrario
+                daysToAdd = 365; 
+            }
+
+            const nextDate = new Date(startDate);
+            nextDate.setDate(startDate.getDate() + daysToAdd);
+
+            // Formatear a YYYY-MM-DD para el input date
+            const yyyy = nextDate.getFullYear();
+            const mm = String(nextDate.getMonth() + 1).padStart(2, '0');
+            const dd = String(nextDate.getDate()).padStart(2, '0');
+            
+            nextPaymentDateInput.value = `${yyyy}-${mm}-${dd}`;
+        }
 
         function toggleBillingFields() {
             if (serviceTypeSelect.value === 'subscription') {
@@ -401,10 +430,14 @@
                 subscriptionPeriodContainer.classList.add('d-none');
                 nextPaymentDateLabel.innerText = 'Próxima Fecha de Cobro Mantenimiento';
             }
+            calculateNextPaymentDate();
         }
 
         serviceTypeSelect.addEventListener('change', toggleBillingFields);
-        toggleBillingFields(); // Ejecutar al cargar
+        subscriptionPeriodSelect.addEventListener('change', calculateNextPaymentDate);
+        
+        // Ejecutar al cargar para inicializar la fecha
+        toggleBillingFields(); 
 
         createDbToggle.addEventListener('change', function() {
             if (!this.checked) {

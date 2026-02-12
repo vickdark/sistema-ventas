@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 use Illuminate\Support\Facades\Schedule;
 
 Schedule::command('app:auto-close-cash-registers')->everyMinute();
+Schedule::command('tenants:suspend-expired')->dailyAt('00:01');
