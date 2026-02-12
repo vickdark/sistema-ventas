@@ -87,58 +87,120 @@
     <!-- Navigation -->
     <nav class="landing-nav animate__animated animate__fadeInDown">
         <div class="container d-flex justify-content-between align-items-center">
-            <div class="d-flex align-items-center gap-3">
+            <!-- Mobile Menu Toggle (Left on mobile) -->
+            <button class="mobile-menu-toggle d-md-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileSidebar" aria-controls="mobileSidebar">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <!-- Logo -->
+            <a href="#inicio" class="d-flex align-items-center gap-3 navbar-logo-container text-decoration-none">
                 <img src="{{ asset('img/mambacode.jpeg') }}" alt="Mamba Code Logo - Consultoría y Software" class="landing-logo">
-                <span class="fs-4 fw-bold d-none d-md-block">Mamba<span style="color: var(--mamba-secondary)">Code</span></span>
-            </div>
+                <span class="fs-4 fw-bold d-none d-md-block text-white">Mamba<span style="color: var(--mamba-secondary)">Code</span></span>
+            </a>
             
+            <!-- Desktop Navigation (Hidden on mobile) -->
             <div class="nav-links d-none d-md-flex">
                 <a href="#inicio" class="nav-link-item active" title="Volver al inicio">Inicio</a>
                 <a href="#caracteristicas" class="nav-link-item" title="Conoce nuestras características tecnológicas">Características</a>
                 <a href="#precios" class="nav-link-item" title="Ver planes y licencias">Precios</a>
                 <a href="#testimonios" class="nav-link-item" title="Qué opinan nuestros clientes">Testimonios</a>
                 <a href="#contacto" class="nav-link-item" title="Ponte en contacto con nuestro equipo técnico">Contacto</a>
+                <a href="{{ route('central.login') }}" class="nav-link-item" title="Acceso Administrativo">
+                    <i class="fa-solid fa-fingerprint"></i>
+                </a>
             </div>
-
-            <a href="{{ route('central.login') }}" class="mamba-login-trigger" title="Acceso Administrativo">
-                <i class="fa-solid fa-fingerprint"></i>
-            </a>
         </div>
     </nav>
+
+    <!-- Mobile Navigation Sidebar (Bootstrap Offcanvas) -->
+    <div class="offcanvas offcanvas-start mobile-sidebar d-md-none" tabindex="-1" id="mobileSidebar" aria-labelledby="mobileSidebarLabel">
+        <div class="offcanvas-header border-bottom">
+            <div class="d-flex align-items-center gap-2" id="mobileSidebarLabel">
+                <img src="{{ asset('img/mambacode.jpeg') }}" alt="Mamba Code" style="height: 30px; border-radius: 4px;">
+                <span class="fw-bold">Mamba<span style="color: var(--mamba-secondary)">Code</span></span>
+            </div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="nav flex-column">
+                <a href="#inicio" class="nav-link-item mb-3">
+                    <i class="fa-solid fa-home me-2"></i> Inicio
+                </a>
+                <a href="#caracteristicas" class="nav-link-item mb-3">
+                    <i class="fa-solid fa-star me-2"></i> Características
+                </a>
+                <a href="#precios" class="nav-link-item mb-3">
+                    <i class="fa-solid fa-tag me-2"></i> Precios
+                </a>
+                <a href="#testimonios" class="nav-link-item mb-3">
+                    <i class="fa-solid fa-comments me-2"></i> Testimonios
+                </a>
+                <a href="#contacto" class="nav-link-item mb-3">
+                    <i class="fa-solid fa-envelope me-2"></i> Contacto
+                </a>
+                <div class="dropdown-divider my-2 opacity-10"></div>
+                <a href="{{ route('central.login') }}" class="nav-link-item">
+                    <i class="fa-solid fa-fingerprint me-2"></i> Acceso Admin
+                </a>
+            </div>
+        </div>
+    </div>
+
 
     <!-- Hero Section -->
     <header class="hero-section animate__animated animate__fadeInUp" id="inicio">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-7 text-center text-lg-start mb-5 mb-lg-0">
+                <div class="col-lg-6 text-center text-lg-start mb-5 mb-lg-0">
+                    <div class="hero-brand-mark mb-4 animate__animated animate__fadeInDown">
+                        <img src="{{ asset('img/mambacode.jpeg') }}" alt="Mamba Code Logo" class="hero-logo-img">
+                    </div>
                     <h1 class="hero-title mb-4">
                         Soluciones Tecnológicas <br>
                         <span>Evolucionamos tu Software</span>
                     </h1>
-                    <p class="hero-subtitle mb-0">
-                        Analizamos la lógica de tu negocio para transformarla en soluciones digitales a medida. Diseñamos plataformas inteligentes para automatizar tus procesos y escalar tu infraestructura, incluso si empiezas desde cero.
+                    <p class="hero-subtitle mb-4">
+                        Analizamos la lógica de tu negocio para transformarla en soluciones digitales a medida. Diseñamos plataformas inteligentes para automatizar tus procesos y escalar tu infraestructura.
                     </p>
+                    <div class="d-flex flex-wrap justify-content-center justify-content-lg-start gap-3">
+                        <a href="#caracteristicas" class="btn btn-cyber px-4 py-3">Explorar Soluciones</a>
+                        <a href="#contacto" class="btn btn-outline-light px-4 py-3 rounded-pill">Agendar Consultoría</a>
+                    </div>
                 </div>
-                <div class="col-lg-5">
-                    <div class="d-flex flex-column gap-4">
-                        <div class="feature-card hero-feature-card animate__animated animate__fadeInRight bg-opacity-10">
-                            <div class="feature-icon mb-3">
-                                <i class="fa-solid fa-microchip text-white"></i>
+                <div class="col-lg-6">
+                    <div class="hero-cards-wrapper">
+                        <!-- Layer 1: Entry Animation (Animate.css) -->
+                        <div class="animate__animated animate__fadeInRight" style="animation-delay: 0.1s;">
+                            <!-- Layer 2: Continuous Levitation (Custom Float) -->
+                            <div class="floating-wrapper">
+                                <!-- Layer 3: Interactive 3D Card -->
+                                <div class="feature-card hero-feature-card">
+                                    <div class="feature-icon">
+                                        <i class="fa-solid fa-microchip"></i>
+                                    </div>
+                                    <h3 class="feature-title fs-3">Análisis y Consultoría</h3>
+                                    <p class="feature-desc fs-6 opacity-75 mb-0">
+                                        Estudiamos profundamente tu lógica de negocio para diseñar la solución tecnológica ideal, construyendo desde cero la infraestructura que necesitas.
+                                    </p>
+                                </div>
                             </div>
-                            <h3 class="feature-title fs-4">Análisis y Consultoría</h3>
-                            <p class="feature-desc small mb-0">
-                                Estudiamos profundamente tu lógica de negocio para diseñar la solución tecnológica ideal, construyendo desde cero la infraestructura que necesitas.
-                            </p>
                         </div>
                         
-                        <div class="feature-card hero-feature-card animate__animated animate__fadeInRight bg-opacity-10" style="animation-delay: 0.2s;">
-                            <div class="feature-icon mb-3">
-                                <i class="fa-solid fa-headset text-white"></i>
+                        <!-- Layer 1: Entry Animation for the second card -->
+                        <div class="animate__animated animate__fadeInRight" style="animation-delay: 0.3s;">
+                            <!-- Layer 2: Continuous Levitation -->
+                            <div class="floating-wrapper second-float">
+                                <!-- Layer 3: Interactive 3D Card -->
+                                <div class="feature-card hero-feature-card">
+                                    <div class="feature-icon">
+                                        <i class="fa-solid fa-headset"></i>
+                                    </div>
+                                    <h3 class="feature-title fs-3">Soporte y Disponibilidad</h3>
+                                    <p class="feature-desc fs-6 opacity-75 mb-0">
+                                        Disponibilidad garantizada y servicio de soporte técnico experto 24/7 para asegurar la continuidad de tu ecosistema tecnológico.
+                                    </p>
+                                </div>
                             </div>
-                            <h3 class="feature-title fs-4">Soporte y Disponibilidad</h3>
-                            <p class="feature-desc small mb-0">
-                                Disponibilidad garantizada y servicio de soporte técnico experto 24/7 para asegurar la continuidad de tu ecosistema tecnológico.
-                            </p>
                         </div>
                     </div>
                 </div>
@@ -173,29 +235,37 @@
 
 
     <!-- Features -->
-    <section class="features-container" id="caracteristicas">
-        <h2 class="d-none">Características y Soluciones Tecnológicas</h2>
-        <!-- Feature 1: POS -->
-        <div class="feature-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
-            <div class="feature-icon">
-                <i class="fa-solid fa-cash-register"></i>
-            </div>
-            <h3 class="feature-title">Punto de Venta Ágil</h3>
-            <p class="feature-desc">
-                Registra ventas en segundos. Interfaz diseñada para la velocidad y facilidad de uso en el mostrador.
+    <section class="features-section" id="caracteristicas">
+        <div class="container mb-5 text-center">
+            <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-3">Soluciones</span>
+            <h2 class="hero-title fs-1 mb-3">Características Tecnológicas</h2>
+            <p class="text-muted mx-auto" style="max-width: 700px; font-size: 1.1rem;">
+                Analizamos tu lógica de negocio para ofrecerte herramientas que realmente impulsen tu productividad.
             </p>
         </div>
 
-        <!-- Feature 2: Inventory -->
-        <div class="feature-card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
-            <div class="feature-icon">
-                <i class="fa-solid fa-boxes-stacked"></i>
+        <div class="features-container">
+            <!-- Feature 1: POS -->
+            <div class="feature-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                <div class="feature-icon">
+                    <i class="fa-solid fa-cash-register"></i>
+                </div>
+                <h3 class="feature-title">Punto de Venta Ágil</h3>
+                <p class="feature-desc">
+                    Registra ventas en segundos. Interfaz diseñada para la velocidad y facilidad de uso en el mostrador.
+                </p>
             </div>
-            <h3 class="feature-title">Control de Inventario</h3>
-            <p class="feature-desc">
-                Mantén tu stock actualizado automáticamente. Evita pérdidas y quiebres de stock con alertas inteligentes.
-            </p>
-        </div>
+
+            <!-- Feature 2: Inventory -->
+            <div class="feature-card animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                <div class="feature-icon">
+                    <i class="fa-solid fa-boxes-stacked"></i>
+                </div>
+                <h3 class="feature-title">Control de Inventario</h3>
+                <p class="feature-desc">
+                    Monitorea existencias en tiempo real, gestiona alertas de bajo stock y optimiza tus pedidos.
+                </p>
+            </div>
 
         <!-- Feature 3: Reports -->
         <div class="feature-card animate__animated animate__fadeInUp" style="animation-delay: 0.3s;">
@@ -273,9 +343,8 @@
                 Respaldos automáticos, cierre de cajas programado y protección de datos avanzada.
             </p>
         </div>
-
-
-    </section>
+    </div>
+</section>
 
     <!-- Pricing Section -->
     <section class="pricing-section" id="precios">
@@ -391,9 +460,9 @@
                 <div class="col-md-4 mb-4 mb-md-0">
                     <h5 class="fw-bold mb-3 text-white">Enlaces Rápidos</h5>
                     <ul class="list-unstyled small text-muted">
-                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted hover-white">Inicio</a></li>
-                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted hover-white">Características</a></li>
-                        <li class="mb-2"><a href="#" class="text-decoration-none text-muted hover-white">Precios</a></li>
+                        <li class="mb-2"><a href="#inicio" class="text-decoration-none text-muted hover-white">Inicio</a></li>
+                        <li class="mb-2"><a href="#caracteristicas" class="text-decoration-none text-muted hover-white">Características</a></li>
+                        <li class="mb-2"><a href="#precios" class="text-decoration-none text-muted hover-white">Precios</a></li>
                     </ul>
                 </div>
                 <div class="col-md-4">
@@ -414,6 +483,11 @@
             </div>
         </div>
     </footer>
+
+    <!-- Back to Top Button -->
+    <a href="#inicio" class="back-to-top" id="backToTop" title="Volver arriba">
+        <i class="fa-solid fa-arrow-up"></i>
+    </a>
 
 </body>
 </html>

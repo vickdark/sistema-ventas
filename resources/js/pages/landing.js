@@ -1,4 +1,10 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Force scroll to top on reload or initial access
+    if (history.scrollRestoration) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+
     const counters = document.querySelectorAll('.stat-number');
     const duration = 3000; // Slower animation (3s)
 
@@ -46,6 +52,26 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Mobile Offcanvas Navigation Fix
+    document.addEventListener('click', (e) => {
+        const anchor = e.target.closest('a[href^="#"]');
+        if (!anchor) return;
+
+        const targetId = anchor.getAttribute('href');
+        if (targetId === '#' || targetId.length < 2) return;
+
+        // Si estamos en un elemento que tiene el offcanvas abierto, lo cerramos
+        const offcanvasElement = document.getElementById('mobileSidebar');
+        if (offcanvasElement && offcanvasElement.classList.contains('show')) {
+            const bsOffcanvas = window.bootstrap.Offcanvas.getInstance(offcanvasElement);
+            if (bsOffcanvas) {
+                bsOffcanvas.hide();
+                // No prevenimos el default, dejamos que el navegador navegue al ID
+                // El scroll-behavior: smooth en CSS se encargará del resto
+            }
+        }
+    });
+
     // Trigger animation when stats section is in view
     const observer = new IntersectionObserver((entries) => {
         entries.forEach(entry => {
@@ -91,45 +117,54 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
     
-    // Smooth scroll for anchors
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth'
-                });
-            }
-        });
-    });
 
-    // Magic Card Effect with 3D Rotation
-    document.querySelectorAll('.feature-card, .pricing-card').forEach(card => {
+    // Magic Glow Follow Effect (No 3D Rotation)
+    const setupMagicGlow = (card) => {
+        let requestId = null;
+
+        const updateGlow = (x, y) => {
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+            card.style.setProperty('--magic-opacity', '1');
+        };
+
+        const resetGlow = () => {
+            if (requestId) cancelAnimationFrame(requestId);
+            card.style.setProperty('--magic-opacity', '0');
+        };
+
         card.addEventListener('mousemove', e => {
             const rect = card.getBoundingClientRect();
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
             
-            // 3D Rotation Calculation
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = ((y - centerY) / centerY) * -20;
-            const rotateY = ((x - centerX) / centerX) * 20;
-            
-            card.style.setProperty('--mouse-x', `${x}px`);
-            card.style.setProperty('--mouse-y', `${y}px`);
-            card.style.setProperty('--rotate-x', `${rotateX}deg`);
-            card.style.setProperty('--rotate-y', `${rotateY}deg`);
-            card.style.setProperty('--opacity', '1');
+            if (requestId) cancelAnimationFrame(requestId);
+            requestId = requestAnimationFrame(() => updateGlow(x, y));
         });
 
-        card.addEventListener('mouseleave', () => {
-            card.style.setProperty('--rotate-x', '0deg');
-            card.style.setProperty('--rotate-y', '0deg');
-            card.style.setProperty('--opacity', '0');
+        card.addEventListener('mouseenter', () => {
+             card.style.setProperty('--magic-opacity', '1');
         });
-    });
+
+        card.addEventListener('mouseleave', resetGlow);
+        
+        // Initial state
+        card.style.setProperty('--magic-opacity', '0');
+    };
+
+    document.querySelectorAll('.feature-card, .pricing-card').forEach(setupMagicGlow);
+
+    // Back to Top Logic
+    const backToTop = document.getElementById('backToTop');
+    if (backToTop) {
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 500) {
+                backToTop.classList.add('visible');
+            } else {
+                backToTop.classList.remove('visible');
+            }
+        });
+    }
 
     // Randomize Feature Icon Colors
     const gradients = [
@@ -180,4 +215,5 @@ document.addEventListener('DOMContentLoaded', () => {
         icon.style.webkitTextFillColor = '#fff';
         icon.style.color = '#fff';
     });
+
 });
