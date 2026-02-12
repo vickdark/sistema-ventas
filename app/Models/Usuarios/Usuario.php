@@ -81,7 +81,15 @@ class Usuario extends Authenticatable
             return false;
         }
 
-        return $this->role->name === $roleName;
+        return $this->role->nombre === $roleName || $this->role->slug === $roleName;
+    }
+
+    /**
+     * Verificar si el usuario es administrador.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('Administrador') || $this->hasRole('admin');
     }
 
     /**

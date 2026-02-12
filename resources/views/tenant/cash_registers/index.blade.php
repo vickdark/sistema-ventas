@@ -62,26 +62,40 @@
         </div>
     </div>
 
-    @if($currentRegister)
+    @if($openRegisters->count() > 0)
         <div class="row mb-4">
-            <div class="col-md-12">
-                <div class="card border-0 shadow-soft rounded-4 bg-primary text-white overflow-hidden">
-                    <div class="card-body p-4 position-relative">
-                        <div class="row align-items-center">
-                            <div class="col">
-                                <h6 class="text-uppercase fw-bold opacity-75 small mb-2">Estado Actual: {{ $currentRegister->name }} Abierta</h6>
-                                <h2 class="fw-bold mb-1">${{ number_format($currentRegister->initial_amount, 2) }}</h2>
-                                <p class="mb-0 opacity-75">Monto Inicial - Abierta por {{ $currentRegister->user->name }} el {{ \Carbon\Carbon::parse($currentRegister->opening_date)->format('d/m/Y H:i') }}</p>
-                            </div>
-                            <div class="col-auto">
-                                <a href="{{ route('cash-registers.close-form', $currentRegister) }}" class="btn btn-light rounded-pill px-4 shadow-sm">
-                                    <i class="fas fa-lock me-2 text-danger"></i> Cerrar Mi Caja
-                                </a>
+            @foreach($openRegisters as $register)
+                <div class="{{ $openRegisters->count() > 1 ? 'col-md-6' : 'col-md-12' }} mb-3">
+                    <div class="card border-0 shadow-soft rounded-4 {{ $register->user_id === Auth::id() ? 'bg-primary' : 'bg-dark' }} text-white overflow-hidden h-100">
+                        <div class="card-body p-4 position-relative">
+                            <div class="row align-items-center">
+                                <div class="col">
+                                    <h6 class="text-uppercase fw-bold opacity-75 small mb-2">
+                                        {{ $register->name }} Abierta
+                                        @if($register->user_id !== Auth::id())
+                                            <span class="badge bg-light text-dark ms-2 small">Sesión de: {{ $register->user->name }}</span>
+                                        @endif
+                                    </h6>
+                                    <h2 class="fw-bold mb-1">${{ number_format($register->initial_amount, 2) }}</h2>
+                                    <p class="mb-0 opacity-75 small">Monto Inicial el {{ \Carbon\Carbon::parse($register->opening_date)->format('d/m/Y H:i') }}</p>
+                                </div>
+                                <div class="col-auto">
+                                    <div class="d-flex flex-column gap-2">
+                                        <a href="{{ route('cash-registers.show', $register) }}" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm">
+                                            <i class="fas fa-eye me-1 text-primary"></i> Ver Detalle
+                                        </a>
+                                        @if($register->user_id === Auth::id() || Auth::user()->isAdmin())
+                                            <a href="{{ route('cash-registers.close-form', $register) }}" class="btn btn-light btn-sm rounded-pill px-3 shadow-sm">
+                                                <i class="fas fa-lock me-1 text-danger"></i> Cerrar Caja
+                                            </a>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
+            @endforeach
         </div>
     @endif
 

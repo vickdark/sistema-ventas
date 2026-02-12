@@ -19,7 +19,7 @@ class CashRegisterController extends Controller
             $query = CashRegister::with('user');
 
             // Si no es administrador, solo puede ver sus propias cajas
-            if (!Auth::user()->hasRole('Administrador')) {
+            if (!Auth::user()->isAdmin()) {
                 $query->where('user_id', Auth::id());
             }
 
@@ -66,9 +66,16 @@ class CashRegisterController extends Controller
             ]);
         }
 
-        $currentRegister = CashRegister::open()->where('user_id', Auth::id())->first();
+        if (Auth::user()->isAdmin()) {
+            $openRegisters = CashRegister::open()->with('user')->get();
+            $currentRegister = $openRegisters->where('user_id', Auth::id())->first();
+        } else {
+            $currentRegister = CashRegister::open()->where('user_id', Auth::id())->first();
+            $openRegisters = $currentRegister ? collect([$currentRegister]) : collect();
+        }
+
         $config = Configuration::firstOrCreate(['id' => 1]);
-        return view('tenant.cash_registers.index', compact('currentRegister', 'config'));
+        return view('tenant.cash_registers.index', compact('currentRegister', 'openRegisters', 'config'));
     }
 
     public function create()
