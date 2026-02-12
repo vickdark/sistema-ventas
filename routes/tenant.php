@@ -94,6 +94,6 @@ Route::middleware([
             Route::get('notifications/low-stock', [\App\Http\Controllers\Tenant\NotificationController::class, 'getLowStockProducts'])->name('notifications.low-stock');
 
             // Perfil y Seguridad
-            Route::put('/password', [\App\Http\Controllers\Profile\PasswordController::class, 'update'])->name('tenant.password.update.ajax');
+            Route::put('/password', [\App\Http\Controllers\Profile\PasswordController::class, 'update'])->name('tenant.profile.password.update');
         });
     });
