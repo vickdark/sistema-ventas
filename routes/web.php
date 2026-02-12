@@ -4,9 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WelcomeController;
 use App\Http\Middleware\EnsureCentralDomain;
 
-Route::middleware(EnsureCentralDomain::class)->group(function () {
-    Route::get('/', WelcomeController::class);
-});
+// Welcome page only for central domains
+foreach (config('tenancy.central_domains', []) as $domain) {
+    Route::domain($domain)->group(function () {
+        Route::get('/', WelcomeController::class);
+    });
+}
 
 // Central Management (Owner only)
 Route::prefix('central')->name('central.')->middleware(EnsureCentralDomain::class)->group(function () {
