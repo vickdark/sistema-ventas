@@ -18,12 +18,12 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-Route::middleware([
-    'web',
-    InitializeTenancyByDomain::class,
-    PreventAccessFromCentralDomains::class,
-    \App\Http\Middleware\CheckTenantPaymentStatus::class,
-])->group(function () {
+    Route::middleware([
+        'web',
+        InitializeTenancyByDomain::class,
+        PreventAccessFromCentralDomains::class,
+        \App\Http\Middleware\CheckTenantPaymentStatus::class,
+    ])->group(function () {
     Route::get('payment-pending', function () {
         $tenant = tenant();
         return view('tenant.payment-pending', compact('tenant'));
@@ -31,10 +31,6 @@ Route::middleware([
 
         Route::post('payment-notification', [\App\Http\Controllers\Tenant\PaymentNotificationController::class, 'send'])
             ->name('tenant.payment-notification.send');
-
-        Route::get('/', function () {
-            return redirect()->route('login');
-        });
 
         // Tenant Login/Auth
         require __DIR__.'/auth.php';
