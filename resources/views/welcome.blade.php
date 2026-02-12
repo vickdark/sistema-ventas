@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
     
     <!-- Scripts & Styles -->
-    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/pages/landing.css'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/css/pages/landing.css', 'resources/js/pages/landing.js'])
 </head>
 <body class="landing-page text-white">
     <!-- Background Animation -->
@@ -19,21 +19,24 @@
 
     <!-- Navigation -->
     <nav class="landing-nav animate__animated animate__fadeInDown">
-        <div class="d-flex align-items-center gap-3">
-            <img src="{{ asset('img/mambacode.jpeg') }}" alt="Mamba Code" class="landing-logo">
-            <span class="fs-4 fw-bold d-none d-md-block">Mamba<span style="color: var(--mamba-secondary)">Code</span></span>
-        </div>
-        
-        <div class="nav-links d-none d-md-flex">
-            <a href="#inicio" class="nav-link-item active">Inicio</a>
-            <a href="#caracteristicas" class="nav-link-item">Características</a>
-            <a href="#testimonios" class="nav-link-item">Testimonios</a>
-            <a href="#contacto" class="nav-link-item">Contacto</a>
-        </div>
+        <div class="container d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center gap-3">
+                <img src="{{ asset('img/mambacode.jpeg') }}" alt="Mamba Code" class="landing-logo">
+                <span class="fs-4 fw-bold d-none d-md-block">Mamba<span style="color: var(--mamba-secondary)">Code</span></span>
+            </div>
+            
+            <div class="nav-links d-none d-md-flex">
+                <a href="#inicio" class="nav-link-item active">Inicio</a>
+                <a href="#caracteristicas" class="nav-link-item">Características</a>
+                <a href="#precios" class="nav-link-item">Precios</a>
+                <a href="#testimonios" class="nav-link-item">Testimonios</a>
+                <a href="#contacto" class="nav-link-item">Contacto</a>
+            </div>
 
-        <a href="{{ route('central.login') }}" class="mamba-login-trigger" title="Acceso Administrativo">
-            <i class="fa-solid fa-fingerprint"></i>
-        </a>
+            <a href="{{ route('central.login') }}" class="mamba-login-trigger" title="Acceso Administrativo">
+                <i class="fa-solid fa-fingerprint"></i>
+            </a>
+        </div>
     </nav>
 
     <!-- Hero Section -->
@@ -42,22 +45,34 @@
             <div class="row align-items-center">
                 <div class="col-lg-7 text-center text-lg-start mb-5 mb-lg-0">
                     <h1 class="hero-title mb-4">
-                        Administra tu Negocio <br>
-                        <span>Sin Complicaciones</span>
+                        Soluciones Tecnológicas <br>
+                        <span>Evolucionamos tu Software</span>
                     </h1>
                     <p class="hero-subtitle mb-0">
-                        Una plataforma intuitiva para gestionar tus ventas, controlar tu inventario y cuidar tus finanzas. Todo lo que necesitas en un solo lugar.
+                        Analizamos la lógica de tu negocio para transformarla en soluciones digitales a medida. Diseñamos plataformas inteligentes para automatizar tus procesos y escalar tu infraestructura, incluso si empiezas desde cero.
                     </p>
                 </div>
                 <div class="col-lg-5">
-                    <div class="feature-card animate__animated animate__fadeInRight bg-opacity-10" style="background: rgba(255,255,255,0.05);">
-                        <div class="feature-icon mb-3">
-                            <i class="fa-solid fa-headset text-white"></i>
+                    <div class="d-flex flex-column gap-4">
+                        <div class="feature-card hero-feature-card animate__animated animate__fadeInRight bg-opacity-10">
+                            <div class="feature-icon mb-3">
+                                <i class="fa-solid fa-microchip text-white"></i>
+                            </div>
+                            <h3 class="feature-title fs-4">Análisis y Consultoría</h3>
+                            <p class="feature-desc small mb-0">
+                                Estudiamos profundamente tu lógica de negocio para diseñar la solución tecnológica ideal, construyendo desde cero la infraestructura que necesitas.
+                            </p>
                         </div>
-                        <h3 class="feature-title fs-4">Soporte y Disponibilidad</h3>
-                        <p class="feature-desc small mb-0">
-                            Disponibilidad del 100% garantizada y servicio de soporte técnico experto 24/7 para tu tranquilidad.
-                        </p>
+                        
+                        <div class="feature-card hero-feature-card animate__animated animate__fadeInRight bg-opacity-10" style="animation-delay: 0.2s;">
+                            <div class="feature-icon mb-3">
+                                <i class="fa-solid fa-headset text-white"></i>
+                            </div>
+                            <h3 class="feature-title fs-4">Soporte y Disponibilidad</h3>
+                            <p class="feature-desc small mb-0">
+                                Disponibilidad garantizada y servicio de soporte técnico experto 24/7 para asegurar la continuidad de tu ecosistema tecnológico.
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -88,111 +103,7 @@
         </div>
     </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const counters = document.querySelectorAll('.stat-number');
-            const duration = 3000; // Slower animation (3s)
 
-            const animateCounters = () => {
-                counters.forEach(counter => {
-                    // Cancel any previous animation to prevent overlap
-                    if (counter.dataset.animId) {
-                        cancelAnimationFrame(counter.dataset.animId);
-                    }
-
-                    const target = parseFloat(counter.getAttribute('data-target'));
-                    const suffix = counter.getAttribute('data-suffix') || '';
-                    const startTime = performance.now();
-
-                    const updateCount = (currentTime) => {
-                        const elapsed = currentTime - startTime;
-                        const progress = Math.min(elapsed / duration, 1);
-                        
-                        // Easing function for smooth effect (easeOutCubic)
-                        const ease = 1 - Math.pow(1 - progress, 3);
-                        
-                        const current = target * ease;
-
-                        if (progress < 1) {
-                            // Determine decimals based on target (if integer, 0 decimals window, else 1)
-                            const decimals = Number.isInteger(target) ? 0 : 1;
-                            counter.innerText = current.toFixed(decimals) + suffix;
-                            counter.dataset.animId = requestAnimationFrame(updateCount);
-                        } else {
-                            counter.innerText = target + suffix;
-                        }
-                    };
-                    
-                    counter.dataset.animId = requestAnimationFrame(updateCount);
-                });
-            };
-
-            const resetCounters = () => {
-                counters.forEach(counter => {
-                    if (counter.dataset.animId) {
-                        cancelAnimationFrame(counter.dataset.animId);
-                    }
-                    const suffix = counter.getAttribute('data-suffix') || '';
-                    counter.innerText = '0' + suffix;
-                });
-            };
-
-            // Trigger animation when stats section is in view
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        animateCounters();
-                    } else {
-                        resetCounters(); // Reset when out of view to re-animate later
-                    }
-                });
-            }, { threshold: 0.5 });
-
-            const statsSection = document.querySelector('.stats-section');
-            if (statsSection) {
-                observer.observe(statsSection);
-            }
-
-            // Navbar Scroll Effect
-            const nav = document.querySelector('.landing-nav');
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 50) {
-                    nav.classList.add('scrolled');
-                } else {
-                    nav.classList.remove('scrolled');
-                }
-                
-                // Active link handling
-                const sections = document.querySelectorAll('section, header, footer');
-                const navLinks = document.querySelectorAll('.nav-link-item');
-                
-                let current = '';
-                sections.forEach(section => {
-                    const sectionTop = section.offsetTop;
-                    if (scrollY >= sectionTop - 150) {
-                        current = section.getAttribute('id');
-                    }
-                });
-
-                navLinks.forEach(link => {
-                    link.classList.remove('active');
-                    if (link.getAttribute('href').includes(current)) {
-                        link.classList.add('active');
-                    }
-                });
-            });
-            
-            // Smooth scroll for anchors
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    document.querySelector(this.getAttribute('href')).scrollIntoView({
-                        behavior: 'smooth'
-                    });
-                });
-            });
-        });
-    </script>
 
     <!-- Features -->
     <section class="features-container" id="caracteristicas">
@@ -298,18 +209,64 @@
 
     </section>
 
+    <!-- Pricing Section -->
+    <section class="pricing-section" id="precios">
+        <h2 class="text-center hero-title fs-1 mb-2">Planes Flexibles</h2>
+        <p class="text-center text-muted mb-5">Elige el modelo que mejor se adapte al despliegue de tu infraestructura.</p>
+        
+        <div class="pricing-grid">
+            <!-- Subscription Plan -->
+            <div class="pricing-card animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
+                <h3 class="fs-4 fw-bold">Suscripción Flexible</h3>
+                <div class="mb-3">
+                    <span class="pricing-price fs-2">$29<small class="fs-6 text-muted">/30 días</small></span>
+                </div>
+                <p class="small text-muted mb-4">Planes adaptables de 30, 90 o 365 días según tus requerimientos de escalabilidad.</p>
+                <ul class="pricing-features">
+                    <li><i class="fa-solid fa-shield-halved"></i> Seguridad de la Información</li>
+                    <li><i class="fa-solid fa-database"></i> Integridad de Datos y Backups</li>
+                    <li><i class="fa-solid fa-bolt"></i> Alto Rendimiento Garantizado</li>
+                    <li><i class="fa-solid fa-headset"></i> Soporte Técnico Especializado</li>
+                </ul>
+                <a href="#contacto" class="btn-cyber w-100">Iniciar Despliegue</a>
+            </div>
+
+            <!-- Lifetime License -->
+            <div class="pricing-card featured animate__animated animate__fadeInUp" style="animation-delay: 0.2s;">
+                <div class="badge-premium">Recomendado</div>
+                <h3 class="fs-4 fw-bold">Licencia de Software</h3>
+                <div class="mb-3">
+                    <span class="pricing-price fs-2">$499<small class="fs-6 text-muted">/Pago único</small></span>
+                </div>
+                <p class="small text-white-50 mb-4">Adquiere el uso perpetuo del software con servicios de mantenimiento y evolutivos anuales.</p>
+                <ul class="pricing-features">
+                    <li><i class="fa-solid fa-check-double"></i> Pago único por Uso de Software</li>
+                    <li><i class="fa-solid fa-gears"></i> Mantenimiento de Software*</li>
+                    <li class="small text-muted" style="font-size: 0.75rem; margin-top: -0.5rem; padding-left: 1.7rem; margin-bottom: 0.5rem;">*Requiere un pequeño pago anual</li>
+                    <li><i class="fa-solid fa-headset"></i> Soporte Técnico Especializado</li>
+                    <li><i class="fa-solid fa-chalkboard-user"></i> Capacitaciones Personalizadas</li>
+                    <li><i class="fa-solid fa-code-branch"></i> Mejoras e Integraciones**</li>
+                    <li class="small text-muted" style="font-size: 0.75rem; margin-top: -0.5rem; padding-left: 1.7rem; margin-bottom: 0.5rem;">**Sujeto a presupuesto por desarrollo</li>
+                    <li><i class="fa-solid fa-shield-halved"></i> Máxima Seguridad e Integridad</li>
+                    <li><i class="fa-solid fa-server"></i> Infraestructura de Backups Incluida</li>
+                </ul>
+                <a href="#contacto" class="btn-cyber w-100">Adquirir Licencia Vitalicia</a>
+            </div>
+        </div>
+    </section>
+
     <!-- Testimonials -->
     <section class="container py-5 mb-5" id="testimonios">
         <h2 class="text-center hero-title fs-2 mb-5">Lo que dicen nuestros clientes</h2>
         <div class="row g-4">
             <div class="col-md-4 animate__animated animate__fadeInUp" style="animation-delay: 0.1s;">
                 <div class="testimonial-card h-100">
-                    <p class="testimonial-text">"Desde que usamos Mamba Sales, el control de inventario dejó de ser un dolor de cabeza. ¡El soporte es increíble!"</p>
+                    <p class="testimonial-text">"La escalabilidad de este software es incomparable. Implementamos la solución en tiempo récord."</p>
                     <div class="testimonial-author">
                         <div class="author-avatar">CM</div>
                         <div>
                             <div class="fw-bold">Carlos Martinez</div>
-                            <div class="small text-muted">CEO, TechStore</div>
+                            <div class="small text-muted">CTO, TechFlow</div>
                         </div>
                     </div>
                 </div>
@@ -344,10 +301,10 @@
     <!-- CTA Section -->
     <section class="py-5 text-center bg-opacity-10" style="background: rgba(255,255,255,0.02);">
         <div class="container py-5">
-            <h2 class="hero-title fs-1 mb-4">¿Listo para escalar tu negocio?</h2>
-            <p class="fs-5 text-muted mb-5">Únete a cientos de empresas que ya confían en nosotros.</p>
+            <h2 class="hero-title fs-1 mb-4">¿Listo para evolucionar tu infraestructura?</h2>
+            <p class="fs-5 text-muted mb-5">Implementa soluciones de software de alto impacto y escala tu ecosistema tecnológico hoy mismo.</p>
             <a href="mailto:contacto@mambacode.com" class="btn-cyber">
-                Contáctanos Ahora
+                Solicitar Consultoría Técnica
             </a>
         </div>
     </section>
@@ -389,5 +346,6 @@
             </div>
         </div>
     </footer>
+
 </body>
 </html>
