@@ -6,6 +6,28 @@
 
     <title>{{ config('app.name', 'Laravel') }}</title>
 
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#4e73df">
+    <link rel="manifest" href="/build/manifest.webmanifest">
+    <link rel="apple-touch-icon" href="/img/logo-pwa-192.png">
+
+    <script>
+        @php
+            $isTenant = function_exists('tenant') && tenant();
+            $tenantConfig = [
+                'expirationDate' => $isTenant ? (tenant('next_payment_date') ?? '') : '',
+                'serviceType' => $isTenant ? (tenant('service_type') ?? '') : '',
+                'businessName' => $isTenant ? (tenant('business_name') ?? 'Sistema') : config('app.name'),
+                'isOfflineSupported' => $isTenant,
+                'routes' => [
+                    'sales_store' => $isTenant ? route('sales.store') : null
+                ],
+                'csrfToken' => csrf_token()
+            ];
+        @endphp
+        window.TenantConfig = @json($tenantConfig);
+    </script>
+
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
 

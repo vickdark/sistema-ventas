@@ -29,6 +29,7 @@ import { initSalesPOS } from './pages/sales/pos';
 import { initAbonosIndex } from './pages/abonos/index';
 import { initAbonosCreate } from './pages/abonos/create';
 import { initReportsIndex } from './pages/reports/index';
+import { initPWA } from './pwa-handler';
 
 //Opciones de expotacion para Grid JS 
 import { jsPDF } from 'jspdf';
@@ -68,4 +69,5 @@ Alpine.start();
 document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
     new NavbarNotifications('/notifications/low-stock');
+    initPWA();
 });

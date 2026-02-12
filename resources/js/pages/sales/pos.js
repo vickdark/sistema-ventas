@@ -1,4 +1,5 @@
 import Notifications from '../../modules/Notifications';
+import { saveOfflineSale } from '../../modules/OfflineDB';
 import Swiper from 'swiper';
 import { Navigation, Pagination, Grid } from 'swiper/modules';
 import 'swiper/css';
@@ -384,56 +385,86 @@ export function initSalesPOS(config) {
             btnProcessSale.disabled = true;
             btnProcessSale.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> PROCESANDO...';
 
-            try {
-                const response = await fetch(routes.store, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': tokens.csrf,
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        client_id,
-                        payment_type,
-                        voucher,
-                        credit_payment_date,
-                        items: cart.map(i => ({ product_id: i.id, quantity: i.quantity }))
-                    })
-                });
+            const saleData = {
+                client_id,
+                payment_type,
+                voucher,
+                credit_payment_date,
+                items: cart.map(i => ({ product_id: i.id, quantity: i.quantity })),
+                total: saleTotal,
+                client_name: clientSelect.getItem(client_id)?.textContent || 'Consumidor Final'
+            };
 
-                const result = await response.json();
-
-                if (response.ok) {
-                    Notify.success('Venta exitosa', result.message);
-                    
-                    const printConfirmed = await Notify.confirm({
-                        title: 'Venta Registrada',
-                        text: '¿Desea imprimir el ticket de venta?',
-                        confirmButtonText: '<i class="fas fa-print"></i> Imprimir Ticket',
-                        cancelButtonText: 'Cerrar',
-                        icon: 'success'
+            // Intentar enviar al servidor si hay conexión
+            if (navigator.onLine) {
+                try {
+                    const response = await fetch(routes.store, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': tokens.csrf,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify(saleData)
                     });
 
-                    if (printConfirmed) {
-                        window.open(`${routes.index}/${result.sale_id}/ticket`, '_blank');
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        Notify.success('Venta exitosa', result.message);
+                        
+                        const printConfirmed = await Notify.confirm({
+                            title: 'Venta Registrada',
+                            text: '¿Desea imprimir el ticket de venta?',
+                            confirmButtonText: '<i class="fas fa-print"></i> Imprimir Ticket',
+                            cancelButtonText: 'Cerrar',
+                            icon: 'success'
+                        });
+
+                        if (printConfirmed) {
+                            window.open(`${routes.index}/${result.sale_id}/ticket`, '_blank');
+                        }
+                        
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 500);
+                        return;
+                    } else {
+                        throw new Error(result.message || 'Error al procesar la venta');
                     }
-                    
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 500);
-                } else {
-                    Notify.error('Error', result.message || 'Error al procesar la venta');
-                    btnProcessSale.disabled = false;
-                    btnProcessSale.innerHTML = '<i class="fas fa-shopping-cart me-2"></i> PROCESAR VENTA';
+                } catch (error) {
+                    console.error('Error enviando al servidor, intentando guardar localmente:', error);
+                    // Si falla el servidor pero es por red, seguimos al guardado offline
+                    if (!navigator.onLine || error.message.includes('Failed to fetch')) {
+                        await handleOfflineSale(saleData);
+                    } else {
+                        Notify.error('Error', error.message);
+                        btnProcessSale.disabled = false;
+                        btnProcessSale.innerHTML = '<i class="fas fa-check-circle me-2"></i> PROCESAR PAGO';
+                    }
                 }
-            } catch (error) {
-                Notify.error('Error de conexión');
-                console.error(error);
-                btnProcessSale.disabled = false;
-                btnProcessSale.innerHTML = '<i class="fas fa-shopping-cart me-2"></i> PROCESAR VENTA';
+            } else {
+                // Estamos offline directamente
+                await handleOfflineSale(saleData);
             }
         }
     });
+
+    async function handleOfflineSale(saleData) {
+        try {
+            await saveOfflineSale(saleData);
+            Notify.success('Venta guardada localmente', 'La venta se sincronizará cuando recuperes la conexión.');
+            
+            // Simular éxito para el usuario
+            setTimeout(() => {
+                window.location.reload();
+            }, 1500);
+        } catch (err) {
+            Notify.error('Error al guardar localmente', err.message);
+            btnProcessSale.disabled = false;
+            btnProcessSale.innerHTML = '<i class="fas fa-check-circle me-2"></i> PROCESAR PAGO';
+        }
+    }
 
     renderCart();
     initSwiper();
