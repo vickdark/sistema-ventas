@@ -1,0 +1,65 @@
+@extends('layouts.app')
+
+@section('content')
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col">
+            <h1 class="h3 mb-0 text-gray-800">{{ __('Editar Usuario Central') }}</h1>
+        </div>
+        <div class="col-auto">
+            <a href="{{ route('central.users.index') }}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="fas fa-arrow-left me-2"></i> {{ __('Volver') }}
+            </a>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-soft rounded-4">
+                <div class="card-body p-4">
+                    <form action="{{ route('central.users.update', $centralUser) }}" method="POST">
+                        @csrf
+                        @method('PUT')
+
+                        <div class="mb-3">
+                            <label for="name" class="form-label">{{ __('Nombre') }}</label>
+                            <input type="text" class="form-control rounded-3 @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name', $centralUser->name) }}" required autofocus autocomplete="name">
+                            @error('name')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">{{ __('Correo Electrónico') }}</label>
+                            <input type="email" class="form-control rounded-3 @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email', $centralUser->email) }}" required autocomplete="username">
+                            @error('email')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">{{ __('Nueva Contraseña (opcional)') }}</label>
+                            <input type="password" class="form-control rounded-3 @error('password') is-invalid @enderror" id="password" name="password" autocomplete="new-password">
+                            @error('password')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="form-text text-muted">{{ __('Deja en blanco para mantener la contraseña actual.') }}</small>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="password_confirmation" class="form-label">{{ __('Confirmar Nueva Contraseña') }}</label>
+                            <input type="password" class="form-control rounded-3" id="password_confirmation" name="password_confirmation" autocomplete="new-password">
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary rounded-pill py-2">
+                                <i class="fas fa-save me-2"></i> {{ __('Actualizar Usuario') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+@endsection

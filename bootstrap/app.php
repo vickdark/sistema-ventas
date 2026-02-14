@@ -14,6 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'permission' => \App\Http\Middleware\CheckPermission::class,
             'central_domain' => \App\Http\Middleware\EnsureCentralDomain::class,
+            'auth' => \App\Http\Middleware\Authenticate::class,
+            'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

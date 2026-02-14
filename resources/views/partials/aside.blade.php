@@ -85,6 +85,10 @@
                     <i class="fa-solid fa-chart-simple"></i>
                     <span class="app-link-text">Métricas y Logs</span>
                 </a>
+                <a class="nav-link {{ request()->routeIs('central.users.*') ? 'active' : '' }}" href="{{ route('central.users.index') }}">
+                    <i class="fa-solid fa-users"></i>
+                    <span class="app-link-text">Usuarios Centrales</span>
+                </a>
             @endif
 
 

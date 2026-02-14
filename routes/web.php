@@ -20,7 +20,15 @@ Route::prefix('central')->name('central.')->middleware(EnsureCentralDomain::clas
 
     Route::post('/gate/verify', [App\Http\Controllers\Central\GateController::class, 'verifyKey'])->name('gate.verify');
 
-    Route::middleware('auth:owner')->group(function () {
+    // Rutas de verificación de correo electrónico (notice - requiere autenticación 'owner')
+    Route::get('/email/verify', [\App\Http\Controllers\Central\Auth\VerifyEmailController::class, 'notice'])->middleware('auth:owner')->name('verification.notice');
+
+    // Rutas de verificación de correo electrónico (verify y send - NO requieren autenticación 'owner')
+    Route::get('/email/verify/{id}/{hash}', [\App\Http\Controllers\Central\Auth\VerifyEmailController::class, 'verify'])->middleware(['signed'])->name('verification.verify');
+    Route::post('/email/verification-notification', [\App\Http\Controllers\Central\Auth\VerifyEmailController::class, 'send'])->middleware(['throttle:6,1'])->name('verification.send');
+
+    Route::middleware(['auth:owner', 'verified:owner'])->group(function () {
+        
         Route::get('/dashboard', [\App\Http\Controllers\Central\DashboardController::class, 'index'])->name('dashboard');
 
         
@@ -37,6 +45,11 @@ Route::prefix('central')->name('central.')->middleware(EnsureCentralDomain::clas
         // Gate Key Management
         Route::get('/gate-key', [\App\Http\Controllers\Central\GateController::class, 'editGateKey'])->name('gate_key.edit');
         Route::post('/gate-key', [\App\Http\Controllers\Central\GateController::class, 'updateGateKey'])->name('gate_key.update');
+
+        // Rutas para la gestión de usuarios centrales
+        Route::resource('users', \App\Http\Controllers\Central\CentralUserController::class)->names('users');
+
+        Route::post('/users/resend-verification', [\App\Http\Controllers\Central\CentralUserController::class, 'resendVerification'])->name('users.resend-verification');
 
         // Mantenimiento y Comandos
         Route::get('/maintenance', [\App\Http\Controllers\Central\MaintenanceController::class, 'index'])->name('maintenance.index');

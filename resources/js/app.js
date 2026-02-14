@@ -16,6 +16,7 @@ import NavbarNotifications from './components/NavbarNotifications';
 
 // Import Pages
 import { initUsersIndex } from './pages/usuarios/index';
+import { initUsersIndex as initCentralUsersIndex } from './pages/central/users/index';
 import { initTenantsIndex } from './pages/central/tenants/index';
 import { initPaymentNotificationsIndex } from './pages/central/payment-notifications/index';
 import { initCategoriesIndex } from './pages/categories/index';
@@ -49,6 +50,7 @@ window.XLSX = XLSX;
 window.DataGrid = DataGrid;
 window.Notify = Notifications;
 window.initUsersIndex = initUsersIndex;
+window.initCentralUsersIndex = initCentralUsersIndex;
 window.initTenantsIndex = initTenantsIndex;
 window.initPaymentNotificationsIndex = initPaymentNotificationsIndex;
 window.initCategoriesIndex = initCategoriesIndex;
