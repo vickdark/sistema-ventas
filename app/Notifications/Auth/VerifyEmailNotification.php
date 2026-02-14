@@ -30,7 +30,18 @@ class VerifyEmailNotification extends VerifyEmailBase
             return call_user_func(static::$toMailCallback, $notifiable, $verificationUrl);
         }
 
+        $tenantData = $this->getTenantEmailData();
+        $tenant = $tenantData['tenant'];
+
+        $fromName = 'Sistema de notificaciones MambaCode'; // Valor por defecto
+        if ($tenant && $tenant->id) {
+            $fromName = 'Sistema de notificaciones ' . $tenant->id;
+        }
+
+        $fromAddress = config('mail.from.address');
+
         return (new MailMessage)
+            ->from($fromAddress, $fromName)
             ->subject(Lang::get('Verificar dirección de correo - ') . $tenantData['businessName'])
             ->view('emails.auth.verify-email', array_merge([
                 'url' => $verificationUrl,

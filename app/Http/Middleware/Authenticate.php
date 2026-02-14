@@ -13,7 +13,10 @@ class Authenticate extends Middleware
     protected function redirectTo(Request $request): ?string
     {
         if (! $request->expectsJson()) {
-            if (in_array('owner', $this->guards)) {
+            if (
+                in_array($request->getHost(), config('tenancy.central_domains', []), true)
+                || $request->routeIs('central.*')
+            ) {
                 return route('central.login');
             }
             return route('login');

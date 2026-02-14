@@ -11,7 +11,7 @@
         <p class="text-muted small">Por favor, introduce la clave de acceso para continuar.</p>
     </div>
 
-    <form method="POST" action="{{ route('central.gate.verify') }}">
+    <form method="POST" action="{{ route('central.gate.verify') }}" id="gateKeyForm">
         @csrf
         <div class="mb-4">
             <label for="gate_key" class="form-label fw-semibold small text-uppercase text-muted">Clave de Acceso</label>
@@ -23,9 +23,15 @@
             @error('gate_key')
                 <div class="invalid-feedback d-block">{{ $message }}</div>
             @enderror
+            @error('g-recaptcha-response')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
+            <div class="mt-3">
+                <div class="g-recaptcha" data-sitekey="{{ env('NOCAPTCHA_SITEKEY') }}" data-callback="onGateCaptchaSuccess" data-expired-callback="onGateCaptchaExpired"></div>
+            </div>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100 py-3 rounded-3 shadow-sm fw-bold transition-all hover-lift">
+        <button type="submit" id="verifyGateButton" class="btn btn-primary w-100 py-3 rounded-3 shadow-sm fw-bold transition-all hover-lift">
             Verificar Clave
         </button>
     </form>
@@ -41,7 +47,7 @@
         <p class="text-muted small">Acceso exclusivo para el administrador del sistema</p>
     </div>
 
-    <form method="POST" action="{{ route('central.login.submit') }}" class="needs-validation" novalidate>
+    <form method="POST" action="{{ route('central.login.submit') }}" id="centralLoginForm" class="needs-validation" novalidate>
         @csrf
 
         <div class="mb-4">
@@ -66,6 +72,9 @@
             @error('password')
                 <div class="invalid-feedback d-block">{{ $message }}</div>
             @enderror
+            @error('g-recaptcha-response')
+                <div class="invalid-feedback d-block">{{ $message }}</div>
+            @enderror
         </div>
 
         <div class="mb-4 form-check">
@@ -73,7 +82,11 @@
             <label class="form-check-label small text-muted" for="remember">Recordar sesión</label>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100 py-3 rounded-3 shadow-sm fw-bold transition-all hover-lift">
+        <div class="mb-4">
+            <div class="g-recaptcha" data-sitekey="{{ env('NOCAPTCHA_SITEKEY') }}" data-callback="onLoginCaptchaSuccess" data-expired-callback="onLoginCaptchaExpired"></div>
+        </div>
+
+        <button type="submit" id="centralLoginButton" class="btn btn-primary w-100 py-3 rounded-3 shadow-sm fw-bold transition-all hover-lift">
             Iniciar Sesión Central
         </button>
     </form>
@@ -87,4 +100,69 @@
         box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05) !important;
     }
 </style>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+    (function () {
+        const gateForm = document.getElementById('gateKeyForm');
+        const gateInput = document.getElementById('gate_key');
+        const gateBtn = document.getElementById('verifyGateButton');
+        let gateCaptchaSolved = false;
+
+        function setGateDisabled(state) {
+            if (gateInput) gateInput.disabled = state;
+            if (gateBtn) gateBtn.disabled = state;
+        }
+
+        if (gateForm) {
+            setGateDisabled(true);
+            gateForm.addEventListener('submit', function (e) {
+                if (!gateCaptchaSolved) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        const loginForm = document.getElementById('centralLoginForm');
+        const loginEmail = document.getElementById('email');
+        const loginPassword = document.getElementById('password');
+        const loginRemember = document.getElementById('remember');
+        const loginBtn = document.getElementById('centralLoginButton');
+        let loginCaptchaSolved = false;
+
+        function setLoginDisabled(state) {
+            if (loginEmail) loginEmail.disabled = state;
+            if (loginPassword) loginPassword.disabled = state;
+            if (loginRemember) loginRemember.disabled = state;
+            if (loginBtn) loginBtn.disabled = state;
+        }
+
+        if (loginForm) {
+            setLoginDisabled(true);
+            loginForm.addEventListener('submit', function (e) {
+                if (!loginCaptchaSolved) {
+                    e.preventDefault();
+                }
+            });
+        }
+
+        window.onGateCaptchaSuccess = function () {
+            gateCaptchaSolved = true;
+            setGateDisabled(false);
+        };
+        window.onGateCaptchaExpired = function () {
+            gateCaptchaSolved = false;
+            setGateDisabled(true);
+        };
+
+        window.onLoginCaptchaSuccess = function () {
+            loginCaptchaSolved = true;
+            setLoginDisabled(false);
+        };
+        window.onLoginCaptchaExpired = function () {
+            loginCaptchaSolved = false;
+            setLoginDisabled(true);
+        };
+    })();
+</script>
 @endsection

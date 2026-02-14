@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Central\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -25,11 +26,21 @@ class CentralLoginController extends Controller
      */
     public function store(LoginRequest $request): RedirectResponse
     {
+        $request->ensureIsNotRateLimited();
+
         if (! Auth::guard('owner')->attempt($request->only('email', 'password'), $request->boolean('remember'))) {
-            throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
-            ]);
+            RateLimiter::hit($request->throttleKey());
+
+            $remaining = RateLimiter::retriesLeft($request->throttleKey(), 5);
+            $message = trans('auth.failed');
+            if ($remaining > 0) {
+                $message .= " Te quedan {$remaining} intentos.";
+            }
+
+            throw ValidationException::withMessages(['email' => $message]);
         }
+
+        RateLimiter::clear($request->throttleKey());
 
         $request->session()->regenerate();
 
