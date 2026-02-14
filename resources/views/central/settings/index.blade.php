@@ -50,6 +50,30 @@
                 </div>
             </div>
 
+            <div class="card border-0 shadow-soft rounded-4 overflow-hidden mb-4">
+                <div class="card-header bg-white p-4 border-bottom">
+                    <h5 class="mb-0 fw-bold"><i class="fas fa-key text-primary me-2"></i>Gestión de Clave de Acceso</h5>
+                </div>
+                <div class="card-body p-4">
+                    <form action="{{ route('central.gate_key.update') }}" method="POST">
+                        @csrf
+                        <div class="mb-4">
+                            <label for="gate_key" class="form-label fw-semibold">Clave de Acceso Actual</label>
+                            <input type="text" class="form-control @error('gate_key') is-invalid @enderror" id="gate_key" name="gate_key" value="{{ old('gate_key', $currentKey) }}" required minlength="4">
+                            @error('gate_key')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="form-text text-muted">Esta clave protege el acceso al login central. Mínimo 4 caracteres.</small>
+                        </div>
+                        <div class="d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary px-4 py-2 fw-bold rounded-3">
+                                <i class="fas fa-save me-2"></i>Actualizar Clave
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <div class="card border-0 shadow-soft rounded-4 overflow-hidden border-start border-warning">
                 <div class="card-body p-4">
                     <div class="d-flex align-items-start">
@@ -59,7 +83,10 @@
                         <div class="ms-3">
                             <h6 class="fw-bold text-dark">¿Cómo funciona?</h6>
                             <p class="text-muted small mb-0">
-                                Cuando un inquilino envía un comprobante, el sistema buscará primero si ese inquilino tiene un correo específico configurado en su perfil. Si no lo tiene, enviará la notificación a todos los correos que definas arriba.
+                                Cuando un inquilino envía un comprobante, el sistema enviará la notificación a todos los correos que definas arriba.
+                            </p>
+                            <p class="text-muted small mb-0">
+                                la clave sirve como doble validacion para que solo los administradores puedan acceder al login central.
                             </p>
                         </div>
                     </div>

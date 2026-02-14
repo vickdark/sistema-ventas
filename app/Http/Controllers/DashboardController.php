@@ -41,6 +41,6 @@ class DashboardController extends Controller
         }
 
         // 3. Dashboard genérico por defecto
-        return view('dashboard');
+        return view('dashboards.generic');
     }
 }

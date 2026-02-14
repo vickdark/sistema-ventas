@@ -11,7 +11,9 @@ class SettingController extends Controller
     public function index()
     {
         $adminEmails = CentralSetting::get('admin_payment_emails', '');
-        return view('central.settings.index', compact('adminEmails'));
+        $gateKeySetting = CentralSetting::where('key', 'central_login_gate_key')->first();
+        $currentKey = $gateKeySetting ? $gateKeySetting->value : '';
+        return view('central.settings.index', compact('adminEmails', 'currentKey'));
     }
 
     public function update(Request $request)

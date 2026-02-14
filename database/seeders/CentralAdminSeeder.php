@@ -20,5 +20,7 @@ class CentralAdminSeeder extends Seeder
                 'password' => Hash::make('admin123'),
             ]
         );
+
+        $this->call(CentralGateKeySeeder::class);
     }
 }

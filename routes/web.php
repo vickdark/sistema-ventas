@@ -7,7 +7,7 @@ use App\Http\Middleware\EnsureCentralDomain;
 // Entry point: central -> welcome, tenant -> login
 Route::get('/', function () {
     if (in_array(request()->getHost(), config('tenancy.central_domains', []), true)) {
-        return app(WelcomeController::class)();
+        return redirect()->route('central.login');
     }
 
     return redirect()->route('login');
@@ -17,6 +17,8 @@ Route::get('/', function () {
 Route::prefix('central')->name('central.')->middleware(EnsureCentralDomain::class)->group(function () {
     Route::get('/login', [App\Http\Controllers\Central\Auth\CentralLoginController::class, 'create'])->name('login');
     Route::post('/login', [App\Http\Controllers\Central\Auth\CentralLoginController::class, 'store'])->name('login.submit');
+
+    Route::post('/gate/verify', [App\Http\Controllers\Central\GateController::class, 'verifyKey'])->name('gate.verify');
 
     Route::middleware('auth:owner')->group(function () {
         Route::get('/dashboard', [\App\Http\Controllers\Central\DashboardController::class, 'index'])->name('dashboard');
@@ -31,6 +33,10 @@ Route::prefix('central')->name('central.')->middleware(EnsureCentralDomain::clas
         // Global Settings
         Route::get('/settings', [\App\Http\Controllers\Central\SettingController::class, 'index'])->name('settings.index');
         Route::post('/settings', [\App\Http\Controllers\Central\SettingController::class, 'update'])->name('settings.update');
+
+        // Gate Key Management
+        Route::get('/gate-key', [\App\Http\Controllers\Central\GateController::class, 'editGateKey'])->name('gate_key.edit');
+        Route::post('/gate-key', [\App\Http\Controllers\Central\GateController::class, 'updateGateKey'])->name('gate_key.update');
 
         // Mantenimiento y Comandos
         Route::get('/maintenance', [\App\Http\Controllers\Central\MaintenanceController::class, 'index'])->name('maintenance.index');
@@ -67,4 +73,4 @@ foreach (config('tenancy.central_domains', []) as $domain) {
     });
 }
 
-Route::get('/welcome', WelcomeController::class)->name('welcome');
+

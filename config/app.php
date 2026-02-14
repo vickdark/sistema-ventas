@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Central Login Gate Key
+    |--------------------------------------------------------------------------
+    |
+    | This key is used to gate access to the central admin login page.
+    | It's a client-side check to obscure the login form.
+    | IMPORTANT: This is NOT a robust security measure.
+    |
+    */
+
+    'central_login_gate_key' => env('CENTRAL_LOGIN_GATE_KEY', 'default_secret_key'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |
