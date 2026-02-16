@@ -172,7 +172,7 @@ npm run build
 
 ### Otros Comandos
 *   **Crear un usuario administrador central:**
-    *   Usa `tinker`: `\App\Models\User::create(['name'=>'Admin', 'email'=>'admin@central.com', 'password'=>bcrypt('password'), 'role_id'=>1]);`
+*   Usa `tinker`: `\App\Models\User::create(['name'=>'Admin', 'email'=>'admin@central.com', 'password'=>bcrypt('password'), 'role_id'=>1]);`
 *   **Crear un inquilino manualmente (tinker):**
     ```php
     $t = App\Models\Tenant::create(['id' => 'foo']);
@@ -181,7 +181,104 @@ npm run build
 
 ---
 
+## 🧱 Arquitectura de Código (Central vs Tenant)
+
+### 1. Capa Central (Owner / SaaS)
+
+*   Modelos: `App\Models\Central\*` (ej: `Central\Tenant`, `Central\User`, `CentralPaymentNotification`).
+*   Controladores: `App\Http\Controllers\Central\*` (gestión de tenants, métricas, configuración).
+*   Vistas: `resources/views/central/*` (login central, dashboard central, gestión de empresas, métricas, settings).
+*   Rutas: `routes/web.php` (agrupadas con middleware de dominio central).
+*   Tenancy: sin `InitializeTenancyByDomain`, siempre sobre la conexión `central`.
+
+### 2. Capa Tenant (Empresa / Cliente)
+
+*   Modelos: `App\Models\Tenant\*` (ej: `Usuario`, `Role`, `Permission`, `Product`, `Sale`, `CashRegister`).
+*   Controladores: `App\Http\Controllers\Tenant\*` (usuarios, roles, ventas, caja, reportes, import, etc.).
+*   Vistas: `resources/views/tenant/*` (auth tenant, dashboards, módulos de negocio, ETL, etc.).
+*   Rutas: `routes/tenant.php` (cargadas por `TenantRouteServiceProvider` con `InitializeTenancyByDomain`).
+*   Middlewares clave:
+    *   `InitializeTenancyByDomain` y `PreventAccessFromCentralDomains`.
+    *   `auth:web` para proteger rutas de usuario.
+    *   `App\Http\Middleware\Tenant\CheckPermission` para permisos por ruta.
+
+### 3. Permisos y Menú Dinámico (Tenant)
+
+*   Fuente de la verdad: nombres de rutas tenant (ej: `products.index`, `sales.store`, `roles.edit`).
+*   Sincronización: comando `php artisan permissions:sync` ([SyncPermissions](app/Console/Commands/SyncPermissions.php)) recorre `Route::getRoutes()` y sincroniza con `App\Models\Tenant\Permission`.
+*   Exclusiones automáticas: rutas de sistema y autenticación (`sanctum.*`, `ignition.*`, `livewire.*`, `verification.*`, `password.*`, `login`, `logout`, `register`, `profile.*`, `storage.*`, `central.*`, `stancl.*`) y rutas utilitarias como `tenant.payment-pending`, `tenant.payment-notification.send`, `tenant.profile.password.update`.
+*   Regla práctica:
+    *   Rutas de negocio (CRUDs, reportes, caja, importaciones) sí deben generar permisos.
+    *   Rutas técnicas o de autenticación solo requieren estar autenticado, no permisos.
+
+---
+
 ## 📂 Estructura de Rutas (Importante)
 
 *   **`routes/web.php`**: **SOLO** rutas del dominio central (Login Owner, Gestión de Tenants).
 *   **`routes/tenant.php`**: Rutas de la aplicación del cliente (Dashboard, Usuarios, Roles). Estas rutas se cargan automáticamente cuando se detecta un subdominio válido.
+
+---
+
+## 🗺️ Mapa de Flujo del Sistema (de punta a punta)
+
+1.  Acceso al Panel Central (Owner)
+    *   El dueño entra a `https://sistema-ventas.test/central/login`.
+    *   Autenticación con el guard `owner` contra la base de datos central.
+    *   Una vez dentro, gestiona Tenants, configuraciones y métricas desde `resources/views/central/*`.
+
+2.  Creación de un Nuevo Tenant
+    *   Desde el panel central se crea una empresa.
+    *   Se guarda el registro en `App\Models\Central\Tenant`.
+    *   Se crea la base de datos del tenant.
+    *   Se ejecutan las migraciones de `database/migrations/tenant`.
+    *   Se crea el dominio/subdominio asociado en la tabla `domains`.
+
+3.  Acceso al Panel del Tenant
+    *   El usuario de la empresa entra a `https://{empresa}.sistema-ventas.test`.
+    *   El middleware `InitializeTenancyByDomain` detecta el dominio, resuelve el Tenant y configura la conexión `tenant`.
+    *   Se aplican los middlewares de tenant (`PreventAccessFromCentralDomains`, `CheckTenantPaymentStatus`).
+    *   Las rutas se leen desde `routes/tenant.php` y las vistas desde `resources/views/tenant/*`.
+
+4.  Autenticación de Usuarios del Tenant
+    *   El login del tenant usa el guard `web` y el modelo `App\Models\Tenant\Usuario`.
+    *   Las vistas de auth se resuelven en `resources/views/tenant/auth/*`.
+    *   Una vez autenticado, el usuario es enviado a `route('dashboard')`.
+
+5.  Resolución del Dashboard
+    *   `Tenant\DashboardController` recibe al usuario autenticado.
+    *   Evalúa el `role` y sus `permissions` para decidir qué dashboard mostrar (`tenant.dashboards.admin`, `tenant.dashboards.vendedor`, etc.).
+    *   Si no hay una vista específica, cae en `tenant.dashboards.generic`.
+
+6.  Navegación por Módulos de Negocio
+    *   El usuario navega por rutas definidas en `routes/tenant.php` (`products.*`, `sales.*`, `cash-registers.*`, etc.).
+    *   Cada ruta:
+        *   Pasa por `auth:web`.
+        *   Pasa por `CheckPermission` que verifica si el rol del usuario tiene el permiso asociado al nombre de la ruta.
+    *   Los controladores en `App\Http\Controllers\Tenant\*` usan modelos `App\Models\Tenant\*` y vistas `resources/views/tenant/*`.
+
+7.  Permisos y Menú Lateral
+    *   El comando `php artisan permissions:sync`:
+        *   Recorre todas las rutas tenant.
+        *   Crea/actualiza registros en `App\Models\Tenant\Permission`.
+        *   Marca cuáles son de menú (`is_menu`) y su módulo/orden (`module`, `order`).
+    *   El sidebar del tenant se construye leyendo `permissions` del rol del usuario y mostrando solo las entradas de menú permitidas.
+
+8.  Validación de Pago del Tenant
+    *   Antes de acceder a las rutas protegidas, `CheckTenantPaymentStatus` valida si el tenant está al día.
+    *   Si hay deuda o suspensión, redirige a `tenant.payment-pending`.
+    *   El endpoint `tenant.payment-notification.send` permite enviar comprobantes de pago, pero está excluido del sistema de permisos porque solo requiere estar autenticado.
+
+9.  Procesos Especiales (Caja, ETL, Reportes)
+    *   Módulo de Caja:
+        *   Usa `CashRegister`, `Sale`, `Abono`, etc., solo en la base de datos del tenant.
+    *   Módulo ETL:
+        *   Vistas en `resources/views/tenant/import/*`.
+        *   Controlador `Tenant\ImportController` procesa archivos y crea/actualiza datos del tenant.
+    *   Reportes:
+        *   `Tenant\ReportController` calcula métricas usando solo datos del tenant.
+
+10. Métricas Centrales sobre los Tenants
+    *   El panel central de métricas recorre todos los `Central\Tenant`.
+    *   Para cada uno, ejecuta código “inside tenant” (`$tenant->run(...)`) para leer datos agregados (usuarios, ventas, tamaño de base de datos).
+    *   Si un tenant no tiene DB o le faltan tablas, el código captura la excepción y muestra valores seguros en lugar de romper el panel central.
