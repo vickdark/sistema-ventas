@@ -25,6 +25,79 @@
         </div>
     </div>
 
+    @php
+        $serviceType = tenant('service_type');
+        $isMaintenance = ($serviceType === 'purchase');
+    @endphp
+    @if(in_array($serviceType, ['subscription', 'purchase']))
+    @php
+        $next = tenant('next_payment_date');
+        $tz = tenant('timezone') ?? config('app.timezone', 'UTC');
+        $badgeClass = 'bg-success';
+        $label = 'ACTIVA';
+        $auxLine = null;
+        if ($next) {
+            $now = \Carbon\Carbon::now($tz);
+            $dueStart = \Carbon\Carbon::parse($next, $tz)->startOfDay();
+            $dueEnd = \Carbon\Carbon::parse($next, $tz)->endOfDay();
+            $todayStart = $now->copy()->startOfDay();
+            if ($now->gt($dueEnd)) {
+                $badgeClass = 'bg-danger';
+                $label = 'VENCIDA';
+            } elseif ($todayStart->equalTo($dueStart)) {
+                $badgeClass = 'bg-warning';
+                $label = 'VENCE HOY';
+            } else {
+                $seconds = $now->diffInSeconds($dueStart, false);
+                if ($seconds > 0) {
+                    $d = intdiv($seconds, 86400);
+                    $h = intdiv($seconds % 86400, 3600);
+                    if ($d <= 5) { 
+                        $badgeClass = 'bg-warning';
+                        if ($isMaintenance) {
+                            $auxLine = 'Faltan '.$d.' d '.$h.' h para el pago de mantenimiento.';
+                        }
+                    }
+                    $parts = [];
+                    if ($d > 0) { $parts[] = $d.'D'; }
+                    $parts[] = $h.'H';
+                    $label = 'VENCE EN '.implode(' ', $parts);
+                }
+            }
+        }
+    @endphp
+    <div class="row g-3 mb-3">
+        <div class="col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body py-2 px-3 d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="bg-info bg-opacity-10 p-2 rounded-circle">
+                            <i class="fa-solid fa-calendar-check text-info"></i>
+                        </div>
+                        <div>
+                            <div class="small text-muted text-uppercase fw-semibold">{{ $isMaintenance ? 'Mantenimiento' : 'Suscripción' }}</div>
+                            <div class="small mb-0">
+                                @if($next)
+                                    Próximo pago: <span class="fw-bold">{{ \Carbon\Carbon::parse($next, $tz)->format('d/m/Y') }}</span>
+                                @else
+                                    Sin fecha
+                                @endif
+                            </div>
+                            @php $showAux = $auxLine ?? null; @endphp
+                        </div>
+                            @if($showAux)
+                            <div class="small text-warning mt-1">{{ $showAux }}</div>
+                            @endif
+                    </div>
+                    <div>
+                        <span class="badge rounded-pill px-2 py-1 {{ $badgeClass }}">{{ $label }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endif
+
     <!-- Mega Acceso Rápido (Hiper visibles) -->
     <div class="row g-4 mb-5">
         <div class="col-md-6">

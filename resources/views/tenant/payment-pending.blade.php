@@ -6,6 +6,20 @@
 
 @php
     $bodyClass = 'bg-light';
+    $tz = tenant('timezone') ?? config('app.timezone', 'UTC');
+    $dueRaw = tenant('next_payment_date');
+    $dueText = null;
+    if ($dueRaw) {
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $dueRaw)) {
+            $dueText = \Carbon\Carbon::createFromFormat('Y-m-d', $dueRaw, $tz)->format('d/m/Y');
+        } elseif (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $dueRaw)) {
+            $dueText = $dueRaw;
+        } elseif (preg_match('/^\d{2}-\d{2}-\d{4}$/', $dueRaw)) {
+            $dueText = \Carbon\Carbon::createFromFormat('d-m-Y', $dueRaw, $tz)->format('d/m/Y');
+        } else {
+            $dueText = \Carbon\Carbon::parse($dueRaw, $tz)->format('d/m/Y');
+        }
+    }
 @endphp
 
 @section('body')
@@ -84,14 +98,14 @@
                             <p class="text-slate-600 mb-4 fs-6 leading-relaxed">
                                 Le informamos que no hemos recibido la confirmación de pago correspondiente a su <strong>suscripción activa</strong>. El acceso a los módulos operativos se ha restringido temporalmente.
                             </p>
-                            @if($tenant->next_payment_date)
+                            @if($dueText)
                                 <div class="p-3 bg-blue-50 rounded-3 border border-blue-100 d-inline-flex align-items-center shadow-sm">
                                     <div class="icon-square bg-primary text-white me-3 shadow-blue">
                                         <i class="fas fa-calendar-check"></i>
                                     </div>
                                     <div>
                                         <div class="x-small text-blue-800 text-uppercase fw-bold mb-0">Próximo Ciclo</div>
-                                        <div class="fw-bold text-blue-900 fs-5 line-height-1">{{ \Carbon\Carbon::parse($tenant->next_payment_date)->format('d/m/Y') }}</div>
+                                        <div class="fw-bold text-blue-900 fs-5 line-height-1">{{ $dueText }}</div>
                                     </div>
                                 </div>
                             @endif
@@ -99,14 +113,14 @@
                             <p class="text-slate-600 mb-4 fs-6 leading-relaxed">
                                 El acceso a su plataforma ha sido suspendido debido a un saldo pendiente por <strong>mantenimiento de licencia</strong>.
                             </p>
-                            @if($tenant->next_payment_date)
+                            @if($dueText)
                                 <div class="p-3 bg-orange-50 rounded-3 border border-orange-100 d-inline-flex align-items-center shadow-sm">
                                     <div class="icon-square bg-warning text-dark me-3 shadow-orange">
                                         <i class="fas fa-key"></i>
                                     </div>
                                     <div>
                                         <div class="x-small text-orange-800 text-uppercase fw-bold mb-0">Vencimiento Técnico</div>
-                                        <div class="fw-bold text-orange-900 fs-5 line-height-1">{{ \Carbon\Carbon::parse($tenant->next_payment_date)->format('d/m/Y') }}</div>
+                                        <div class="fw-bold text-orange-900 fs-5 line-height-1">{{ $dueText }}</div>
                                     </div>
                                 </div>
                             @endif

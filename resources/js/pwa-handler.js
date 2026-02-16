@@ -65,6 +65,26 @@ export function initPWA() {
     checkExpirationStatus();
 }
 
+function parseTenantDate(dateStr) {
+    if (!dateStr) return null;
+    // YYYY-MM-DD -> local date (avoid UTC parsing pitfall)
+    const ymd = /^(\d{4})-(\d{2})-(\d{2})$/;
+    const dmySlash = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+    const dmyDash = /^(\d{2})-(\d{2})-(\d{4})$/;
+    let m;
+    if ((m = dateStr.match(ymd))) {
+        return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    }
+    if ((m = dateStr.match(dmySlash))) {
+        return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    }
+    if ((m = dateStr.match(dmyDash))) {
+        return new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]));
+    }
+    // Fallback: let browser parse (might include time)
+    return new Date(dateStr);
+}
+
 function setupFormInterceptors() {
     document.addEventListener('submit', async (e) => {
         if (navigator.onLine) return;
@@ -139,19 +159,26 @@ function checkExpirationStatus() {
         localStorage.setItem('offline_service_type', config.serviceType);
     }
 
-    const localExpiration = localStorage.getItem('offline_expiration_date');
-    if (localExpiration) {
-        const expirationDate = new Date(localExpiration);
-        const today = new Date();
-
-        if (expirationDate < today) {
-            showExpirationLock(localExpiration);
-        }
+    let localExpiration = localStorage.getItem('offline_expiration_date');
+    // Fallback: si nunca se guardó en localStorage (primer load offline), usar el valor embebido
+    if (!localExpiration && config && config.expirationDate) {
+        localExpiration = config.expirationDate;
+    }
+    if (!localExpiration) return;
+    const due = parseTenantDate(localExpiration);
+    if (!due || isNaN(due.getTime())) return;
+    const now = new Date();
+    // Mostrar bloqueo SOLO después de terminar el día de vencimiento
+    const dueEnd = new Date(due.getFullYear(), due.getMonth(), due.getDate(), 23, 59, 59, 999);
+    if (now > dueEnd) {
+        showExpirationLock(localExpiration);
     }
 }
 
 function showExpirationLock(date) {
-    const formattedDate = new Date(date).toLocaleDateString();
+    const d = parseTenantDate(date);
+    const formattedDate = d instanceof Date && !isNaN(d) ? d.toLocaleDateString() : String(date);
+    const st = (window.TenantConfig && window.TenantConfig.serviceType) || localStorage.getItem('offline_service_type') || 'purchase';
     document.body.innerHTML = `
         <div style="height: 100vh; display: flex; align-items: center; justify-content: center; background: #f8f9fc; font-family: sans-serif; text-align: center; padding: 20px;">
             <div style="max-width: 500px; background: white; padding: 40px; border-radius: 15px; shadow: 0 10px 25px rgba(0,0,0,0.1);">
@@ -159,7 +186,7 @@ function showExpirationLock(date) {
                     <i class="fas fa-exclamation-triangle"></i>
                 </div>
                 <h1 style="color: #4e73df; margin-bottom: 10px;">Acceso Restringido</h1>
-                <p style="color: #6e707e; font-size: 18px;">Tu ${window.TenantConfig.serviceType === 'subscription' ? 'suscripción' : 'licencia'} venció el <strong>${formattedDate}</strong>.</p>
+                <p style="color: #6e707e; font-size: 18px;">Tu ${st === 'subscription' ? 'suscripción' : 'licencia'} venció el <strong>${formattedDate}</strong>.</p>
                 <p style="color: #858796;">Para seguir operando el sistema, por favor contacta al administrador para renovar tu acceso.</p>
                 <div style="margin-top: 30px;">
                     <a href="javascript:location.reload()" style="text-decoration: none; background: #4e73df; color: white; padding: 12px 25px; border-radius: 25px; font-weight: bold;">Reintentar Conexión</a>

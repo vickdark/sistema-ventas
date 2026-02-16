@@ -28,12 +28,16 @@ class SuspendExpiredTenants extends Command
      */
     public function handle()
     {
-        $today = Carbon::today()->format('Y-m-d');
+        $today = Carbon::today();
+        $todayStr = $today->format('Y-m-d');
         
-        $expiredTenants = Tenant::where('is_paid', true)
-            ->whereNotNull('next_payment_date')
-            ->where('next_payment_date', '<=', $today)
+        $candidates = Tenant::where('data->is_paid', true)
+            ->whereNotNull('data->next_payment_date')
+            ->where('data->next_payment_date', '<', $todayStr)
             ->get();
+
+        // Sin días de gracia: suspender a todo candidato con fecha vencida hoy o antes
+        $expiredTenants = $candidates;
 
         if ($expiredTenants->isEmpty()) {
             $this->info('No se encontraron inquilinos vencidos el día de hoy.');
