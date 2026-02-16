@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Tenant;
 
 use App\Http\Controllers\Controller;
 use App\Mail\PaymentNotificationMail;
-use App\Models\CentralSetting;
-use App\Models\CentralPaymentNotification;
+use App\Models\Central\CentralSetting;
+use App\Models\Central\CentralPaymentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;

@@ -39,7 +39,7 @@ class SyncPermissions extends Command
             if ($name && $this->shouldSync($name)) {
                 $activeSlugs[] = $name;
                 
-                $permission = \App\Models\Roles\Permission::updateOrCreate(
+                $permission = \App\Models\Tenant\Permission::updateOrCreate(
                     ['slug' => $name],
                     [
                         'nombre' => $this->generateName($name),
@@ -62,11 +62,13 @@ class SyncPermissions extends Command
         $excludedPrefixes = [
             'sanctum.', 'ignition.', 'livewire.', 'verification.', 
             'password.', 'login', 'logout', 'register',
-            'profile.', 'storage.', 'central.', 'stancl.'
+            'profile.', 'storage.', 'central.', 'stancl.',
+            'tenant.payment-notification.', 'tenant.payment-pending',
+            'tenant.profile.password.update'
         ];
 
         // 1. Eliminar permisos que coinciden con los prefijos excluidos
-        $deletedExcluded = \App\Models\Roles\Permission::where(function($q) use ($excludedPrefixes) {
+        $deletedExcluded = \App\Models\Tenant\Permission::where(function($q) use ($excludedPrefixes) {
             foreach ($excludedPrefixes as $prefix) {
                 $q->orWhere('slug', 'like', $prefix . '%');
             }
@@ -78,7 +80,7 @@ class SyncPermissions extends Command
 
         // 2. Limpieza de rutas que ya no existen (SOLO si se pasa el flag --clean)
         if ($this->option('clean')) {
-            $deletedOld = \App\Models\Roles\Permission::whereNotIn('slug', $activeSlugs)
+            $deletedOld = \App\Models\Tenant\Permission::whereNotIn('slug', $activeSlugs)
                 ->whereNotIn('slug', [
                     'dashboard', 'roles.index', 'roles.create', 'roles.edit', 'roles.destroy',
                     'permissions.index', 'permissions.create', 'permissions.edit', 'permissions.destroy', 'permissions.sync'
@@ -101,7 +103,9 @@ class SyncPermissions extends Command
         $excludedPrefixes = [
             'sanctum.', 'ignition.', 'livewire.', 'verification.', 
             'password.', 'login', 'logout', 'register',
-            'profile.', 'storage.', 'central.', 'stancl.'
+            'profile.', 'storage.', 'central.', 'stancl.',
+            'tenant.payment-notification.', 'tenant.payment-pending',
+            'tenant.profile.password.update'
         ];
         
         foreach ($excludedPrefixes as $prefix) {

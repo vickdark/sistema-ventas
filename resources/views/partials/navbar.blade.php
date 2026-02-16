@@ -76,11 +76,7 @@
                         <i class="fa-solid fa-user-circle me-2 text-muted"></i> Mi Perfil
                     </a>
                 </li>
-                <li>
-                    <button class="dropdown-item rounded-2 py-2" type="button" onclick="handleChangePassword()">
-                        <i class="fa-solid fa-key me-2 text-muted"></i> Cambiar Contraseña
-                    </button>
-                </li>
+
                 <li><hr class="dropdown-divider mx-2"></li>
                 <li>
                     <button class="dropdown-item rounded-2 py-2 text-danger" type="button" onclick="handleLogout('logout-form-navbar')">

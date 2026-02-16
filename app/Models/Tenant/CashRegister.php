@@ -2,8 +2,11 @@
 
 namespace App\Models\Tenant;
 
+use App\Models\Tenant\Usuario;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CashRegister extends Model
 {
@@ -31,9 +34,9 @@ class CashRegister extends Model
         'total_sales' => 'decimal:2',
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\Usuarios\Usuario::class, 'user_id');
+        return $this->belongsTo(Usuario::class);
     }
 
     public function scopeOpen($query)

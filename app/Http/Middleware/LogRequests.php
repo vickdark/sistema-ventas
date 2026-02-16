@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
-use App\Models\HttpLog;
+use App\Models\Central\HttpLog;
 
 class LogRequests
 {
@@ -25,7 +25,7 @@ class LogRequests
         // Log everything except common assets and debugger routes if any
         if (!$request->is('livewire/*') && !$request->is('sanctum/*') && !$request->is('img/*')) {
             try {
-                HttpLog::create([
+                \App\Models\Central\HttpLog::create([
                     'tenant_id' => function_exists('tenant') && tenant() ? tenant('id') : null,
                     'method' => $request->method(),
                     'url' => $request->fullUrl(),

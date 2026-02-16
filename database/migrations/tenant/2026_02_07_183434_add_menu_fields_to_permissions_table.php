@@ -5,8 +5,8 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 use Illuminate\Support\Facades\Artisan;
-use App\Models\Roles\Role;
-use App\Models\Roles\Permission;
+use App\Models\Tenant\Permission;
+use App\Models\Tenant\Role;
 
 return new class extends Migration
 {

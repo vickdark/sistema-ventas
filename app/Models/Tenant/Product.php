@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $category_id
  * @property int $user_id
  * @property-read \App\Models\Tenant\Category $category
- * @property-read \App\Models\Usuarios\Usuario $user
+ * @property-read \App\Models\Tenant\Usuario|null $user
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\Supplier[] $suppliers
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Product newQuery()
@@ -59,7 +59,7 @@ class Product extends Model
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\Usuarios\Usuario::class, 'user_id');
+        return $this->belongsTo(Usuario::class, 'user_id');
     }
 
     public function suppliers()

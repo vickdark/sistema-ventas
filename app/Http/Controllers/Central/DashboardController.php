@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenant;
+use App\Models\Central\Tenant;
 use Stancl\Tenancy\Database\Models\Domain;
 use Illuminate\Support\Facades\DB;
 
@@ -21,7 +21,7 @@ class DashboardController extends Controller
         
         Tenant::all()->each(function ($tenant) use (&$totalTenantUsers, &$tenantMetrics) {
             $metrics = $tenant->run(function () use (&$totalTenantUsers) {
-                $userCount = \App\Models\Usuarios\Usuario::count();
+                $userCount = \App\Models\Tenant\Usuario::count();
                 $totalTenantUsers += $userCount;
                 
                 $dbName = config('database.connections.tenant.database');
@@ -44,10 +44,10 @@ class DashboardController extends Controller
 
         // Métricas HTTP (Central)
         $httpStats = [
-            '2xx' => \App\Models\HttpLog::whereBetween('status', [200, 299])->count(),
-            '3xx' => \App\Models\HttpLog::whereBetween('status', [300, 399])->count(),
-            '4xx' => \App\Models\HttpLog::whereBetween('status', [400, 499])->count(),
-            '5xx' => \App\Models\HttpLog::whereBetween('status', [500, 599])->count(),
+            '2xx' => \App\Models\Central\HttpLog::whereBetween('status', [200, 299])->count(),
+            '3xx' => \App\Models\Central\HttpLog::whereBetween('status', [300, 399])->count(),
+            '4xx' => \App\Models\Central\HttpLog::whereBetween('status', [400, 499])->count(),
+            '5xx' => \App\Models\Central\HttpLog::whereBetween('status', [500, 599])->count(),
         ];
 
         $recentTenants = Tenant::with('domains')

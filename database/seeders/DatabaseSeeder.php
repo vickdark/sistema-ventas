@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Usuarios\Usuario;
-use App\Models\Roles\Role;
-use App\Models\Roles\Permission;
+use App\Models\Tenant\Usuario;
+use App\Models\Tenant\Role;
+use App\Models\Tenant\Permission;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 

@@ -374,10 +374,18 @@
         const host = ".{{ request()->getHost() }}";
         const checkUrl = "{{ route('central.tenants.check') }}";
         if (typeof window.bootstrap === 'undefined') {
-            console.error('Bootstrap is not loaded yet. Make sure app.js is included correctly.');
-            return;
+            // console.error('Bootstrap is not loaded yet. Make sure app.js is included correctly.');
+            // return;
         }
-        const processModal = new window.bootstrap.Modal(document.getElementById('processModal'));
+        // Intentar obtener la instancia de modal de forma segura, o crear una fallback simple
+        let processModal;
+        try {
+             const modalElement = document.getElementById('processModal');
+             if (modalElement && typeof window.bootstrap !== 'undefined') {
+                processModal = new window.bootstrap.Modal(modalElement);
+             }
+        } catch(e) { console.log('Bootstrap modal error:', e); }
+
         const tenantForm = document.getElementById('tenant-form');
 
         let timeout = null;
@@ -508,7 +516,14 @@
         tenantForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            processModal.show();
+            // Si tenemos modal de bootstrap, lo mostramos. Si no, mostramos alerta simple.
+            if (processModal) {
+                processModal.show();
+            } else {
+                // Fallback si bootstrap JS no cargó bien
+                logToConsole('Iniciando proceso (Modo sin modal)...');
+            }
+            
             logToConsole('Iniciando proceso de registro para: ' + idInput.value);
             updateStep(1, 'active');
 
@@ -579,23 +594,33 @@
                     }
                 } else {
                     logToConsole('ERROR: ' + (result.message || 'Fallo en la validación'), 'error');
-                    processModal.hide();
-                    window.Swal.fire({
-                        icon: 'error',
-                        title: 'Error de Validación',
-                        text: result.message || 'Hubo un problema al procesar la solicitud.',
-                        confirmButtonColor: '#4e73df'
-                    });
+                    if(processModal) processModal.hide();
+                    
+                    if (window.Swal) {
+                        window.Swal.fire({
+                            icon: 'error',
+                            title: 'Error de Validación',
+                            text: result.message || 'Hubo un problema al procesar la solicitud.',
+                            confirmButtonColor: '#4e73df'
+                        });
+                    } else {
+                        alert('Error: ' + (result.message || 'Hubo un problema al procesar la solicitud.'));
+                    }
                 }
             } catch (error) {
                 logToConsole('ERROR CRÍTICO: ' + error.message, 'error');
-                processModal.hide();
-                window.Swal.fire({
-                    icon: 'error',
-                    title: 'Error Crítico',
-                    text: 'Ocurrió un error inesperado en la comunicación con el servidor.',
-                    confirmButtonColor: '#4e73df'
-                });
+                if(processModal) processModal.hide();
+                
+                if (window.Swal) {
+                    window.Swal.fire({
+                        icon: 'error',
+                        title: 'Error Crítico',
+                        text: 'Ocurrió un error inesperado en la comunicación con el servidor: ' + error.message,
+                        confirmButtonColor: '#4e73df'
+                    });
+                } else {
+                    alert('Error Crítico: ' + error.message);
+                }
             }
         });
 

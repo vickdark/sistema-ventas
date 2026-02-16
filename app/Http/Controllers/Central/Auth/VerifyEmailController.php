@@ -24,7 +24,7 @@ class VerifyEmailController extends Controller
      */
     public function verify(Request $request): RedirectResponse
     {
-        $user = \App\Models\CentralUser::find($request->route('id'));
+        $user = \App\Models\Central\CentralUser::find($request->route('id'));
 
         if (!$user) {
             abort(404); // O redirigir a una página de error

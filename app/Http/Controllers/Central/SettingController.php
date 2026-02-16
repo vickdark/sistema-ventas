@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
-use App\Models\CentralSetting;
+use App\Models\Central\CentralSetting;
 use Illuminate\Http\Request;
 
 class SettingController extends Controller

@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $user_id
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\Tenant\PurchaseItem[] $items
  * @property-read \App\Models\Tenant\Supplier $supplier
- * @property-read \App\Models\Usuarios\Usuario $user
+ * @property-read \App\Models\Tenant\Usuario $user
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Purchase newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Purchase newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder<static>|Purchase query()
@@ -53,6 +53,6 @@ class Purchase extends Model
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\Usuarios\Usuario::class, 'user_id');
+        return $this->belongsTo(\App\Models\Tenant\Usuario::class, 'user_id');
     }
 }

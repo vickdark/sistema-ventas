@@ -31,7 +31,7 @@
                     destroy: "{{ route('central.tenants.destroy', ':id') }}",
                     markPaid: "{{ route('central.tenants.mark-as-paid', ':id') }}"
                 },
-                db_prefix: "{{ config('database.connections.central.database') }}",
+                db_prefix: "{{ config('database.connections.central.database') }}_",
                 tokens: {
                     csrf: "{{ csrf_token() }}"
                 }

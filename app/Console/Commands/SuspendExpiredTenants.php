@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-use App\Models\Tenant;
+use App\Models\Central\Tenant;
 use Carbon\Carbon;
 
 class SuspendExpiredTenants extends Command

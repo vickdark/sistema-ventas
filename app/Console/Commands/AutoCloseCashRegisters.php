@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 
-use App\Models\Tenant;
+use App\Models\Central\Tenant;
 use App\Models\Tenant\CashRegister;
 use App\Models\Tenant\Sale;
 use App\Models\Tenant\Abono;

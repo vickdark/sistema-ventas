@@ -3,8 +3,9 @@
 namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
-use App\Models\HttpLog;
-use App\Models\Tenant;
+use App\Models\Central\HttpLog;
+use App\Models\Central\Tenant;
+use App\Models\Tenant\Sale;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -27,16 +28,37 @@ class MetricsController extends Controller
         $tenants = Tenant::all();
         $tenantMetrics = [];
         foreach ($tenants as $tenant) {
-            $tenantMetrics[$tenant->id] = $tenant->run(function () {
-                $dbName = config('database.connections.tenant.database');
-                $sizeResult = DB::select("SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?", [$dbName]);
-                return [
-                    'db_name' => $dbName,
-                    'size' => round($sizeResult[0]->size ?? 0, 2),
-                    'users' => \App\Models\Usuarios\Usuario::count(),
-                    'sales' => DB::table('sales')->count(),
+            try {
+                $tenantMetrics[$tenant->id] = $tenant->run(function () {
+                    $dbName = config('database.connections.tenant.database');
+                    
+                    // Verificar si la base de datos realmente existe o si estamos en una conexión válida
+                    // Esto evita errores si el tenant fue creado sin DB o falló la migración
+                    try {
+                        $sizeResult = DB::select("SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?", [$dbName]);
+                        $size = round($sizeResult[0]->size ?? 0, 2);
+                    } catch (\Exception $e) {
+                        $size = 0;
+                    }
+
+                    return [
+                        'db_name' => $dbName,
+                        'size' => $size,
+                        'users' => \App\Models\Tenant\Usuario::count(),
+                        // Usar el modelo o verificar si la tabla existe para evitar error 500
+                        'sales' => \Illuminate\Support\Facades\Schema::hasTable('sales') ? Sale::count() : 0,
+                    ];
+                });
+            } catch (\Exception $e) {
+                // Si falla la conexión al tenant (ej. DB no existe), registramos ceros
+                $tenantMetrics[$tenant->id] = [
+                    'db_name' => 'Error/Sin DB',
+                    'size' => 0,
+                    'users' => 0,
+                    'sales' => 0,
+                    'error' => $e->getMessage()
                 ];
-            });
+            }
         }
 
         // Estadísticas generales para gráficos

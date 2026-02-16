@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
-use App\Models\CentralPaymentNotification;
+use App\Models\Central\CentralPaymentNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 

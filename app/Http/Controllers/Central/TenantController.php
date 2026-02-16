@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Central;
 
 use App\Http\Controllers\Controller;
-use App\Models\Tenant;
+use App\Models\Central\Tenant;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Artisan;
@@ -179,6 +179,10 @@ class TenantController extends Controller
                 $output .= "Dominio {$tenantId}.{$baseDomain} configurado.\n";
 
                 // Ejecutamos migraciones
+                // NOTA: Stancl/Tenancy ya ejecuta la creación de la DB automáticamente al crear el Tenant (evento TenantCreated).
+                // Sin embargo, hemos deshabilitado MigrateDatabase en el ServiceProvider para tener control manual aquí
+                // y poder especificar el path correcto de las migraciones del tenant.
+                
                 $tenant->run(function () use (&$output) {
                     $output .= "Iniciando migraciones...\n";
                     Artisan::call('migrate', [

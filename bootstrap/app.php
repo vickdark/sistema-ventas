@@ -12,8 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'permission' => \App\Http\Middleware\CheckPermission::class,
-            'central_domain' => \App\Http\Middleware\EnsureCentralDomain::class,
+            'permission' => \App\Http\Middleware\Tenant\CheckPermission::class,
+            'central_domain' => \App\Http\Middleware\Central\EnsureCentralDomain::class,
             'auth' => \App\Http\Middleware\Authenticate::class,
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
         ]);

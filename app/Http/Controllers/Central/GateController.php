@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Validation\ValidationException;
-use App\Models\CentralSetting;
+use App\Models\Central\CentralSetting;
 
 class GateController extends Controller
 {

@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\CentralSetting; // Asegúrate de que este modelo exista y sea correcto
+use App\Models\Central\CentralSetting; // Asegúrate de que este modelo exista y sea correcto
 
 class CentralGateKeySeeder extends Seeder
 {

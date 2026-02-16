@@ -4,10 +4,10 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use App\Models\Usuarios\Usuario;
+use App\Models\Tenant\Usuario;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Route; // Añadido
-use App\Models\CentralUser; // Añadido
+use App\Models\Central\CentralUser; // Añadido
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,11 +26,14 @@ class AppServiceProvider extends ServiceProvider
     {
         Paginator::useBootstrapFive();
 
-        Gate::before(function (Usuario $user, string $ability) {
+        Gate::before(function ($user, string $ability) {
             return $user->hasPermission($ability) ?: null;
         });
 
         // Vinculación explícita del modelo para CentralUser
         Route::model('user', CentralUser::class);
+        
+        // Vinculación explícita para Tenant
+        Route::model('tenant', \App\Models\Central\Tenant::class);
     }
 }

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Central\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\Auth\LoginRequest;
+use App\Http\Requests\Central\Auth\LoginRequest;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;

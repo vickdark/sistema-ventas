@@ -22,7 +22,7 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
         'web',
         InitializeTenancyByDomain::class,
         PreventAccessFromCentralDomains::class,
-        \App\Http\Middleware\CheckTenantPaymentStatus::class,
+        \App\Http\Middleware\Tenant\CheckTenantPaymentStatus::class,
     ])->group(function () {
     Route::get('payment-pending', function () {
         $tenant = tenant();
@@ -35,13 +35,13 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
         // Tenant Login/Auth
         require __DIR__.'/auth.php';
 
-        Route::middleware(['auth', \App\Http\Middleware\CheckPermission::class])->group(function () {
-            Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
-            Route::get('/dashboard/admin', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard.admin');
+        Route::middleware(['auth', \App\Http\Middleware\Tenant\CheckPermission::class])->group(function () {
+            Route::get('/dashboard', [\App\Http\Controllers\Tenant\DashboardController::class, 'index'])->name('dashboard');
+            Route::get('/dashboard/admin', [\App\Http\Controllers\Tenant\DashboardController::class, 'index'])->name('dashboard.admin');
             
             Route::resources([
-                'usuarios' => \App\Http\Controllers\Usuarios\UsuarioController::class,
-                'roles' => \App\Http\Controllers\Roles\RoleController::class,
+                'usuarios' => \App\Http\Controllers\Tenant\UsuarioController::class,
+                'roles' => \App\Http\Controllers\Tenant\RoleController::class,
                 'clients' => \App\Http\Controllers\Tenant\ClientController::class,
                 'products' => \App\Http\Controllers\Tenant\ProductController::class,
                 'categories' => \App\Http\Controllers\Tenant\CategoryController::class,
@@ -80,11 +80,11 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
             Route::post('configurations', [\App\Http\Controllers\Tenant\ConfigurationController::class, 'update'])->name('configurations.update');
 
             // Gestión de Roles y Seguridad (Rutas adicionales)
-            Route::get('roles/{role}/permisos', [\App\Http\Controllers\Roles\RoleController::class, 'permissions'])->name('roles.edit_permissions');
-            Route::put('roles/{role}/permisos', [\App\Http\Controllers\Roles\RoleController::class, 'updateRolePermissions'])->name('roles.update_permissions');
+            Route::get('roles/{role}/permisos', [\App\Http\Controllers\Tenant\RoleController::class, 'permissions'])->name('roles.edit_permissions');
+            Route::put('roles/{role}/permisos', [\App\Http\Controllers\Tenant\RoleController::class, 'updateRolePermissions'])->name('roles.update_permissions');
             
             // Gestión de Permisos (Sincronización)
-            Route::post('permissions/sync', [\App\Http\Controllers\Roles\PermissionController::class, 'sync'])->name('permissions.sync');
+            Route::post('permissions/sync', [\App\Http\Controllers\Tenant\PermissionController::class, 'sync'])->name('permissions.sync');
             
             // Notificaciones
             Route::get('notifications/low-stock', [\App\Http\Controllers\Tenant\NotificationController::class, 'getLowStockProducts'])->name('notifications.low-stock');

@@ -2,7 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WelcomeController;
-use App\Http\Middleware\EnsureCentralDomain;
+use App\Http\Middleware\Central\EnsureCentralDomain;
 
 // Entry point: central -> welcome, tenant -> login
 Route::get('/', function () {
