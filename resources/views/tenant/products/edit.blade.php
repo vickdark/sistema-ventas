@@ -2,6 +2,9 @@
 
 @section('content')
 <div class="container-fluid">
+    {{-- Configuración de Página para PageLoader.js --}}
+    <div id="products-edit-page"></div>
+
     <div class="row mb-4">
         <div class="col">
             <h1 class="h3 mb-0 text-gray-800">Editar Producto</h1>
@@ -163,21 +166,4 @@
     </div>
 </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    new TomSelect('#supplier_ids', {
-        plugins: ['remove_button'],
-        create: false,
-        placeholder: 'Selecciona uno o más proveedores...',
-        render: {
-            option: function(data, escape) {
-                return '<div><i class="fas fa-truck me-2 opacity-50"></i>' + escape(data.text) + '</div>';
-            },
-            item: function(data, escape) {
-                return '<div title="' + escape(data.text) + '"><i class="fas fa-truck me-2 opacity-50"></i>' + escape(data.text) + '</div>';
-            }
-        }
-    });
-});
-</script>
 @endsection

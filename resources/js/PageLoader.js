@@ -4,20 +4,8 @@
  * Elimina la necesidad de scripts inline en Blade.
  */
 
-// Importamos todas las funciones de inicialización
-import { initUsersIndex } from './pages/tenants/usuarios/index';
-import { initCategoriesIndex } from './pages/tenants/categories/index';
-import { initClientsIndex } from './pages/tenants/clients/index';
-import { initProductsIndex } from './pages/tenants/products/index';
-import { initPurchasesIndex } from './pages/tenants/purchases/index';
-import { initSuppliersIndex } from './pages/tenants/suppliers/index';
-import { initCashRegistersIndex } from './pages/tenants/cash_registers/index';
-import { initSalesIndex } from './pages/tenants/sales/index';
-import { initSalesPOS } from './pages/tenants/sales/pos';
-import { initAbonosIndex } from './pages/tenants/abonos/index';
-import { initAbonosCreate } from './pages/tenants/abonos/create';
-import { initReportsIndex } from './pages/tenants/reports/index';
-import { initRolesIndex } from './pages/tenants/roles/index';
+// Importamos todas las funciones de inicialización desde el índice consolidado
+import * as TenantPages from './pages/tenants/index';
 
 // Central Pages
 import { initUsersIndex as initCentralUsersIndex } from './pages/central/users/index';
@@ -26,24 +14,34 @@ import { initPaymentNotificationsIndex } from './pages/central/payment-notificat
 
 const loaders = {
     // Tenant Pages
-    '#users-index-page': initUsersIndex,
-    '#categories-index-page': initCategoriesIndex,
-    '#clients-index-page': initClientsIndex,
-    '#products-index-page': initProductsIndex,
-    '#purchases-index-page': initPurchasesIndex,
-    '#suppliers-index-page': initSuppliersIndex,
-    '#cash-registers-index-page': initCashRegistersIndex,
-    '#sales-index-page': initSalesIndex,
-    '#sales-pos-page': initSalesPOS,
-    '#abonos-index-page': initAbonosIndex,
-    '#abonos-create-page': initAbonosCreate,
-    '#reports-index-page': initReportsIndex,
-    '#roles-index-page': initRolesIndex,
+    '#forgot-password-page': TenantPages.initForgotPassword,
+    '#users-index-page': TenantPages.initUsersIndex,
+    '#categories-index-page': TenantPages.initCategoriesIndex,
+    '#categories-create-page': TenantPages.initCategoriesCreate,
+    '#clients-index-page': TenantPages.initClientsIndex,
+    '#clients-create-page': TenantPages.initClientsCreate,
+    '#import-index-page': TenantPages.initImportIndex,
+    '#products-index-page': TenantPages.initProductsIndex,
+    '#products-create-page': TenantPages.initProductsCreate,
+    '#products-edit-page': TenantPages.initProductsEdit,
+    '#purchases-index-page': TenantPages.initPurchasesIndex,
+    '#purchases-create-page': TenantPages.initPurchasesCreate,
+    '#suppliers-index-page': TenantPages.initSuppliersIndex,
+    '#suppliers-create-page': TenantPages.initSuppliersCreate,
+    '#cash-registers-index-page': TenantPages.initCashRegistersIndex,
+    '#sales-index-page': TenantPages.initSalesIndex,
+    '#sales-pos-page': TenantPages.initSalesPOS,
+    '#abonos-index-page': TenantPages.initAbonosIndex,
+    '#abonos-create-page': TenantPages.initAbonosCreate,
+    '#reports-index-page': TenantPages.initReportsIndex,
+    '#roles-index-page': TenantPages.initRolesIndex,
+    '#role-permissions-page': TenantPages.initRolePermissions,
 
     // Central Pages
-    '#central-users-index-page': initCentralUsersIndex,
-    '#central-tenants-index-page': initTenantsIndex,
-    '#central-payment-notifications-page': initPaymentNotificationsIndex
+    '#central-login-page': CentralPages.initCentralLogin,
+    '#central-users-index-page': CentralPages.initUsersIndex,
+    '#central-tenants-index-page': CentralPages.initTenantsIndex,
+    '#central-payment-notifications-page': CentralPages.initPaymentNotificationsIndex
 };
 
 export function initPageLoader() {

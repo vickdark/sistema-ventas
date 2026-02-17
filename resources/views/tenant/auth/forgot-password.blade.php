@@ -62,15 +62,4 @@
             </div>
         </div>
     </form>
-
-    <script>
-        document.getElementById('forgotPasswordForm').addEventListener('submit', function() {
-            const formActions = document.getElementById('formActions');
-            const loadingAlert = document.getElementById('loadingAlert');
-            
-            // Ocultar botones y mostrar alerta de carga
-            formActions.classList.add('d-none');
-            loadingAlert.classList.remove('d-none');
-        });
-    </script>
 @endsection
