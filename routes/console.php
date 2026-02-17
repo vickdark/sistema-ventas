@@ -9,5 +9,16 @@ Artisan::command('inspire', function () {
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('app:auto-close-cash-registers')->everyMinute();
-Schedule::command('tenants:suspend-expired')->dailyAt('00:01');
+Schedule::command('app:auto-close-cash-registers')
+    ->everyMinute()
+    ->withoutOverlapping();
+
+Schedule::command('tenants:suspend-expired')
+    ->dailyAt('00:01')
+    ->runInBackground()
+    ->withoutOverlapping();
+
+Schedule::command('permissions:sync --clean')
+    ->dailyAt('00:01')
+    ->runInBackground()
+    ->withoutOverlapping();

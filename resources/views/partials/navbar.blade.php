@@ -10,7 +10,25 @@
         </div>
     </div>
     <div class="app-topbar-actions">
-        @if(Route::has('notifications.low-stock'))
+        @php
+            // Lógica unificada para mostrar notificaciones:
+            // 1. Si es Tenant: verificamos ruta y permiso 'notifications.low-stock'
+            // 2. Si es Central: mostramos el icono (luego implementaremos la lógica específica)
+            
+            $showNotifications = false;
+
+            if (function_exists('tenant') && tenant()) {
+                // Estamos en Tenant
+                $showNotifications = Route::has('notifications.low-stock') && 
+                                     auth()->check() && 
+                                     auth()->user()->can('notifications.low-stock');
+            } else {
+                // Estamos en Central (mostrar icono por defecto para futuras implementaciones)
+                $showNotifications = auth('owner')->check(); 
+            }
+        @endphp
+
+        @if($showNotifications)
         <div class="dropdown me-3">
             <button class="btn btn-light position-relative border-0 shadow-sm rounded-circle" type="button" id="notificationBtn" data-bs-toggle="dropdown" aria-expanded="false" style="width: 40px; height: 40px;">
                 <i class="fa-regular fa-bell text-secondary"></i>
@@ -19,6 +37,7 @@
                 </span>
             </button>
             <div class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-2 p-0 overflow-hidden" aria-labelledby="notificationBtn" style="width: 320px;">
+                @if(function_exists('tenant') && tenant())
                 <div class="p-3 border-bottom bg-light">
                     <div class="d-flex align-items-center justify-content-between">
                         <h6 class="mb-0 fw-bold text-dark">Notificaciones</h6>
@@ -34,6 +53,20 @@
                 <div class="p-2 text-center border-top bg-light">
                     <a href="{{ route('products.index') }}" class="small text-decoration-none fw-bold text-primary">Ver todo el inventario</a>
                 </div>
+                @else
+                <!-- Contenido específico para Central -->
+                <div class="p-3 border-bottom bg-light">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <h6 class="mb-0 fw-bold text-dark">Notificaciones Central</h6>
+                    </div>
+                </div>
+                <div class="list-group list-group-flush" style="max-height: 300px; overflow-y: auto;">
+                    <div class="text-center py-5">
+                        <i class="fa-regular fa-bell-slash fa-2x text-muted mb-2 opacity-50"></i>
+                        <p class="text-muted small mb-0">No tienes notificaciones nuevas.</p>
+                    </div>
+                </div>
+                @endif
             </div>
         </div>
         @endif

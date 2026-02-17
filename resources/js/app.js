@@ -70,6 +70,11 @@ Alpine.start();
 
 document.addEventListener('DOMContentLoaded', () => {
     initSidebar();
-    new NavbarNotifications('/notifications/low-stock');
+    
+    // Solo inicializar si la ruta existe en la configuración del tenant
+    if (window.TenantConfig && window.TenantConfig.routes && window.TenantConfig.routes.low_stock) {
+        new NavbarNotifications(window.TenantConfig.routes.low_stock);
+    }
+    
     initPWA();
 });

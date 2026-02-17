@@ -30,7 +30,15 @@ export default class NavbarNotifications {
                 }
             });
             
-            if (!response.ok) return;
+            if (!response.ok) {
+                if (response.status === 403 || response.status === 401) {
+                    // Si no tiene permiso o sesión expiró, ocultar o mostrar mensaje discreto
+                    this.renderError('Sin acceso');
+                } else {
+                    this.renderError();
+                }
+                return;
+            }
 
             const data = await response.json();
             this.render(data);
@@ -88,11 +96,11 @@ export default class NavbarNotifications {
         this.list.innerHTML = html;
     }
     
-    renderError() {
+    renderError(msg = 'Error al cargar datos') {
         this.list.innerHTML = `
             <div class="text-center py-3 text-danger small">
                 <i class="fa-solid fa-triangle-exclamation mb-1"></i><br>
-                Error al cargar datos
+                ${msg}
             </div>
         `;
     }

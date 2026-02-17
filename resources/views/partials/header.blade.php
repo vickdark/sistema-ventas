@@ -20,7 +20,8 @@
                 'businessName' => $isTenant ? (tenant('business_name') ?? 'Sistema') : config('app.name'),
                 'isOfflineSupported' => $isTenant,
                 'routes' => [
-                    'sales_store' => $isTenant ? route('sales.store') : null
+                    'sales_store' => $isTenant ? route('sales.store') : null,
+                    'low_stock' => $isTenant && Route::has('notifications.low-stock') ? route('notifications.low-stock') : null
                 ],
                 'csrfToken' => csrf_token()
             ];
