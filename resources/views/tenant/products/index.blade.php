@@ -2,6 +2,9 @@
 
 @section('content')
 <div class="container-fluid">
+    {{-- Configuración de Página para PageLoader.js --}}
+    <div id="products-index-page" data-config='@json($config)'></div>
+
     <div class="row mb-4 align-items-center">
         <div class="col">
             <h1 class="h3 mb-0 text-gray-800">Productos</h1>
@@ -19,20 +22,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        initProductsIndex({
-            routes: {
-                index: "{{ route('products.index') }}",
-                show: "{{ route('products.show', ':id') }}",
-                edit: "{{ route('products.edit', ':id') }}",
-                destroy: "{{ route('products.destroy', ':id') }}"
-            },
-            tokens: {
-                csrf: "{{ csrf_token() }}"
-            }
-        });
-    });
-</script>
 @endsection

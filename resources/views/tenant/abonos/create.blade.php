@@ -2,6 +2,9 @@
 
 @section('content')
 <div class="container-fluid">
+    {{-- Configuración de Página para PageLoader.js --}}
+    <div id="abonos-create-page" data-config='@json($pageConfig)'></div>
+
     <div class="row mb-4 align-items-center">
         <div class="col">
             <h1 class="h3 mb-0 text-gray-800">Registrar Abono</h1>
@@ -134,21 +137,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        initAbonosCreate({
-            routes: {
-                store: "{{ route('abonos.store') }}",
-                index: "{{ route('abonos.index') }}",
-                pendingSales: "{{ route('abonos.pending-sales', ':id') }}",
-                summary: "{{ route('abonos.debt-summary', ':id') }}",
-                history: "{{ route('abonos.client-history', ':id') }}"
-            },
-            tokens: {
-                csrf: "{{ csrf_token() }}"
-            }
-        });
-    });
-</script>
 @endsection

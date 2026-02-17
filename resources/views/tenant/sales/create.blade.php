@@ -5,6 +5,9 @@
     @vite(['resources/css/pages/pos.css'])
 @endpush
 
+{{-- Configuración de Página para PageLoader.js --}}
+<div id="sales-pos-page" data-config='@json($posConfig)'></div>
+
 <div class="container-fluid p-0 pos-container">
     <div class="row h-100 g-0 position-relative">
         <!-- Dashboard de Ventas (Izquierda) -->
@@ -55,10 +58,9 @@
                                         @if($product->image)
                                             <img src="{{ asset('storage/' . $product->image) }}" alt="{{ $product->name }}" class="product-img-pos">
                                         @else
-                                            <i class="fas fa-box fa-3x text-slate-200" style="color: #e2e8f0;"> z-index: 1;"></i>
+                                            <i class="fas fa-box fa-3x text-slate-200" style="color: #e2e8f0; z-index: 1;"></i>
                                         @endif
-                                        <span class="stock-badge {{ $product->stock < 10 ? 'bg-danger bg-opacity-10 text-danger' : 'bg-emerald-50 text-emerald-600' }}" 
-                                              style="{{ $product->stock >= 10 ? 'background: #ecfdf5; color: #059669;' : '' }}; z-index: 2;">
+                                        <span class="stock-badge {{ $product->stock < 10 ? 'bg-danger bg-opacity-10 text-danger' : 'bg-emerald-50 text-emerald-600' }}">
                                             {{ $product->stock }} disp.
                                         </span>
                                     </div>
@@ -267,29 +269,4 @@
         </div>
     </div>
 </template>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Estilos específicos para el POS
-        document.body.classList.add('pos-page');
-
-        // Minimizar sidebar automáticamente para el POS
-        if (window.innerWidth > 991) {
-            document.body.classList.add('sidebar-mini');
-        }
-
-        if (typeof initSalesPOS === 'function') {
-            initSalesPOS({
-                routes: {
-                    store: "{{ route('sales.store') }}",
-                    index: "{{ route('sales.index') }}",
-                    clients_store: "{{ route('clients.store') }}"
-                },
-                tokens: {
-                    csrf: "{{ csrf_token() }}"
-                }
-            });
-        }
-    });
-</script>
 @endsection

@@ -75,7 +75,15 @@ class CashRegisterController extends Controller
         }
 
         $config = Configuration::firstOrCreate(['id' => 1]);
-        return view('tenant.cash_registers.index', compact('currentRegister', 'openRegisters', 'config'));
+        
+        $pageConfig = [
+            'routes' => [
+                'index' => route('cash-registers.index'),
+                'show' => route('cash-registers.show', ':id')
+            ]
+        ];
+
+        return view('tenant.cash_registers.index', compact('currentRegister', 'openRegisters', 'config', 'pageConfig'));
     }
 
     public function create()

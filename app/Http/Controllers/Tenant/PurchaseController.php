@@ -51,7 +51,17 @@ class PurchaseController extends Controller
                 'status' => 'success'
             ]);
         }
-        return view('tenant.purchases.index');
+        
+        $config = [
+            'routes' => [
+                'index' => route('purchases.index'),
+                'show' => route('purchases.show', ':id'),
+                'edit' => route('purchases.edit', ':id'),
+                'destroy' => route('purchases.destroy', ':id')
+            ]
+        ];
+
+        return view('tenant.purchases.index', compact('config'));
     }
 
     /**

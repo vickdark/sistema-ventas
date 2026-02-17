@@ -10,35 +10,21 @@ import Chart from 'chart.js/auto';
 
 // Import Modules
 import DataGrid from './modules/DataGrid';
-import { initSidebar } from './modules/sidebar';
 import Notifications from './modules/Notifications';
-import NavbarNotifications from './components/NavbarNotifications';
+import { initUI } from './initUI';
+import { initPageLoader } from './PageLoader';
 
-// Import Pages
-import { initUsersIndex } from './pages/tenants/usuarios/index';
-import { initUsersIndex as initCentralUsersIndex } from './pages/central/users/index';
-import { initTenantsIndex } from './pages/central/tenants/index';
-import { initPaymentNotificationsIndex } from './pages/central/payment-notifications/index';
-import { initCategoriesIndex } from './pages/tenants/categories/index';
-import { initClientsIndex } from './pages/tenants/clients/index';
-import { initProductsIndex } from './pages/tenants/products/index';
-import { initPurchasesIndex } from './pages/tenants/purchases/index';
-import { initSuppliersIndex } from './pages/tenants/suppliers/index';
-import { initCashRegistersIndex } from './pages/tenants/cash_registers/index';
-import { initSalesIndex } from './pages/tenants/sales/index';
-import { initSalesPOS } from './pages/tenants/sales/pos';
-import { initAbonosIndex } from './pages/tenants/abonos/index';
-import { initAbonosCreate } from './pages/tenants/abonos/create';
-import { initReportsIndex } from './pages/tenants/reports/index';
-import { initPWA } from './pwa-handler';
-
-//Opciones de expotacion para Grid JS 
+// Opciones de exportación para Grid JS 
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import * as XLSX from 'xlsx';
 
 
-// Global Assignments
+// ==========================================
+// GLOBAL ASSIGNMENTS
+// ==========================================
+
+// Libraries
 window.Alpine = Alpine;
 window.TomSelect = TomSelect;
 window.Gridjs = { Grid, html };
@@ -47,34 +33,12 @@ window.Chart = Chart;
 window.jsPDF = jsPDF;
 window.autoTable = autoTable;
 window.XLSX = XLSX;
+
+// Modules
 window.DataGrid = DataGrid;
 window.Notify = Notifications;
-window.initUsersIndex = initUsersIndex;
-window.initCentralUsersIndex = initCentralUsersIndex;
-window.initTenantsIndex = initTenantsIndex;
-window.initPaymentNotificationsIndex = initPaymentNotificationsIndex;
-window.initCategoriesIndex = initCategoriesIndex;
-window.initClientsIndex = initClientsIndex;
-window.initProductsIndex = initProductsIndex;
-window.initPurchasesIndex = initPurchasesIndex;
-window.initSuppliersIndex = initSuppliersIndex;
-window.initCashRegistersIndex = initCashRegistersIndex;
-window.initSalesIndex = initSalesIndex;
-window.initSalesPOS = initSalesPOS;
-window.initAbonosIndex = initAbonosIndex;
-window.initAbonosCreate = initAbonosCreate;
-window.initReportsIndex = initReportsIndex;
 
 // Initialize
 Alpine.start();
-
-document.addEventListener('DOMContentLoaded', () => {
-    initSidebar();
-    
-    // Solo inicializar si la ruta existe en la configuración del tenant
-    if (window.TenantConfig && window.TenantConfig.routes && window.TenantConfig.routes.low_stock) {
-        new NavbarNotifications(window.TenantConfig.routes.low_stock);
-    }
-    
-    initPWA();
-});
+initUI();
+initPageLoader(); // Inicialización automática de páginas

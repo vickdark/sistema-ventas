@@ -2,6 +2,9 @@
 
 @section('content')
 <div class="container-fluid">
+    {{-- Configuración de Página para PageLoader.js --}}
+    <div id="clients-index-page" data-config='@json($config)'></div>
+
     <div class="row mb-4 align-items-center">
         <div class="col">
             <h1 class="h3 mb-0 text-gray-800">Clientes</h1>
@@ -19,19 +22,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        initClientsIndex({
-            routes: {
-                index: "{{ route('clients.index') }}",
-                edit: "{{ route('clients.edit', ':id') }}",
-                destroy: "{{ route('clients.destroy', ':id') }}"
-            },
-            tokens: {
-                csrf: "{{ csrf_token() }}"
-            }
-        });
-    });
-</script>
 @endsection

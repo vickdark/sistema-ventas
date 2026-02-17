@@ -24,10 +24,17 @@ body.pos-page .app-main {
 body.pos-page .app-content {
     padding: 0 !important;
     margin: 0 !important;
-    height: calc(100vh - 100px) !important; 
+    height: calc(100vh - 100px) !important;
     overflow: hidden !important;
     display: flex !important;
     flex-direction: column !important;
+}
+
+body.pos-page .app-main .app-content {
+    padding-top: 0 !important;
+}
+body.pos-page .app-main .navbar {
+    margin-bottom: 0 !important;
 }
 
 @media (max-width: 991px) {
@@ -229,6 +236,7 @@ body.pos-page .app-footer {
     border-radius: 8px;
     font-size: 0.75rem;
     font-weight: 700;
+    z-index: 2;
 }
 
 /* Panel Derecho (Carrito) */

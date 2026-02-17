@@ -41,7 +41,16 @@ class CategoryController extends Controller
                 'status' => 'success'
             ]);
         }
-        return view('tenant.categories.index');
+        
+        $config = [
+            'routes' => [
+                'index' => route('categories.index'),
+                'edit' => route('categories.edit', ':id'),
+                'destroy' => route('categories.destroy', ':id')
+            ]
+        ];
+
+        return view('tenant.categories.index', compact('config'));
     }
 
     /**

@@ -47,7 +47,16 @@ class UsuarioController extends Controller
                 'status' => 'success'
             ]);
         }
-        return view('tenant.usuarios.index');
+        
+        $config = [
+            'routes' => [
+                'index' => route('usuarios.index'),
+                'edit' => route('usuarios.edit', ':id'),
+                'destroy' => route('usuarios.destroy', ':id')
+            ]
+        ];
+        
+        return view('tenant.usuarios.index', compact('config'));
     }
 
     /**

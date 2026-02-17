@@ -46,7 +46,17 @@ class SaleController extends Controller
                 'status' => 'success'
             ]);
         }
-        return view('tenant.sales.index');
+        
+        $config = [
+            'routes' => [
+                'index' => route('sales.index'),
+                'show' => route('sales.show', ':id'),
+                'ticket' => route('sales.ticket', ':id'),
+                'destroy' => route('sales.destroy', ':id')
+            ]
+        ];
+
+        return view('tenant.sales.index', compact('config'));
     }
 
     public function create()
@@ -62,8 +72,16 @@ class SaleController extends Controller
         $products = Product::with('category')->where('stock', '>', 0)->get();
         $lastSale = Sale::latest()->first();
         $nextNroVenta = $lastSale ? (int)$lastSale->nro_venta + 1 : 1;
+        
+        $posConfig = [
+            'routes' => [
+                'store' => route('sales.store'),
+                'index' => route('sales.index'),
+                'clients_store' => route('clients.store')
+            ]
+        ];
 
-        return view('tenant.sales.create', compact('clients', 'products', 'nextNroVenta'));
+        return view('tenant.sales.create', compact('clients', 'products', 'nextNroVenta', 'posConfig'));
     }
 
     public function store(Request $request)

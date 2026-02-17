@@ -46,7 +46,17 @@ class ProductController extends Controller
                 'status' => 'success'
             ]);
         }
-        return view('tenant.products.index');
+        
+        $config = [
+            'routes' => [
+                'index' => route('products.index'),
+                'show' => route('products.show', ':id'),
+                'edit' => route('products.edit', ':id'),
+                'destroy' => route('products.destroy', ':id')
+            ]
+        ];
+
+        return view('tenant.products.index', compact('config'));
     }
 
     /**

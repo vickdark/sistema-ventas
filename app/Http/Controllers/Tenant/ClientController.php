@@ -42,7 +42,16 @@ class ClientController extends Controller
                 'status' => 'success'
             ]);
         }
-        return view('tenant.clients.index');
+        
+        $config = [
+            'routes' => [
+                'index' => route('clients.index'),
+                'edit' => route('clients.edit', ':id'),
+                'destroy' => route('clients.destroy', ':id')
+            ]
+        ];
+
+        return view('tenant.clients.index', compact('config'));
     }
 
     /**

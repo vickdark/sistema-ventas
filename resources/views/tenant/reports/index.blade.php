@@ -2,6 +2,25 @@
 
 @section('content')
 <div class="container-fluid py-4 report-facelift">
+    {{-- Configuración de Página para PageLoader.js --}}
+    <div id="reports-index-page" data-config='@json([
+        "ventasSemana" => $ventasSemana,
+        "topProductos" => $topProductos,
+        "datosCaja" => $datosCaja,
+        "catProductos" => $catProductos,
+        "balanceMensual" => $balanceMensual,
+        "metodosPago" => $metodosPago,
+        "efectivoVsTransferencia" => $efectivoVsTransferencia,
+        "stats" => [
+            "ingresoDiario" => $stats['ingresoDiario'],
+            "ingresoMensual" => $stats['ingresoMensual'],
+            "ingresoAnual" => $stats['ingresoAnual'],
+            "deudaTotalClientes" => $stats['deudaTotalClientes'],
+            "cantidadCreditosPendientes" => $stats['cantidadCreditosPendientes'],
+            "valorInventario" => $stats['valorInventario']
+        ]
+    ])'></div>
+
     <div class="row mb-5 align-items-center">
         <div class="col-sm-6">
             <h1 class="h2 fw-bold text-dark mb-1">Análisis de Negocio</h1>
@@ -26,7 +45,7 @@
                 <div class="card-body p-3 position-relative overflow-hidden">
                     <div class="z-1 position-relative">
                         <div class="stat-label">HOY</div>
-                        <div class="stat-value-sm">$ {{ number_format($ingresoDiario, 0) }}</div>
+                        <div class="stat-value-sm">$ {{ number_format($stats['ingresoDiario'], 0) }}</div>
                     </div>
                     <i class="fas fa-calendar-day icon-bg-sm"></i>
                 </div>
@@ -39,7 +58,7 @@
                 <div class="card-body p-3 position-relative overflow-hidden">
                     <div class="z-1 position-relative">
                         <div class="stat-label">MES</div>
-                        <div class="stat-value-sm">$ {{ number_format($ingresoMensual, 0) }}</div>
+                        <div class="stat-value-sm">$ {{ number_format($stats['ingresoMensual'], 0) }}</div>
                     </div>
                     <i class="fas fa-calendar-alt icon-bg-sm"></i>
                 </div>
@@ -52,7 +71,7 @@
                 <div class="card-body p-3 position-relative overflow-hidden">
                     <div class="z-1 position-relative">
                         <div class="stat-label">AÑO</div>
-                        <div class="stat-value-sm">$ {{ number_format($ingresoAnual, 0) }}</div>
+                        <div class="stat-value-sm">$ {{ number_format($stats['ingresoAnual'], 0) }}</div>
                     </div>
                     <i class="fas fa-chart-line icon-bg-sm"></i>
                 </div>
@@ -65,7 +84,7 @@
                 <div class="card-body p-3 position-relative overflow-hidden">
                     <div class="z-1 position-relative">
                         <div class="stat-label">CARTERA</div>
-                        <div class="stat-value-sm">$ {{ number_format($deudaTotalClientes, 0) }}</div>
+                        <div class="stat-value-sm">$ {{ number_format($stats['deudaTotalClientes'], 0) }}</div>
                     </div>
                     <i class="fas fa-wallet icon-bg-sm"></i>
                 </div>
@@ -78,7 +97,7 @@
                 <div class="card-body p-3 position-relative overflow-hidden">
                     <div class="z-1 position-relative">
                         <div class="stat-label">PENDIENTES</div>
-                        <div class="stat-value-sm">{{ $cantidadCreditosPendientes }} <small class="opacity-75" style="font-size: 0.6rem;">DOCS</small></div>
+                        <div class="stat-value-sm">{{ $stats['cantidadCreditosPendientes'] }} <small class="opacity-75" style="font-size: 0.6rem;">DOCS</small></div>
                     </div>
                     <i class="fas fa-file-invoice icon-bg-sm"></i>
                 </div>
@@ -91,7 +110,7 @@
                 <div class="card-body p-3 position-relative overflow-hidden">
                     <div class="z-1 position-relative">
                         <div class="stat-label">INVENTARIO</div>
-                        <div class="stat-value-sm">$ {{ number_format($valorInventario, 0) }}</div>
+                        <div class="stat-value-sm">$ {{ number_format($stats['valorInventario'], 0) }}</div>
                     </div>
                     <i class="fas fa-warehouse icon-bg-sm"></i>
                 </div>
@@ -228,41 +247,6 @@
         </div>
     </div>
 </div>
-
-<div id="reports-data" 
-    data-ventas-semana="{{ json_encode($ventasSemana) }}"
-    data-top-productos="{{ json_encode($topProductos) }}"
-    data-datos-caja="{{ json_encode($datosCaja) }}"
-    data-cat-productos="{{ json_encode($catProductos) }}"
-    data-balance-mensual="{{ json_encode($balanceMensual) }}"
-    data-metodos-pago="{{ json_encode($metodosPago) }}"
-    data-efectivo-transferencia="{{ json_encode($efectivoVsTransferencia) }}"
-    style="display: none;">
-</div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const reportsData = document.getElementById('reports-data');
-        
-        initReportsIndex({
-            ventasSemana: JSON.parse(reportsData.getAttribute('data-ventas-semana')),
-            topProductos: JSON.parse(reportsData.getAttribute('data-top-productos')),
-            datosCaja: JSON.parse(reportsData.getAttribute('data-datos-caja')),
-            catProductos: JSON.parse(reportsData.getAttribute('data-cat-productos')),
-            balanceMensual: JSON.parse(reportsData.getAttribute('data-balance-mensual')),
-            metodosPago: JSON.parse(reportsData.getAttribute('data-metodos-pago')),
-            efectivoVsTransferencia: JSON.parse(reportsData.getAttribute('data-efectivo-transferencia')),
-            stats: {
-                ingresoDiario: "{{ $stats['ingresoDiario'] }}",
-                ingresoMensual: "{{ $stats['ingresoMensual'] }}",
-                ingresoAnual: "{{ $stats['ingresoAnual'] }}",
-                deudaTotalClientes: "{{ $stats['deudaTotalClientes'] }}",
-                cantidadCreditosPendientes: "{{ $stats['cantidadCreditosPendientes'] }}",
-                valorInventario: "{{ $stats['valorInventario'] }}"
-            }
-        });
-    });
-</script>
 
 <style>
     .ls-1 { letter-spacing: 0.05em; }

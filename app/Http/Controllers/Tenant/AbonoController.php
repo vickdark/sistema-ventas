@@ -40,7 +40,15 @@ class AbonoController extends Controller
             ]);
         }
 
-        return view('tenant.abonos.index');
+        $config = [
+            'routes' => [
+                'index' => route('abonos.index'),
+                'create' => route('abonos.create'),
+                'destroy' => route('abonos.destroy', ':id')
+            ]
+        ];
+
+        return view('tenant.abonos.index', compact('config'));
     }
 
     private function getDebtors(Request $request)
@@ -91,7 +99,17 @@ class AbonoController extends Controller
             $q->where('payment_status', 'PENDIENTE');
         })->get();
 
-        return view('tenant.abonos.create', compact('clients'));
+        $pageConfig = [
+            'routes' => [
+                'store' => route('abonos.store'),
+                'index' => route('abonos.index'),
+                'pendingSales' => route('abonos.pending-sales', ':id'),
+                'summary' => route('abonos.debt-summary', ':id'),
+                'history' => route('abonos.client-history', ':id')
+            ]
+        ];
+
+        return view('tenant.abonos.create', compact('clients', 'pageConfig'));
     }
 
     /**

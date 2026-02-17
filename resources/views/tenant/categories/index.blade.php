@@ -2,6 +2,9 @@
 
 @section('content')
 <div class="container-fluid">
+    {{-- Configuración de Página para PageLoader.js --}}
+    <div id="categories-index-page" data-config='@json($config)'></div>
+
     <div class="row mb-4 align-items-center">
         <div class="col">
             <h1 class="h3 mb-0 text-gray-800">Categorías</h1>
@@ -19,19 +22,4 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        initCategoriesIndex({
-            routes: {
-                index: "{{ route('categories.index') }}",
-                edit: "{{ route('categories.edit', ':id') }}",
-                destroy: "{{ route('categories.destroy', ':id') }}"
-            },
-            tokens: {
-                csrf: "{{ csrf_token() }}"
-            }
-        });
-    });
-</script>
 @endsection

@@ -3,6 +3,11 @@ export default class DataGrid {
         this.elementId = elementId;
         this.instance = null;
 
+        if (!options.url) {
+            console.error('DataGrid: La URL del servidor es obligatoria para el modo server-side.');
+            return;
+        }
+
         // Inyectar automáticamente data-label en las columnas para el modo responsivo
         if (options.columns) {
             options.columns = options.columns.map(col => {
@@ -46,7 +51,8 @@ export default class DataGrid {
             },
             resizable: true,
             sort: true,
-            pagination: options.url ? {
+            // Configuración OBLIGATORIA de Server-Side Pagination
+            pagination: {
                 limit: options.limit || 10,
                 server: {
                     url: (prev, page, limit) => {
@@ -56,8 +62,9 @@ export default class DataGrid {
                         return url.toString();
                     }
                 }
-            } : { limit: options.limit || 10 },
-            search: options.url ? {
+            },
+            // Configuración OBLIGATORIA de Server-Side Search
+            search: {
                 server: {
                     url: (prev, keyword) => {
                         if (!keyword) return prev;
@@ -66,8 +73,9 @@ export default class DataGrid {
                         return url.toString();
                     }
                 }
-            } : true,
-            server: options.url ? {
+            },
+            // Configuración del Servidor
+            server: {
                 url: options.url,
                 headers: {
                     'Accept': 'application/json',
@@ -88,7 +96,7 @@ export default class DataGrid {
                         return { data: [], total: 0 };
                     });
                 }
-            } : null,
+            },
             ...options
         };
     }
@@ -133,12 +141,8 @@ export default class DataGrid {
     }
 
     async getExportData() {
-        if (this.options.server) {
-            // Si es server-side, intentamos obtener todos los datos sin paginación si es posible
-            // O usamos los datos que tenemos cargados actualmente
-            return this.lastData || [];
-        }
-        return this.options.data || [];
+        // En modo server-side, intentamos obtener todos los datos (o los actuales cargados)
+        return this.lastData || [];
     }
 
     async exportPDF() {
@@ -148,18 +152,12 @@ export default class DataGrid {
         
         const rows = data.map(item => {
             return columns.map(col => {
-                // Si la columna es un objeto con id o data, lo usamos. Si no, usamos el nombre en minúsculas
                 const key = (typeof col === 'object') ? (col.id || col.data || col.name.toLowerCase()) : col.toLowerCase();
-                
-                // Intentamos obtener el valor por la clave identificada
                 let value = item[key];
-                
-                // Si no hay valor, probamos con el nombre de la columna tal cual (case sensitive)
                 if (value === undefined || value === null) {
                     const nameKey = (typeof col === 'object') ? col.name : col;
                     value = item[nameKey];
                 }
-
                 return value !== undefined && value !== null ? value : '';
             });
         });
@@ -167,22 +165,18 @@ export default class DataGrid {
         const doc = new window.jsPDF();
         doc.text("Reporte de " + (document.title || 'Datos'), 14, 15);
         
+        const autoTableConfig = {
+            head: [columnNames],
+            body: rows,
+            startY: 20,
+            theme: 'grid',
+            headStyles: { fillStyle: [78, 115, 223] }
+        };
+
         if (typeof doc.autoTable !== 'function' && typeof window.autoTable === 'function') {
-            window.autoTable(doc, {
-                head: [columnNames],
-                body: rows,
-                startY: 20,
-                theme: 'grid',
-                headStyles: { fillStyle: [78, 115, 223] }
-            });
+            window.autoTable(doc, autoTableConfig);
         } else if (typeof doc.autoTable === 'function') {
-            doc.autoTable({
-                head: [columnNames],
-                body: rows,
-                startY: 20,
-                theme: 'grid',
-                headStyles: { fillStyle: [78, 115, 223] }
-            });
+            doc.autoTable(autoTableConfig);
         } else {
             console.error('autoTable is not available');
         }
@@ -193,8 +187,7 @@ export default class DataGrid {
     async exportExcel() {
         const data = await this.getExportData();
         const columns = this.options.columns.filter(col => typeof col === 'string' || (col.name && col.name !== 'Acciones'));
-        const columnNames = columns.map(col => typeof col === 'string' ? col : col.name);
-
+        
         const rows = data.map(item => {
             const row = {};
             columns.forEach(col => {

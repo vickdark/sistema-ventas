@@ -8,6 +8,14 @@ import 'swiper/css/pagination';
 import 'swiper/css/grid';
 
 export function initSalesPOS(config) {
+    // Estilos específicos para el POS
+    document.body.classList.add('pos-page');
+
+    // Minimizar sidebar automáticamente para el POS
+    if (window.innerWidth > 991) {
+        document.body.classList.add('sidebar-mini');
+    }
+
     const { routes, tokens } = config;
     let cart = [];
     let saleTotal = 0;
@@ -50,6 +58,7 @@ export function initSalesPOS(config) {
     
     // Initialize Swiper
     let productSwiper = null;
+    let originalSlides = [];
 
     const initSwiper = () => {
         if (productSwiper) {
@@ -83,28 +92,35 @@ export function initSalesPOS(config) {
         });
     };
 
+    // Store original slides
+    if (productsGrid) {
+        originalSlides = Array.from(productsGrid.querySelectorAll('.swiper-slide'));
+    }
+
     // Search Logic
     const filterProducts = () => {
         const query = productSearch.value.toLowerCase();
         const activeCategory = document.querySelector('.category-btn.active')?.textContent.trim().toLowerCase();
 
-        document.querySelectorAll('.product-item').forEach(item => {
-            const name = item.dataset.name;
-            const code = item.dataset.code;
-            const category = item.dataset.category || '';
+        // Clear the grid
+        productsGrid.innerHTML = '';
+
+        // Filter and append matching slides
+        originalSlides.forEach(slide => {
+            const name = slide.dataset.name.toLowerCase();
+            const code = slide.dataset.code.toLowerCase();
+            const category = (slide.dataset.category || '').toLowerCase();
             
             const matchesSearch = name.includes(query) || code.includes(query);
             const matchesCategory = activeCategory === 'todos los productos' || category === activeCategory;
 
             if (matchesSearch && matchesCategory) {
-                item.style.display = 'block'; // Swiper needs display block/flex
-                item.classList.remove('d-none');
-            } else {
-                item.style.display = 'none';
-                item.classList.add('d-none');
+                productsGrid.appendChild(slide);
             }
         });
         
+        // Re-initialize Swiper
+        initSwiper();
         if (productSwiper) {
             productSwiper.update();
             productSwiper.slideTo(0);

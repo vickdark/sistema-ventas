@@ -42,7 +42,16 @@ class SupplierController extends Controller
                 'status' => 'success'
             ]);
         }
-        return view('tenant.suppliers.index');
+        
+        $config = [
+            'routes' => [
+                'index' => route('suppliers.index'),
+                'edit' => route('suppliers.edit', ':id'),
+                'destroy' => route('suppliers.destroy', ':id')
+            ]
+        ];
+
+        return view('tenant.suppliers.index', compact('config'));
     }
 
     /**
