@@ -13,10 +13,37 @@ class RoleController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $roles = Role::withCount('users')->get();
-        return view('tenant.roles.index', compact('roles'));
+        if ($request->ajax() || $request->wantsJson()) {
+            $roles = Role::withCount('users')->get();
+            return response()->json([
+                'data' => $roles,
+                'status' => 'success'
+            ]);
+        }
+
+        $config = [
+            'routes' => [
+                'index' => route('roles.index'),
+                'create' => route('roles.create'),
+                'edit' => route('roles.edit', ':id'),
+                'destroy' => route('roles.destroy', ':id'),
+                'permissions' => route('roles.edit_permissions', ':id'),
+                'sync' => route('permissions.sync'),
+            ],
+            'permissions' => [
+                'canCreate' => auth()->user()->hasPermission('roles.create'),
+                'canEdit' => auth()->user()->hasPermission('roles.edit'),
+                'canDestroy' => auth()->user()->hasPermission('roles.destroy'),
+                'canSync' => auth()->user()->hasPermission('permissions.sync'),
+            ],
+            'tokens' => [
+                'csrf' => csrf_token()
+            ]
+        ];
+
+        return view('tenant.roles.index', compact('config'));
     }
 
     /**

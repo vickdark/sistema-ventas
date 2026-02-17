@@ -2,6 +2,9 @@
 
 @section('content')
 <div class="container-fluid">
+    {{-- Configuración de Página para PageLoader.js --}}
+    <div id="central-users-index-page" data-config='@json($config)'></div>
+
     <div class="row mb-4 align-items-center">
         <div class="col">
             <h1 class="h3 mb-0 text-gray-800">{{ __('Gestión de Usuarios Centrales') }}</h1>
@@ -28,50 +31,10 @@
                 <div class="card border-0 shadow-soft rounded-4 overflow-hidden mb-4">
 
                     <div class="card-body p-4">
-                        <div id="users-grid"></div>
+                        <div id="wrapper"></div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            if (window.initCentralUsersIndex) {
-                window.initCentralUsersIndex('users-grid', {
-                    routes: {
-                        index: "{{ route('central.users.index') }}",
-                        create: "{{ route('central.users.create') }}",
-                        edit: "{{ route('central.users.edit', ['user' => ':id']) }}",
-                        destroy: "{{ route('central.users.destroy', ['user' => ':id']) }}",
-                        resendVerification: "{{ route('central.users.resend-verification') }}"
-                    },
-                    tokens: {
-                        csrf: "{{ csrf_token() }}"
-                    }
-                });
-            }
-        });
-    </script>
 @endsection
-
-<style>
-    .hover-lift:hover {
-        transform: translateY(-2px);
-    }
-    .shadow-soft {
-        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05) !important;
-    }
-    .x-small {
-        font-size: 0.75rem;
-    }
-    /* Alinear encabezados de Grid.js */
-    .gridjs-th:nth-last-child(1), 
-    .gridjs-th:nth-last-child(2) {
-        text-align: center !important;
-    }
-    .gridjs-td:nth-last-child(1),
-    .gridjs-td:nth-last-child(2) {
-        text-align: center !important;
-    }
-</style>

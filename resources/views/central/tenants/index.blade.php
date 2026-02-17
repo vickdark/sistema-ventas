@@ -2,6 +2,9 @@
 
 @section('content')
 <div class="container-fluid">
+    {{-- Configuración de Página para PageLoader.js --}}
+    <div id="central-tenants-index-page" data-config='@json($config)'></div>
+
     <div class="row mb-4 align-items-center">
         <div class="col">
             <h1 class="h3 mb-0 text-gray-800">Administración de Empresas</h1>
@@ -16,29 +19,10 @@
 
     <div class="card border-0 shadow-soft rounded-4 overflow-hidden">
         <div class="card-body p-4">
-            <div id="tenants-grid"></div>
+            <div id="wrapper"></div>
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (window.initTenantsIndex) {
-            window.initTenantsIndex({
-                routes: {
-                    index: "{{ route('central.tenants.index') }}",
-                    edit: "{{ route('central.tenants.edit', ':id') }}",
-                    destroy: "{{ route('central.tenants.destroy', ':id') }}",
-                    markPaid: "{{ route('central.tenants.mark-as-paid', ':id') }}"
-                },
-                db_prefix: "{{ config('database.connections.central.database') }}_",
-                tokens: {
-                    csrf: "{{ csrf_token() }}"
-                }
-            });
-        }
-    });
-</script>
 
 <style>
     .hover-lift:hover {

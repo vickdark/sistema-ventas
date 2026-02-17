@@ -16,13 +16,49 @@ class CentralUserController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->expectsJson()) {
-            $users = CentralUser::all();
-            return response()->json(['data' => $users]);
+        if ($request->ajax() || $request->wantsJson()) {
+            $query = CentralUser::query();
+
+            // Grid.js parameters
+            $limit = $request->get('limit', 10);
+            $offset = $request->get('offset', 0);
+            $search = $request->get('search');
+
+            if ($search) {
+                $query->where(function($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%");
+                });
+            }
+
+            $total = $query->count();
+            
+            $users = $query->orderBy('id', 'desc')
+                           ->offset($offset)
+                           ->limit($limit)
+                           ->get();
+
+            return response()->json([
+                'data' => $users,
+                'total' => (int) $total,
+                'status' => 'success'
+            ]);
         }
 
-        $users = CentralUser::all();
-        return view('central.users.index', compact('users'));
+        $config = [
+            'routes' => [
+                'index' => route('central.users.index'),
+                'create' => route('central.users.create'),
+                'edit' => route('central.users.edit', ':id'),
+                'destroy' => route('central.users.destroy', ':id'),
+                'resendVerification' => route('central.users.resend-verification')
+            ],
+            'tokens' => [
+                'csrf' => csrf_token()
+            ]
+        ];
+
+        return view('central.users.index', compact('config'));
     }
 
     /**

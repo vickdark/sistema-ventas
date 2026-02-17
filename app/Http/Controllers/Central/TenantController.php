@@ -40,7 +40,21 @@ class TenantController extends Controller
                 'status' => 'success'
             ]);
         }
-        return view('central.tenants.index');
+        
+        $config = [
+            'routes' => [
+                'index' => route('central.tenants.index'),
+                'edit' => route('central.tenants.edit', ':id'),
+                'destroy' => route('central.tenants.destroy', ':id'),
+                'markPaid' => route('central.tenants.mark-as-paid', ':id')
+            ],
+            'db_prefix' => config('database.connections.central.database') . '_',
+            'tokens' => [
+                'csrf' => csrf_token()
+            ]
+        ];
+
+        return view('central.tenants.index', compact('config'));
     }
 
     public function checkId(Request $request)

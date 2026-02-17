@@ -71,7 +71,16 @@ class PaymentNotificationController extends Controller
             ]);
         }
 
-        return view('central.payment-notifications.index');
+        $config = [
+            'routes' => [
+                'index' => route('central.payment-notifications.index')
+            ],
+            'tokens' => [
+                'csrf' => csrf_token()
+            ]
+        ];
+
+        return view('central.payment-notifications.index', compact('config'));
     }
 
     public function show(CentralPaymentNotification $notification)

@@ -17,6 +17,7 @@ import { initSalesPOS } from './pages/tenants/sales/pos';
 import { initAbonosIndex } from './pages/tenants/abonos/index';
 import { initAbonosCreate } from './pages/tenants/abonos/create';
 import { initReportsIndex } from './pages/tenants/reports/index';
+import { initRolesIndex } from './pages/tenants/roles/index';
 
 // Central Pages
 import { initUsersIndex as initCentralUsersIndex } from './pages/central/users/index';
@@ -37,6 +38,7 @@ const loaders = {
     '#abonos-index-page': initAbonosIndex,
     '#abonos-create-page': initAbonosCreate,
     '#reports-index-page': initReportsIndex,
+    '#roles-index-page': initRolesIndex,
 
     // Central Pages
     '#central-users-index-page': initCentralUsersIndex,
