@@ -1,0 +1,44 @@
+/* Topbar */
+.app-topbar {
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.app-breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.app-topbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.app-user-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: #5b6df0;
+    display: grid;
+    place-items: center;
+    font-weight: 600;
+    color: #fff;
+}
+
+.app-user-avatar.sm {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+}

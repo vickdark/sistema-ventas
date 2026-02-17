@@ -134,12 +134,5 @@
     </div>
 </div>
 
-<style>
-    .shadow-soft {
-        box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03) !important;
-    }
-    .rounded-4 {
-        border-radius: 1rem !important;
-    }
-</style>
+
 @endsection

@@ -1,0 +1,11 @@
+.shadow-soft {
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05) !important;
+}
+
+.hover-lift {
+    transition: transform 0.2s;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+}

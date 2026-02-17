@@ -1,0 +1,35 @@
+/* Estilos para el módulo de Compras */
+
+.shadow-soft {
+    box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03) !important;
+}
+
+.rounded-4 {
+    border-radius: 1rem !important;
+}
+
+.ts-wrapper.form-control {
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* Estilos de impresión para comprobante */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .print-card, .print-card * {
+        visibility: visible;
+    }
+    .print-card {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        border: none !important;
+        box-shadow: none !important;
+    }
+    .app-topbar, .app-sidebar, .btn {
+        display: none !important;
+    }
+}

@@ -1,0 +1,23 @@
+.maintenance-text-xs {
+    font-size: 0.75rem !important;
+}
+
+.maintenance-pre {
+    white-space: pre-wrap;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid #36b9cc !important;
+}
+
+.border-left-primary {
+    border-left: 0.25rem solid #4e73df !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid #1cc88a !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid #f6c23e !important;
+}

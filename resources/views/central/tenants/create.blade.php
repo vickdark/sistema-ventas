@@ -60,8 +60,7 @@
 
                             <!-- Información de la Empresa (Colapsable) -->
                             <div class="col-12">
-                                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-4 border shadow-sm mb-2" 
-                                     style="cursor: pointer;" 
+                                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-4 border shadow-sm mb-2 tenant-collapse-header" 
                                      data-bs-toggle="collapse" 
                                      data-bs-target="#businessInfoCollapse" 
                                      aria-expanded="false">
@@ -258,7 +257,7 @@
                                             <i class="fas fa-exclamation-triangle me-1"></i> Solo se creará el registro técnico; la empresa no tendrá base de datos funcional.
                                         </div>
                                     </div>
-                                    <input class="form-check-input ms-0 me-2" type="checkbox" role="switch" id="create_database" name="create_db" value="1" checked style="width: 3em; height: 1.5em; cursor: pointer;">
+                                    <input class="form-check-input ms-0 me-2 tenant-switch-lg" type="checkbox" role="switch" id="create_database" name="create_db" value="1" checked>
                                 </div>
 
                                 <div class="form-check form-switch p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between shadow-sm transition-all hover-lift" id="seeder-toggle-container">

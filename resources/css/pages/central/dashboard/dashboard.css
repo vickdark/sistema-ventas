@@ -1,0 +1,31 @@
+.shadow-soft {
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05) !important;
+}
+
+.uppercase {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* HTTP Stats Progress Bars */
+.http-progress-container {
+    height: 25px;
+}
+
+.http-progress-bar {
+    width: var(--percent, 0%);
+}
+
+/* Server Health */
+.text-tiny {
+    font-size: 0.65rem;
+}
+
+.server-software-truncate {
+    max-width: 150px;
+}
+
+/* Tenant List */
+.tenant-avatar-bg {
+    background: var(--sidebar-card);
+}

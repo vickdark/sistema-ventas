@@ -23,11 +23,11 @@
 
     <div class="row">
         <div class="col-lg-8">
-            <div class="card border-0 shadow-soft rounded-4 overflow-hidden mb-4">
-                <div class="card-header bg-white p-4 border-bottom">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-envelope-open-text text-primary me-2"></i>Notificaciones de Pago</h5>
+            <div class="card settings-card mb-4">
+                <div class="card-header settings-header">
+                    <h5 class="settings-title"><i class="fas fa-envelope-open-text text-primary settings-icon"></i>Notificaciones de Pago</h5>
                 </div>
-                <div class="card-body p-4">
+                <div class="card-body settings-body">
                     <form action="{{ route('central.settings.update') }}" method="POST">
                         @csrf
                         <div class="mb-4">
@@ -74,8 +74,8 @@
                 </div>
             </div>
 
-            <div class="card border-0 shadow-soft rounded-4 overflow-hidden border-start border-warning">
-                <div class="card-body p-4">
+            <div class="card settings-card settings-info-box">
+                <div class="card-body settings-body">
                     <div class="d-flex align-items-start">
                         <div class="flex-shrink-0 bg-warning bg-opacity-10 rounded-3 p-3 text-warning">
                             <i class="fas fa-lightbulb fs-4"></i>

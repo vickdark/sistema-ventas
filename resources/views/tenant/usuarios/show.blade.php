@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
@@ -17,7 +18,7 @@
         <div class="col-md-6">
             <div class="card border-0 shadow-soft rounded-4">
                 <div class="card-body p-4 text-center">
-                    <div class="avatar-lg bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px; font-size: 2.5rem;">
+                    <div class="avatar-lg bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-4 user-profile-avatar">
                         {{ strtoupper(substr($usuario->name, 0, 1)) }}
                     </div>
                     <h2 class="h4 fw-bold mb-1">{{ $usuario->name }}</h2>

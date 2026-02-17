@@ -62,8 +62,7 @@
 
                             <!-- Información de la Empresa (Colapsable) -->
                             <div class="col-12">
-                                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-4 border shadow-sm mb-2" 
-                                     style="cursor: pointer;" 
+                                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-4 border shadow-sm mb-2 tenant-collapse-header" 
                                      data-bs-toggle="collapse" 
                                      data-bs-target="#businessInfoCollapse" 
                                      aria-expanded="false">
@@ -164,7 +163,7 @@
                                                 </label>
                                                 @if($tenant->logo)
                                                     <div class="mb-3">
-                                                        <img src="{{ asset('storage/' . $tenant->logo) }}" alt="Logo" class="img-thumbnail" style="max-height: 100px;">
+                                                        <img src="{{ asset('storage/' . $tenant->logo) }}" alt="Logo" class="img-thumbnail tenant-logo-preview">
                                                         <p class="small text-muted mb-0">Logo actual</p>
                                                     </div>
                                                 @endif
@@ -184,8 +183,7 @@
 
                             <!-- Información de Facturación -->
                             <div class="col-12">
-                                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-4 border shadow-sm mb-2" 
-                                     style="cursor: pointer;" 
+                                <div class="d-flex align-items-center justify-content-between p-3 bg-light rounded-4 border shadow-sm mb-2 tenant-collapse-header" 
                                      data-bs-toggle="collapse" 
                                      data-bs-target="#billingInfoCollapse" 
                                      aria-expanded="true">

@@ -1,0 +1,37 @@
+.metrics-table-container {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.metrics-sticky-header {
+    z-index: 1;
+}
+
+.metrics-url-text {
+    max-width: 200px;
+    font-size: 0.75rem;
+}
+
+.metrics-meta-text {
+    font-size: 0.65rem;
+}
+
+.metrics-status-badge {
+    font-size: 0.7rem !important;
+}
+
+.metrics-duration-text {
+    font-size: 0.75rem;
+}
+
+.metrics-date-text {
+    font-size: 0.7rem;
+}
+
+.metrics-progress {
+    height: 6px;
+}
+
+.metrics-progress-bar {
+    width: var(--percent, 0%);
+}

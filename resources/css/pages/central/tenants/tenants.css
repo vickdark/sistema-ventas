@@ -1,0 +1,25 @@
+.hover-lift {
+    transition: transform 0.2s ease;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+}
+
+.shadow-soft {
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05) !important;
+}
+
+.tenant-collapse-header {
+    cursor: pointer;
+}
+
+.tenant-switch-lg {
+    width: 3em;
+    height: 1.5em;
+    cursor: pointer;
+}
+
+.tenant-logo-preview {
+    max-height: 100px;
+}

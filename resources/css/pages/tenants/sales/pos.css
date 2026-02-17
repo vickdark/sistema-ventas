@@ -1,0 +1,8 @@
+@import "pos/variables.css";
+@import "pos/layout.css";
+@import "pos/header.css";
+@import "pos/categories.css";
+@import "pos/products.css";
+@import "pos/cart.css";
+@import "pos/checkout.css";
+@import "pos/utils.css";

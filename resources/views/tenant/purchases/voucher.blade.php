@@ -103,27 +103,7 @@
     </div>
 </div>
 
-<style>
-    @media print {
-        body * {
-            visibility: hidden;
-        }
-        .print-card, .print-card * {
-            visibility: visible;
-        }
-        .print-card {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            border: none !important;
-            box-shadow: none !important;
-        }
-        .app-topbar, .app-sidebar, .btn {
-            display: none !important;
-        }
-    }
-</style>
+
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

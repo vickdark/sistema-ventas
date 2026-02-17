@@ -1,0 +1,15 @@
+@import "sales/pos.css";
+@import "sales/sales.css";
+
+@import "users/users.css";
+@import "suppliers/suppliers.css";
+@import "abonos/abonos.css";
+@import "cash_registers/cash_registers.css";
+@import "categories/categories.css";
+@import "clients/clients.css";
+@import "products/products.css";
+@import "purchases/purchases.css";
+@import "roles/roles.css";
+@import "reports/reports.css";
+@import "import/import.css";
+@import "dashboards/dashboards.css";

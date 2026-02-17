@@ -146,7 +146,7 @@
                     <h6 class="m-0 font-weight-bold text-info">Última Salida del Comando</h6>
                 </div>
                 <div class="card-body bg-dark text-light p-3 rounded-bottom">
-                    <pre class="text-light mb-0" style="white-space: pre-wrap;">{{ session('status') }}</pre>
+                    <pre class="text-light mb-0 maintenance-pre">{{ session('status') }}</pre>
                 </div>
             </div>
         </div>

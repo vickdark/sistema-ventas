@@ -1,0 +1,115 @@
+/* Panel Derecho (Carrito) */
+.cart-sidebar {
+    height: 100% !important;
+    background: white;
+    border-left: 2px solid #e2e8f0;
+    display: flex !important;
+    flex-direction: column !important;
+    box-shadow: -10px 0 30px rgba(0,0,0,0.02);
+    overflow: hidden !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@media (max-width: 991px) {
+    .cart-sidebar {
+        position: fixed !important;
+        top: 0;
+        right: -100%;
+        width: 100% !important;
+        z-index: 2100;
+        border-left: none;
+    }
+    
+    .cart-sidebar.show {
+        right: 0;
+    }
+}
+
+.cart-header {
+    flex: 0 0 auto !important;
+    height: var(--header-height);
+    padding: 0 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.cart-items-scroll {
+    flex: 1 1 0% !important;
+    overflow-y: auto !important;
+    padding: 1rem;
+    min-height: 0 !important;
+}
+
+.cart-item-modern {
+    background: #f8fafc;
+    border-radius: 14px;
+    padding: 1rem;
+    margin-bottom: 0.75rem;
+    border: 1px solid #f1f5f9;
+}
+
+/* Botón Flotante Carrito */
+.btn-floating-cart {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    box-shadow: 0 10px 25px rgba(99, 102, 241, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    z-index: 2000;
+    transition: all 0.3s;
+}
+
+.btn-floating-cart .cart-count {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 0.75rem;
+    padding: 5px 8px;
+    border: 2px solid white;
+}
+
+.btn-floating-cart:active {
+    transform: scale(0.9);
+}
+
+/* Estilos para elementos del carrito (Template JS) */
+.cart-item-img-style {
+    width: 45px;
+    height: 45px;
+    object-fit: cover;
+}
+
+.cart-item-placeholder {
+    width: 45px;
+    height: 45px;
+}
+
+.qty-control-wrapper {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    align-items: center;
+    padding: 2px;
+}
+
+.item-qty-input {
+    width: 25px;
+    font-size: 0.8rem;
+}
+
+.item-price-unit-text {
+    font-size: 0.65rem;
+}

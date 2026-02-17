@@ -9,8 +9,8 @@
         </div>
     </div>
 
-    <div class="card shadow-soft rounded-4 mb-4">
-        <div class="card-body p-4">
+    <div class="card settings-card mb-4">
+        <div class="card-body settings-body">
             @if (Session::has('success'))
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     {{ Session::get('success') }}

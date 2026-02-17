@@ -155,20 +155,4 @@
         }
     }
 </script>
-
-<style>
-    .shadow-soft {
-        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05) !important;
-    }
-    .x-small {
-        font-size: 0.75rem;
-    }
-    .shadow-inner {
-        box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
-    }
-    .preview-container {
-        background-image: radial-gradient(#d1d5db 1px, transparent 1px);
-        background-size: 20px 20px;
-    }
-</style>
 @endsection

@@ -41,7 +41,7 @@
                                             <div class="invalid-feedback">{{ $message }}</div>
                                         @enderror
                                     </div>
-                                    <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-category" style="width: 38px; height: 38px;" disabled>
+                                    <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-category category-remove-btn" disabled>
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>
@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', function() {
                            placeholder="Nombre de la categoría" 
                            required>
                 </div>
-                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-category" style="width: 38px; height: 38px;">
+                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-category category-remove-btn">
                     <i class="fas fa-times"></i>
                 </button>
             </div>

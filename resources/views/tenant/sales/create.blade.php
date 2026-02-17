@@ -1,9 +1,6 @@
 @extends('layouts.app')
 
 @section('content')
-@push('styles')
-    @vite(['resources/css/pages/pos.css'])
-@endpush
 
 {{-- Configuración de Página para PageLoader.js --}}
 <div id="sales-pos-page" data-config='@json($posConfig)'></div>
@@ -15,7 +12,7 @@
             <!-- Buscador Superior -->
             <div class="search-header">
                 <div class="position-relative flex-grow-1">
-                    <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted" style="z-index: 10;"></i>
+                    <i class="fas fa-search position-absolute top-50 start-0 translate-middle-y ms-3 text-muted pos-search-icon"></i>
                     <input type="text" id="productSearch" class="form-control pos-search-input py-3" placeholder="Buscar por nombre, código de barras o categoría...">
                 </div>
                 <div class="ms-4 d-none d-lg-flex gap-2">
@@ -69,7 +66,7 @@
                                         <p class="text-muted small mb-3 letter-spacing-1">#{{ $product->code }}</p>
                                         <div class="d-flex justify-content-between align-items-center">
                                             <span class="h5 fw-extrabold text-indigo-600 mb-0" style="color: #4f46e5;">${{ number_format($product->sale_price, 2) }}</span>
-                                            <div class="bg-indigo-50 p-2 rounded-lg" style="background: #eef2ff; color: #4f46e5; border-radius: 10px;">
+                                            <div class="bg-indigo-50 p-2 rounded-lg pos-add-btn">
                                                 <i class="fas fa-plus"></i>
                                             </div>
                                         </div>
@@ -243,7 +240,7 @@
         <div class="d-flex align-items-center mb-2">
             <div class="cart-item-img-container me-3">
                 <img src="" alt="" class="cart-item-img rounded-3 d-none" style="width: 45px; height: 45px; object-fit: cover;">
-                <div class="cart-item-icon-placeholder rounded-3 bg-light d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
+                <div class="cart-item-icon-placeholder rounded-3 bg-light d-flex align-items-center justify-content-center cart-item-placeholder">
                     <i class="fas fa-box text-muted small"></i>
                 </div>
             </div>
@@ -263,7 +260,7 @@
                 <button class="btn-qty btn-plus border-0 bg-transparent text-muted px-2"><i class="fas fa-plus small"></i></button>
             </div>
             <div class="text-end">
-                <div class="text-muted small item-price-unit" style="font-size: 0.65rem;"></div>
+                <div class="text-muted small item-price-unit item-price-unit-text"></div>
                 <div class="item-price-total fw-extrabold text-indigo-600"></div>
             </div>
         </div>

@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', function() {
         newProduct.innerHTML = `
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h6 class="mb-0 text-primary">Producto #${productCount + 1}</h6>
-                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-product" style="width: 38px; height: 38px;">
+                <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-product product-remove-btn">
                     <i class="fas fa-times"></i>
                 </button>
             </div>

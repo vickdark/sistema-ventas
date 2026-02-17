@@ -1,0 +1,16 @@
+.auth-brand-logo {
+    width: 64px;
+    height: 64px;
+}
+
+.hover-lift {
+    transition: transform 0.2s ease-in-out;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+}
+
+.shadow-soft {
+    box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05) !important;
+}

@@ -104,7 +104,7 @@
                     <p class="text-muted small mb-0">Distribución de tráfico global (Central + Inquilinos)</p>
                 </div>
                 <div class="card-body p-4">
-                    <div class="progress rounded-pill mb-4" style="height: 25px;">
+                    <div class="progress rounded-pill mb-4 http-progress-container">
                         @php
                             $totalHttp = array_sum($httpStats);
                             $percent2xx = $totalHttp > 0 ? ($httpStats['2xx'] / $totalHttp) * 100 : 0;
@@ -112,10 +112,10 @@
                             $percent4xx = $totalHttp > 0 ? ($httpStats['4xx'] / $totalHttp) * 100 : 0;
                             $percent5xx = $totalHttp > 0 ? ($httpStats['5xx'] / $totalHttp) * 100 : 0;
                         @endphp
-                        <div class="progress-bar bg-success" role="progressbar" style="width:{{ $percent2xx }}%" title="2xx: {{ $httpStats['2xx'] }}"></div>
-                        <div class="progress-bar bg-info" role="progressbar" style="width: {{ $percent3xx }}%" title="3xx: {{ $httpStats['3xx'] }}"></div>
-                        <div class="progress-bar bg-warning" role="progressbar" style="width: {{ $percent4xx }}%" title="4xx: {{ $httpStats['4xx'] }}"></div>
-                        <div class="progress-bar bg-danger" role="progressbar" style="width: {{ $percent5xx }}%" title="5xx: {{ $httpStats['5xx'] }}"></div>
+                        <div class="progress-bar bg-success http-progress-bar" role="progressbar" style="--percent: {{ $percent2xx }}%" title="2xx: {{ $httpStats['2xx'] }}"></div>
+                        <div class="progress-bar bg-info http-progress-bar" role="progressbar" style="--percent: {{ $percent3xx }}%" title="3xx: {{ $httpStats['3xx'] }}"></div>
+                        <div class="progress-bar bg-warning http-progress-bar" role="progressbar" style="--percent: {{ $percent4xx }}%" title="4xx: {{ $httpStats['4xx'] }}"></div>
+                        <div class="progress-bar bg-danger http-progress-bar" role="progressbar" style="--percent: {{ $percent5xx }}%" title="5xx: {{ $httpStats['5xx'] }}"></div>
                     </div>
                     <div class="row text-center">
                         <div class="col">
@@ -161,7 +161,7 @@
                             </div>
                             <div class="text-end">
                                 <div class="fw-bold">{{ $serverHealth['memory_usage'] }} MB</div>
-                                <div class="text-muted" style="font-size: 0.65rem;">Límite: {{ $serverHealth['memory_limit'] }}</div>
+                                <div class="text-muted text-tiny">Límite: {{ $serverHealth['memory_limit'] }}</div>
                             </div>
                         </li>
                         <li class="list-group-item px-0 py-3 border-0 d-flex justify-content-between align-items-center border-top">
@@ -260,7 +260,7 @@
                         <tr>
                             <td class="px-4 py-3">
                                 <div class="d-flex align-items-center">
-                                    <div class="app-user-avatar sm me-3" style="background: var(--sidebar-card)">
+                                    <div class="app-user-avatar sm me-3 tenant-avatar-bg">
                                         {{ strtoupper(substr($tenant->id, 0, 1)) }}
                                     </div>
                                     <span class="fw-semibold text-dark">{{ $tenant->id }}</span>
@@ -291,13 +291,4 @@
     </div>
 </div>
 
-<style>
-    .shadow-soft {
-        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05) !important;
-    }
-    .uppercase {
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-</style>
 @endsection

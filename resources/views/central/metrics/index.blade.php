@@ -73,9 +73,9 @@
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-responsive" style="max-height: 500px; overflow-y: auto;">
+                    <div class="table-responsive metrics-table-container">
                         <table class="table table-hover align-middle mb-0 table-sm">
-                            <thead class="bg-light sticky-top" style="z-index: 1;">
+                            <thead class="bg-light sticky-top metrics-sticky-header">
                                 <tr>
                                     <th class="border-0 small text-uppercase px-3 py-2">Método</th>
                                     <th class="border-0 small text-uppercase py-2">Ruta</th>
@@ -151,10 +151,10 @@
                         <span>Estado {{ $sd->status }}</span>
                         <span class="fw-bold">{{ $sd->count }}</span>
                     </div>
-                    <div class="progress" style="height: 6px;">
-                        <div class="progress-bar {{ $sd->status >= 400 ? 'bg-danger' : ($sd->status >= 300 ? 'bg-warning' : 'bg-success') }}" 
-                             role="progressbar" 
-                             style="width: {{ $stats['total_requests'] > 0 ? ($sd->count / $stats['total_requests']) * 100 : 0 }}%"></div>
+                    <div class="progress metrics-progress">
+                        <div class="progress-bar {{ $sd->status >= 400 ? 'bg-danger' : ($sd->status >= 300 ? 'bg-warning' : 'bg-success') }} metrics-progress-bar" 
+                             role="progressbar"  
+                             style="--percent: {{ $stats['total_requests'] > 0 ? ($sd->count / $stats['total_requests']) * 100 : 0 }}%"></div>
                     </div>
                 </div>
                 @endforeach

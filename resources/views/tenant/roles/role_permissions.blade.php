@@ -86,15 +86,6 @@
     </form>
 </div>
 
-<style>
-    .letter-spacing-1 { letter-spacing: 1px; }
-    .x-small { font-size: 0.7rem; }
-    .shadow-soft { box-shadow: 0 0.75rem 1.5rem rgba(18, 38, 63, 0.03); }
-    .module-card { transition: transform 0.2s; }
-    .module-card:hover { transform: translateY(-5px); }
-    .cursor-pointer { cursor: pointer; }
-</style>
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Seleccionar Todo Global

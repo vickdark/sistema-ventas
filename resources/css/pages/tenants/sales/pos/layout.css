@@ -1,0 +1,57 @@
+/* Quitar espacios del layout global solo para esta vista */
+html.pos-page, 
+body.pos-page {
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+
+body.pos-page .app-layout,
+body.pos-page .app-main {
+    height: 100vh !important;
+    overflow: hidden !important;
+}
+
+body.pos-page .app-content {
+    padding: 0 !important;
+    margin: 0 !important;
+    height: calc(100vh - 100px) !important;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+body.pos-page .app-main .app-content {
+    padding-top: 0 !important;
+}
+body.pos-page .app-main .navbar {
+    margin-bottom: 0 !important;
+}
+
+@media (max-width: 991px) {
+    body.pos-page .app-content {
+        height: 100vh !important; /* En móvil usamos todo el espacio */
+    }
+}
+
+body.pos-page .app-footer {
+    display: none !important;
+}
+
+.pos-container {
+    height: 100% !important;
+    width: 100% !important;
+    background-color: var(--pos-bg);
+}
+
+.pos-container > .row {
+    height: 100% !important;
+    margin: 0 !important;
+    flex-wrap: nowrap !important;
+}
+
+/* Panel Izquierdo */
+.product-panel {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}

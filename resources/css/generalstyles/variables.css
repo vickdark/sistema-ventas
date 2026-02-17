@@ -1,0 +1,12 @@
+:root {
+    --brand: #c05a1e;
+    --sidebar-bg: #11182a;
+    --sidebar-card: #1a2440;
+    --sidebar-text: #c9d2f0;
+    --sidebar-muted: #8a95b5;
+    --content-bg: #f5f7fb;
+    --sidebar-width: 260px;
+    --sidebar-mini-width: 78px;
+    --topbar-bg: #ffffff;
+    --border-color: #e2e8f0;
+}

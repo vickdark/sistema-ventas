@@ -1,0 +1,14 @@
+html {
+    font-size: 14px;
+}
+
+body {
+    font-family: 'Instrument Sans', 'Segoe UI', system-ui, sans-serif;
+    background: var(--content-bg);
+    margin: 0;
+}
+
+/* Utilities */
+.text-sidebar-muted { color: var(--sidebar-muted); }
+.shadow-soft { box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+.dropdown-toggle-nocaret::after { display: none !important; }

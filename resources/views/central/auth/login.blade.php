@@ -4,7 +4,7 @@
 @if (!Session::has('central_gate_passed'))
 <div id="gate-container">
     <div class="text-center mb-5">
-        <div class="app-brand-logo bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm mb-3" style="width: 64px; height: 64px;">
+        <div class="app-brand-logo bg-primary bg-opacity-10 rounded-circle d-inline-flex align-items-center justify-content-center shadow-sm mb-3 auth-brand-logo">
             <i class="fa-solid fa-key text-primary fs-2"></i>
         </div>
         <h2 class="fw-bold text-gray-900 mb-1">Acceso Restringido</h2>
@@ -91,15 +91,6 @@
         </button>
     </form>
 </div>
-
-<style>
-    .hover-lift:hover {
-        transform: translateY(-2px);
-    }
-    .shadow-soft {
-        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05) !important;
-    }
-</style>
 
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <script>

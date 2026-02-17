@@ -35,7 +35,7 @@
                             </div>
                             <div class="col-md-3 text-center">
                                 <div class="p-2 bg-light rounded-3">
-                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.65rem;">Ventas (Contado)</small>
+                                    <small class="text-muted d-block text-uppercase fw-bold cash-register-label-sm">Ventas (Contado)</small>
                                     <span class="fs-5 fw-bold text-success">${{ number_format($totalSalesValue, 2) }}</span>
                                 </div>
                             </div>

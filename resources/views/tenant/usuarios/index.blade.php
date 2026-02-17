@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
 <div class="container-fluid">
     {{-- Configuración de Página para PageLoader.js --}}
     <div id="users-index-page" data-config='@json($config)'></div>

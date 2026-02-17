@@ -24,12 +24,4 @@
     </div>
 </div>
 
-<style>
-    .hover-lift:hover {
-        transform: translateY(-2px);
-    }
-    .shadow-soft {
-        box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05) !important;
-    }
-</style>
 @endsection

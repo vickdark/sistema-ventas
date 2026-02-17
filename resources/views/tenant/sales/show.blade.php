@@ -120,22 +120,5 @@
     </div>
 </div>
 
-<style>
-@media print {
-    .no-print, .sidebar-mini, .app-topbar, .app-footer, .sidebar-overlay, .app-sidebar {
-        display: none !important;
-    }
-    body {
-        background: white !important;
-    }
-    .app-main {
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    .card {
-        box-shadow: none !important;
-        border: none !important;
-    }
-}
-</style>
+
 @endsection

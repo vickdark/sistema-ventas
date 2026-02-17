@@ -32,7 +32,7 @@
                             <div class="supplier-item mb-4 p-4 border rounded-3 bg-light">
                                 <div class="d-flex justify-content-between align-items-center mb-3">
                                     <h6 class="mb-0 text-primary">Proveedor #1</h6>
-                                    <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-supplier" style="width: 38px; height: 38px;" disabled>
+                                    <button type="button" class="btn btn-outline-danger btn-sm rounded-circle remove-supplier supplier-remove-btn" disabled>
                                         <i class="fas fa-times"></i>
                                     </button>
                                 </div>

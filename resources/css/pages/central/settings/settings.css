@@ -1,0 +1,29 @@
+.settings-card {
+    border: 0 !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.05) !important; /* shadow-soft value */
+    border-radius: 1rem !important; /* rounded-4 approx */
+    overflow: hidden;
+}
+
+.settings-header {
+    background-color: #fff;
+    padding: 1.5rem !important; /* p-4 */
+    border-bottom: 1px solid #dee2e6 !important;
+}
+
+.settings-body {
+    padding: 1.5rem !important; /* p-4 */
+}
+
+.settings-title {
+    margin-bottom: 0 !important;
+    font-weight: 700 !important;
+}
+
+.settings-icon {
+    margin-right: 0.5rem !important;
+}
+
+.settings-info-box {
+    border-left: 4px solid #ffc107 !important; /* border-warning */
+}

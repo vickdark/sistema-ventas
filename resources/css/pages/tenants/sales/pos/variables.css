@@ -1,0 +1,9 @@
+:root {
+    --pos-bg: #f1f5f9;
+    --pos-sidebar-width: 380px;
+    --accent-color: #6366f1; /* Indigo */
+    --success-color: #10b981; /* Emerald */
+    --danger-color: #ef4444; /* Rose */
+    --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --header-height: 85px;
+}
