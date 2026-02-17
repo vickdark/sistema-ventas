@@ -15,21 +15,21 @@ import Notifications from './modules/Notifications';
 import NavbarNotifications from './components/NavbarNotifications';
 
 // Import Pages
-import { initUsersIndex } from './pages/usuarios/index';
+import { initUsersIndex } from './pages/tenants/usuarios/index';
 import { initUsersIndex as initCentralUsersIndex } from './pages/central/users/index';
 import { initTenantsIndex } from './pages/central/tenants/index';
 import { initPaymentNotificationsIndex } from './pages/central/payment-notifications/index';
-import { initCategoriesIndex } from './pages/categories/index';
-import { initClientsIndex } from './pages/clients/index';
-import { initProductsIndex } from './pages/products/index';
-import { initPurchasesIndex } from './pages/purchases/index';
-import { initSuppliersIndex } from './pages/suppliers/index';
-import { initCashRegistersIndex } from './pages/cash_registers/index';
-import { initSalesIndex } from './pages/sales/index';
-import { initSalesPOS } from './pages/sales/pos';
-import { initAbonosIndex } from './pages/abonos/index';
-import { initAbonosCreate } from './pages/abonos/create';
-import { initReportsIndex } from './pages/reports/index';
+import { initCategoriesIndex } from './pages/tenants/categories/index';
+import { initClientsIndex } from './pages/tenants/clients/index';
+import { initProductsIndex } from './pages/tenants/products/index';
+import { initPurchasesIndex } from './pages/tenants/purchases/index';
+import { initSuppliersIndex } from './pages/tenants/suppliers/index';
+import { initCashRegistersIndex } from './pages/tenants/cash_registers/index';
+import { initSalesIndex } from './pages/tenants/sales/index';
+import { initSalesPOS } from './pages/tenants/sales/pos';
+import { initAbonosIndex } from './pages/tenants/abonos/index';
+import { initAbonosCreate } from './pages/tenants/abonos/create';
+import { initReportsIndex } from './pages/tenants/reports/index';
 import { initPWA } from './pwa-handler';
 
 //Opciones de expotacion para Grid JS 

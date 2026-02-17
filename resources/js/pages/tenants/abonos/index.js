@@ -1,5 +1,5 @@
-import DataGrid from '../../modules/DataGrid';
-import Notifications from '../../modules/Notifications';
+import DataGrid from '../../../modules/DataGrid';
+import Notifications from '../../../modules/Notifications';
 
 export function initAbonosIndex(config) {
     const { routes, tokens } = config;

@@ -1,7 +1,7 @@
-import DataGrid from '../../modules/DataGrid';
-import Notifications from '../../modules/Notifications';
+import DataGrid from '../../../modules/DataGrid';
+import Notifications from '../../../modules/Notifications';
 
-export function initCategoriesIndex(config) {
+export function initSuppliersIndex(config) {
     const { routes, tokens } = config;
 
     const grid = new DataGrid("wrapper", {
@@ -9,6 +9,9 @@ export function initCategoriesIndex(config) {
         columns: [
             { id: 'id', name: "ID", width: "80px" },
             { id: 'name', name: "Nombre" },
+            { id: 'company', name: "Empresa" },
+            { id: 'phone', name: "Teléfono" },
+            { id: 'email', name: "Email" },
             { 
                 id: 'actions',
                 name: "Acciones",
@@ -24,7 +27,7 @@ export function initCategoriesIndex(config) {
                             </a>
                             <button type="button" 
                                 class="btn btn-sm btn-outline-danger rounded-pill" 
-                                onclick="window.deleteCategory('${deleteUrl}')"
+                                onclick="window.deleteSupplier('${deleteUrl}')"
                                 title="Eliminar">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -33,16 +36,19 @@ export function initCategoriesIndex(config) {
                 }
             }
         ],
-        mapData: (category) => [
-            category.id, 
-            category.name, 
+        mapData: (supplier) => [
+            supplier.id, 
+            supplier.name, 
+            supplier.company,
+            supplier.phone,
+            supplier.email,
             null
         ]
     }).render();
 
-    window.deleteCategory = async function(url) {
+    window.deleteSupplier = async function(url) {
         const confirmed = await Notify.confirm({
-            title: '¿Eliminar categoría?',
+            title: '¿Eliminar proveedor?',
             text: 'Esta acción no se puede deshacer.',
             confirmButtonText: 'Sí, eliminar',
             confirmButtonColor: '#e74a3b'
@@ -63,10 +69,10 @@ export function initCategoriesIndex(config) {
                 const result = await response.json();
 
                 if (response.ok) {
-                    Notify.success('Eliminada', 'La categoría ha sido eliminada correctamente.');
+                    Notify.success('Eliminado', 'El proveedor ha sido eliminado correctamente.');
                     window.location.reload(); 
                 } else {
-                    Notify.error('Error', result.message || 'No se pudo eliminar la categoría.');
+                    Notify.error('Error', result.message || 'No se pudo eliminar el proveedor.');
                 }
             } catch (error) {
                 Notify.error('Error', 'Ocurrió un error inesperado.');

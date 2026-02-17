@@ -1,5 +1,5 @@
-import Notifications from '../../modules/Notifications';
-import { saveOfflineSale } from '../../modules/OfflineDB';
+import Notifications from '../../../modules/Notifications';
+import { saveOfflineSale } from '../../../modules/OfflineDB';
 import Swiper from 'swiper';
 import { Navigation, Pagination, Grid } from 'swiper/modules';
 import 'swiper/css';

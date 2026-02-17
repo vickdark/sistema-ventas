@@ -1,4 +1,4 @@
-import Notifications from '../../modules/Notifications';
+import Notifications from '../../../modules/Notifications';
 
 export function initAbonosCreate(config) {
     const { routes, tokens } = config;

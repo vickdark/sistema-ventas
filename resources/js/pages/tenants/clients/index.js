@@ -1,7 +1,7 @@
-import DataGrid from '../../modules/DataGrid';
-import Notifications from '../../modules/Notifications';
+import DataGrid from '../../../modules/DataGrid';
+import Notifications from '../../../modules/Notifications';
 
-export function initSuppliersIndex(config) {
+export function initClientsIndex(config) {
     const { routes, tokens } = config;
 
     const grid = new DataGrid("wrapper", {
@@ -9,9 +9,9 @@ export function initSuppliersIndex(config) {
         columns: [
             { id: 'id', name: "ID", width: "80px" },
             { id: 'name', name: "Nombre" },
-            { id: 'company', name: "Empresa" },
-            { id: 'phone', name: "Teléfono" },
+            { id: 'nit_ci', name: "NIT/Documento" },
             { id: 'email', name: "Email" },
+            { id: 'phone', name: "Teléfono" },
             { 
                 id: 'actions',
                 name: "Acciones",
@@ -27,7 +27,7 @@ export function initSuppliersIndex(config) {
                             </a>
                             <button type="button" 
                                 class="btn btn-sm btn-outline-danger rounded-pill" 
-                                onclick="window.deleteSupplier('${deleteUrl}')"
+                                onclick="window.deleteClient('${deleteUrl}')"
                                 title="Eliminar">
                                 <i class="fas fa-trash"></i>
                             </button>
@@ -36,19 +36,19 @@ export function initSuppliersIndex(config) {
                 }
             }
         ],
-        mapData: (supplier) => [
-            supplier.id, 
-            supplier.name, 
-            supplier.company,
-            supplier.phone,
-            supplier.email,
+        mapData: (client) => [
+            client.id, 
+            client.name, 
+            client.nit_ci,
+            client.email,
+            client.phone,
             null
         ]
     }).render();
 
-    window.deleteSupplier = async function(url) {
+    window.deleteClient = async function(url) {
         const confirmed = await Notify.confirm({
-            title: '¿Eliminar proveedor?',
+            title: '¿Eliminar cliente?',
             text: 'Esta acción no se puede deshacer.',
             confirmButtonText: 'Sí, eliminar',
             confirmButtonColor: '#e74a3b'
@@ -69,10 +69,10 @@ export function initSuppliersIndex(config) {
                 const result = await response.json();
 
                 if (response.ok) {
-                    Notify.success('Eliminado', 'El proveedor ha sido eliminado correctamente.');
+                    Notify.success('Eliminado', 'El cliente ha sido eliminado correctamente.');
                     window.location.reload(); 
                 } else {
-                    Notify.error('Error', result.message || 'No se pudo eliminar el proveedor.');
+                    Notify.error('Error', result.message || 'No se pudo eliminar el cliente.');
                 }
             } catch (error) {
                 Notify.error('Error', 'Ocurrió un error inesperado.');
