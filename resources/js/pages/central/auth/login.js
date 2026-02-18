@@ -1,13 +1,4 @@
 export function initCentralLogin() {
-    // Cargar reCAPTCHA dinámicamente si no existe
-    if (!document.querySelector('script[src*="recaptcha/api.js"]')) {
-        const script = document.createElement('script');
-        script.src = 'https://www.google.com/recaptcha/api.js';
-        script.async = true;
-        script.defer = true;
-        document.body.appendChild(script);
-    }
-
     const gateForm = document.getElementById('gateKeyForm');
     const gateInput = document.getElementById('gate_key');
     const gateBtn = document.getElementById('verifyGateButton');

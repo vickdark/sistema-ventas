@@ -3,23 +3,7 @@
 @section('content')
 <div class="container-fluid py-4 report-facelift">
     {{-- Configuración de Página para PageLoader.js --}}
-    <div id="reports-index-page" data-config='@json([
-        "ventasSemana" => $ventasSemana,
-        "topProductos" => $topProductos,
-        "datosCaja" => $datosCaja,
-        "catProductos" => $catProductos,
-        "balanceMensual" => $balanceMensual,
-        "metodosPago" => $metodosPago,
-        "efectivoVsTransferencia" => $efectivoVsTransferencia,
-        "stats" => [
-            "ingresoDiario" => $stats['ingresoDiario'],
-            "ingresoMensual" => $stats['ingresoMensual'],
-            "ingresoAnual" => $stats['ingresoAnual'],
-            "deudaTotalClientes" => $stats['deudaTotalClientes'],
-            "cantidadCreditosPendientes" => $stats['cantidadCreditosPendientes'],
-            "valorInventario" => $stats['valorInventario']
-        ]
-    ])'></div>
+    <div id="reports-index-page" data-config='@json($reportsConfig)'></div>
 
     <div class="row mb-5 align-items-center">
         <div class="col-sm-6">

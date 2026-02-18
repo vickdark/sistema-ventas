@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<div id="central-tenants-edit-page"></div>
 @php
     $suspendUrl = route('central.tenants.suspend', $tenant->id);
     $activateUrl = route('central.tenants.mark-as-paid', $tenant->id);
@@ -355,19 +356,6 @@
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof window.bootstrap === 'undefined') return;
         
-        // Inicializar las funciones globales si no están presentes (por si no se cargó el index.js)
-        if (typeof window.initTenantsIndex === 'function' && !window.markTenantAsPaid) {
-            window.initTenantsIndex({
-                routes: {
-                    index: "{{ route('central.tenants.index') }}",
-                    markPaid: "{{ route('central.tenants.mark-as-paid', ':id') }}"
-                },
-                tokens: {
-                    csrf: "{{ csrf_token() }}"
-                }
-            });
-        }
-
         const btnSuspend = document.getElementById('btn-suspend-tenant');
         const btnActivate = document.getElementById('btn-activate-tenant');
 

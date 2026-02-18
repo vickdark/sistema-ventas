@@ -8,9 +8,7 @@
 import * as TenantPages from './pages/tenants/index';
 
 // Central Pages
-import { initUsersIndex as initCentralUsersIndex } from './pages/central/users/index';
-import { initTenantsIndex } from './pages/central/tenants/index';
-import { initPaymentNotificationsIndex } from './pages/central/payment-notifications/index';
+import * as CentralPages from './pages/central/index';
 
 const loaders = {
     // Tenant Pages
@@ -41,6 +39,7 @@ const loaders = {
     '#central-login-page': CentralPages.initCentralLogin,
     '#central-users-index-page': CentralPages.initUsersIndex,
     '#central-tenants-index-page': CentralPages.initTenantsIndex,
+    '#central-tenants-edit-page': CentralPages.initTenantsEdit,
     '#central-payment-notifications-page': CentralPages.initPaymentNotificationsIndex
 };
 

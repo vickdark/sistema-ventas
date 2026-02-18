@@ -100,7 +100,16 @@ class ReportController extends Controller
             ->groupBy('payment_type')
             ->get();
 
-        return view('tenant.reports.index', [
+        $stats = [
+            'ingresoDiario' => $ingresoDiario,
+            'ingresoMensual' => $ingresoMensual,
+            'ingresoAnual' => $ingresoAnual,
+            'deudaTotalClientes' => $deudaTotalClientes,
+            'cantidadCreditosPendientes' => $cantidadCreditosPendientes,
+            'valorInventario' => $valorInventario
+        ];
+
+        $reportsConfig = [
             'ventasSemana' => $ventasSemana->map(fn($v) => [
                 'date' => \Carbon\Carbon::parse($v->fecha)->format('d/m'),
                 'total' => $v->total
@@ -128,20 +137,12 @@ class ReportController extends Controller
                 'type' => $e->payment_type,
                 'total' => $e->total
             ]),
-            'stats' => [
-                'ingresoDiario' => number_format($ingresoDiario, 2),
-                'ingresoMensual' => number_format($ingresoMensual, 2),
-                'ingresoAnual' => number_format($ingresoAnual, 2),
-                'deudaTotalClientes' => number_format($deudaTotalClientes, 2),
-                'cantidadCreditosPendientes' => $cantidadCreditosPendientes,
-                'valorInventario' => number_format($valorInventario, 2)
-            ],
-            'ingresoDiario' => $ingresoDiario,
-            'ingresoMensual' => $ingresoMensual,
-            'ingresoAnual' => $ingresoAnual,
-            'deudaTotalClientes' => $deudaTotalClientes,
-            'cantidadCreditosPendientes' => $cantidadCreditosPendientes,
-            'valorInventario' => $valorInventario
+            'stats' => $stats
+        ];
+
+        return view('tenant.reports.index', [
+            'reportsConfig' => $reportsConfig,
+            'stats' => $stats
         ]);
     }
 }

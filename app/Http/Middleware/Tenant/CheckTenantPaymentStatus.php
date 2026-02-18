@@ -13,42 +13,41 @@ class CheckTenantPaymentStatus
     {
         if (tenancy()->initialized) {
             $tenant = tenant();
-
-            $tz = tenant('timezone') ?? config('app.timezone', 'UTC');
-            $raw = tenant('next_payment_date');
-            $due = null;
-            if ($raw) {
-                if (Carbon::hasFormat($raw, 'Y-m-d')) {
-                    $due = Carbon::createFromFormat('Y-m-d', $raw, $tz);
-                } elseif (Carbon::hasFormat($raw, 'd/m/Y')) {
-                    $due = Carbon::createFromFormat('d/m/Y', $raw, $tz);
-                } elseif (Carbon::hasFormat($raw, 'd-m-Y')) {
-                    $due = Carbon::createFromFormat('d-m-Y', $raw, $tz);
-                } else {
-                    $due = Carbon::parse($raw, $tz);
+            
+            // Forzar actualización del estado del tenant para evitar problemas de caché
+            $tenant->refresh();
+            
+            // Si el inquilino está al día (is_paid = true)
+            if ($tenant->is_paid) {
+                // Si intenta entrar a la página de "pago pendiente" estando al día, redirigir al dashboard
+                if ($request->routeIs('tenant.payment-pending')) {
+                    return redirect()->route('dashboard');
                 }
-                $due = $due->startOfDay();
+                // Permitir acceso total al resto de rutas
+                return $next($request);
             }
 
-            $today = Carbon::now($tz)->startOfDay();
+            // Si llegamos aquí, el inquilino NO está pagado (Suspendido/Vencido)
+            // Bloquear acceso excepto a rutas permitidas
 
-            $shouldBlock = false;
-            if (!$tenant->is_paid) {
-                if ($due === null) {
-                    $shouldBlock = true;
-                } else {
-                    // Bloquear solo si HOY es posterior al día de vencimiento (vence hoy permite acceso)
-                    $shouldBlock = $today->gt($due);
-                }
+            // Rutas permitidas durante el bloqueo
+            $allowedRoutes = [
+                'tenant.payment-pending',
+                'tenant.payment-notification.send',
+                'login', // Mantenemos login en allowed para que no cause bucle, pero lo redirigimos abajo
+                'logout'
+            ];
+
+            $currentRoute = $request->route() ? $request->route()->getName() : null;
+
+            if ($currentRoute && !in_array($currentRoute, $allowedRoutes)) {
+                // Si intenta acceder a cualquier otra ruta, redirigir a la página de pago pendiente
+                return redirect()->route('tenant.payment-pending');
             }
-
-            if (
-                $shouldBlock &&
-                !$request->routeIs('login') &&
-                !$request->routeIs('tenant.payment-notification.send') &&
-                !$request->routeIs('tenant.payment-pending')
-            ) {
-                return redirect()->route('login')->with('payment_pending', true);
+            
+            // Si está en el login, redirigir también a payment-pending para evitar confusión
+            if ($currentRoute === 'login') {
+                    return redirect()->route('tenant.payment-pending');
             }
         }
 

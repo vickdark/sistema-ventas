@@ -10,6 +10,7 @@ export default defineConfig({
                 'resources/js/app.js'
             ],
             refresh: true,
+            // detectTls: 'sistema-ventas.test', 
         }),
         VitePWA({
             registerType: 'autoUpdate',
@@ -85,6 +86,11 @@ export default defineConfig({
         })
     ],
     server: {
+        host: '127.0.0.1',
+        port: 5173,
+        hmr: {
+            host: 'sistema-ventas.test',
+        },
         watch: {
             ignored: ['**/storage/framework/views/**'],
         },

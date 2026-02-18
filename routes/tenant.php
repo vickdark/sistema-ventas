@@ -19,9 +19,9 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 */
 
     Route::middleware([
-        'web',
         InitializeTenancyByDomain::class,
         PreventAccessFromCentralDomains::class,
+        'web',
         \App\Http\Middleware\Tenant\CheckTenantPaymentStatus::class,
     ])->group(function () {
     Route::get('payment-pending', function () {

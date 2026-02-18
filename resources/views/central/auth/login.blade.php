@@ -1,6 +1,10 @@
 @extends('layouts.guest')
 
 @section('content')
+<div id="central-login-page"></div>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 @if (!Session::has('central_gate_passed'))
 <div id="gate-container">
     <div class="text-center mb-5">
