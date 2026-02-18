@@ -31,23 +31,30 @@ class SuspendExpiredTenants extends Command
         $today = Carbon::today();
         $todayStr = $today->format('Y-m-d');
         
-        $candidates = Tenant::where('data->is_paid', true)
-            ->whereNotNull('data->next_payment_date')
+        // Buscar inquilinos cuya fecha de pago ha vencido y que NO estén ya marcados como suspendidos (is_paid = false)
+        // Esto asegura que la suspensión se base estrictamente en la fecha, corrigiendo cualquier estado inconsistente,
+        // pero evitando procesar repetidamente a los que ya están suspendidos.
+        $candidates = Tenant::whereNotNull('data->next_payment_date')
             ->where('data->next_payment_date', '<', $todayStr)
+            ->where(function ($query) {
+                $query->where('data->is_paid', true)
+                      ->orWhereNull('data->is_paid');
+            })
             ->get();
 
         // Sin días de gracia: suspender a todo candidato con fecha vencida hoy o antes
         $expiredTenants = $candidates;
 
         if ($expiredTenants->isEmpty()) {
-            $this->info('No se encontraron inquilinos vencidos el día de hoy.');
+            $this->info('No se encontraron inquilinos vencidos pendientes de suspensión el día de hoy.');
             return;
         }
 
         $count = 0;
         foreach ($expiredTenants as $tenant) {
-            $tenant->is_paid = false;
-            $tenant->save();
+            $tenant->update([
+                'is_paid' => false
+            ]);
             $this->warn("Inquilino suspendido: {$tenant->id} (Venció el: {$tenant->next_payment_date})");
             $count++;
         }
