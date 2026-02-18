@@ -39,6 +39,7 @@ const loaders = {
     '#central-login-page': CentralPages.initCentralLogin,
     '#central-users-index-page': CentralPages.initUsersIndex,
     '#central-tenants-index-page': CentralPages.initTenantsIndex,
+    '#central-tenants-create-page': CentralPages.initTenantsCreate,
     '#central-tenants-edit-page': CentralPages.initTenantsEdit,
     '#central-payment-notifications-page': CentralPages.initPaymentNotificationsIndex
 };
