@@ -1,12 +1,21 @@
 @extends('layouts.app')
 
 @section('content')
-<div id="central-tenants-edit-page"></div>
 @php
-    $suspendUrl = route('central.tenants.suspend', $tenant->id);
-    $activateUrl = route('central.tenants.mark-as-paid', $tenant->id);
     $isPaid = $tenant->is_paid;
+    $config = [
+        'tenantId' => $tenant->id,
+        'routes' => [
+            'suspend' => route('central.tenants.suspend', $tenant->id),
+            'activate' => route('central.tenants.mark-as-paid', $tenant->id),
+            'maintenance' => route('central.tenants.maintenance', $tenant->id),
+        ],
+        'tokens' => [
+            'csrf' => csrf_token()
+        ]
+    ];
 @endphp
+<div id="central-tenants-edit-page" data-config='@json($config)'></div>
 <div class="container-fluid">
     <div class="row mb-4">
         <div class="col">
@@ -352,226 +361,9 @@
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        if (typeof window.bootstrap === 'undefined') return;
-        
-        const btnSuspend = document.getElementById('btn-suspend-tenant');
-        const btnActivate = document.getElementById('btn-activate-tenant');
-
-        if (btnSuspend) {
-            btnSuspend.addEventListener('click', function() {
-                if (typeof window.suspendTenant === 'function') {
-                    window.suspendTenant('{{ $suspendUrl }}', '{{ $tenant->id }}');
-                } else {
-                    console.error('La función suspendTenant no está definida. Asegúrate de que index.js se haya cargado.');
-                }
-            });
-        }
-
-        if (btnActivate) {
-            btnActivate.addEventListener('click', function() {
-                if (typeof window.markTenantAsPaid === 'function') {
-                    window.markTenantAsPaid('{{ $activateUrl }}', '{{ $tenant->id }}');
-                } else {
-                    console.error('La función markTenantAsPaid no está definida. Asegúrate de que index.js se haya cargado.');
-                }
-            });
-        }
-
-        const processModal = new window.bootstrap.Modal(document.getElementById('processModal'));
-        const maintenanceButtons = document.querySelectorAll('.btn-maintenance');
-        const consoleEl = document.getElementById('terminal-console');
-
-        function logToConsole(message, type = 'info') {
-            const line = document.createElement('div');
-            const time = new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            line.className = 'mb-1 ' + (type === 'error' ? 'text-danger' : (type === 'success' ? 'text-success' : 'text-light'));
-            line.innerHTML = `<span class="text-secondary small">[${time}]</span> <span class="opacity-75">></span> ${message}`;
-            consoleEl.appendChild(line);
-            consoleEl.scrollTop = consoleEl.scrollHeight;
-        }
-
-        function updateStep(stepNum, state) {
-            const step = document.getElementById(`step-${stepNum}`);
-            if (!step) return;
-            const icon = step.querySelector('.step-icon');
-            
-            if (state === 'active') {
-                step.classList.remove('text-muted');
-                step.classList.add('fw-bold', 'text-warning');
-                icon.innerHTML = '<i class="fas fa-circle-notch fa-spin text-warning"></i>';
-            } else if (state === 'complete') {
-                step.classList.remove('text-warning');
-                step.classList.add('text-success');
-                icon.innerHTML = '<i class="fas fa-check-circle text-success"></i>';
-                const statusDiv = step.querySelector('.step-status');
-                if (statusDiv) statusDiv.innerHTML = '<span class="badge bg-success">Listo</span>';
-            } else if (state === 'skipped') {
-                step.classList.add('opacity-50');
-                icon.innerHTML = '<i class="fas fa-forward text-muted"></i>';
-            }
-        }
-
-        maintenanceButtons.forEach(button => {
-            button.addEventListener('click', async function() {
-                const type = this.getAttribute('data-type');
-                const actionName = type === 'migrate' ? 'ejecutar migraciones' : 'ejecutar seeders';
-                
-                const confirmResult = await window.Swal.fire({
-                    title: `¿Confirmas ${actionName}?`,
-                    text: type === 'seed' 
-                        ? 'Esto revisará migraciones y ejecutará los seeders técnicos. ¿Deseas continuar?'
-                        : 'Se buscarán nuevas tablas o cambios en la estructura de este inquilino.',
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: type === 'seed' ? '#f6c23e' : '#4e73df',
-                    cancelButtonColor: '#6c757d',
-                    confirmButtonText: 'Sí, proceder',
-                    cancelButtonText: 'Cancelar',
-                    customClass: { confirmButton: 'rounded-pill px-4 fw-bold', cancelButton: 'rounded-pill px-4' }
-                });
-
-                if (!confirmResult.isConfirmed) return;
-
-                processModal.show();
-                logToConsole(`Iniciando mantenimiento manual (${type})...`);
-                updateStep(1, 'active');
-
-                try {
-                    const response = await fetch("{{ route('central.tenants.maintenance', $tenant->id) }}", {
-                        method: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({ type: type })
-                    });
-
-                    const result = await response.json();
-
-                    updateStep(1, 'complete');
-                    updateStep(2, 'active');
-                    logToConsole('Inquilino verificado correctamente.', 'success');
-
-                    setTimeout(() => {
-                        updateStep(2, 'complete');
-                        updateStep(3, 'active');
-                        logToConsole('Ejecutando Artisan comandos en el servidor...');
-
-                        if (result.output) {
-                            const lines = result.output.split('\n');
-                            lines.forEach((line, i) => {
-                                if (line.trim()) {
-                                    setTimeout(() => logToConsole(line.trim()), i * 30);
-                                }
-                            });
-                        }
-
-                        setTimeout(() => {
-                            updateStep(3, 'complete');
-                            
-                            if (type === 'seed' || type === 'both') {
-                                updateStep(4, 'complete');
-                            } else {
-                                updateStep(4, 'skipped');
-                            }
-                            
-                            // Resumen de ejecutados
-                            if (result.executed && (result.executed.migrations.length > 0 || result.executed.seeders.length > 0)) {
-                                logToConsole('--- RESUMEN DE CAMBIOS REGISTRADOS ---', 'success');
-                                result.executed.migrations.forEach(m => logToConsole(`🚀 MIGRACIÓN: ${m}`, 'success'));
-                                result.executed.seeders.forEach(s => logToConsole(`🌱 SEEDER: ${s}`, 'success'));
-                            } else {
-                                logToConsole('No se detectaron nuevas migraciones o registros pendientes.', 'info');
-                            }
-
-                            logToConsole('Mantenimiento finalizado con éxito.', 'success');
-                            
-                            document.getElementById('main-spinner').classList.add('d-none');
-                            document.getElementById('success-icon').classList.remove('d-none');
-                            document.getElementById('process-title').innerText = '¡Proceso Completado!';
-                            document.getElementById('final-actions').classList.remove('d-none');
-                        }, 3000);
-                    }, 1000);
-
-                } catch (error) {
-                    logToConsole('ERROR: ' + error.message, 'error');
-                    window.Swal.fire({
-                        icon: 'error',
-                        title: 'Error en el proceso',
-                        text: error.message || 'No se pudo completar el mantenimiento manual.',
-                        confirmButtonColor: '#4e73df'
-                    });
-                }
-            });
-        });
-    });
-</script>
-
 <style>
     .shadow-soft { box-shadow: 0 0.75rem 1.5rem rgba(0, 0, 0, 0.05) !important; }
     .btn-primary { background: #4e73df; border: none; }
     .form-control:focus { border-color: #4e73df; box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.1); }
 </style>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Lógica para campos de facturación
-        const serviceTypeSelect = document.getElementById('service_type');
-        const subscriptionPeriodSelect = document.getElementById('subscription_period');
-        const subscriptionPeriodContainer = document.getElementById('subscription_period_container');
-        const nextPaymentDateLabel = document.getElementById('next_payment_date_label');
-        const nextPaymentDateInput = document.getElementById('next_payment_date');
-
-        function calculateNextPaymentDate() {
-            const today = new Date();
-            // Empezamos a contar desde mañana
-            const startDate = new Date(today);
-            startDate.setDate(today.getDate() + 1);
-
-            let daysToAdd = 0;
-            if (serviceTypeSelect.value === 'subscription') {
-                daysToAdd = parseInt(subscriptionPeriodSelect.value) || 30;
-            } else {
-                // Para mantenimiento/compra es anual (365 días)
-                daysToAdd = 365; 
-            }
-
-            const nextDate = new Date(startDate);
-            nextDate.setDate(startDate.getDate() + daysToAdd);
-
-            // Formatear a YYYY-MM-DD para el input date
-            const yyyy = nextDate.getFullYear();
-            const mm = String(nextDate.getMonth() + 1).padStart(2, '0');
-            const dd = String(nextDate.getDate()).padStart(2, '0');
-            
-            nextPaymentDateInput.value = `${yyyy}-${mm}-${dd}`;
-        }
-
-        function toggleBillingFields() {
-            if (serviceTypeSelect.value === 'subscription') {
-                subscriptionPeriodContainer.classList.remove('d-none');
-                nextPaymentDateLabel.innerText = 'Próxima Fecha de Facturación';
-            } else {
-                subscriptionPeriodContainer.classList.add('d-none');
-                nextPaymentDateLabel.innerText = 'Próxima Fecha de Cobro Mantenimiento';
-            }
-        }
-
-        if (serviceTypeSelect) {
-            serviceTypeSelect.addEventListener('change', function() {
-                toggleBillingFields();
-                calculateNextPaymentDate();
-            });
-            
-            subscriptionPeriodSelect.addEventListener('change', calculateNextPaymentDate);
-            
-            // Solo calcular automáticamente si el campo está vacío o es un cambio de tipo
-            // En edición, usualmente queremos mantener la fecha actual a menos que cambien el plan
-            toggleBillingFields();
-        }
-    });
-</script>
 @endsection
