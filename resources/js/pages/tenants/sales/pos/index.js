@@ -1,4 +1,3 @@
-import '../../../../../css/pages/tenants/sales/pos.css';
 import { CartManager } from './CartManager';
 import { ProductSearch } from './ProductSearch';
 import { CustomerManager } from './CustomerManager';

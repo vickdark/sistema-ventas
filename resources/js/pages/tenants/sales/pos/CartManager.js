@@ -1,4 +1,4 @@
-import Notifications from '../../../modules/Notifications';
+import Notifications from '../../../../modules/Notifications';
 
 export class CartManager {
     constructor() {

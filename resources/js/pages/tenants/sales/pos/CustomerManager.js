@@ -1,4 +1,4 @@
-import Notifications from '../../../modules/Notifications';
+import Notifications from '../../../../modules/Notifications';
 import TomSelect from 'tom-select';
 
 export class CustomerManager {

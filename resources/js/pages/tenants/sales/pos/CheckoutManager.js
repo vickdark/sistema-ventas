@@ -1,5 +1,5 @@
-import Notifications from '../../../modules/Notifications';
-import { saveOfflineSale } from '../../../modules/OfflineDB';
+import Notifications from '../../../../modules/Notifications';
+import { saveOfflineSale } from '../../../../modules/OfflineDB';
 
 export class CheckoutManager {
     constructor(config, cartManager, customerManager) {
