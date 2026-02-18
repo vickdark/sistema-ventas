@@ -24,6 +24,7 @@ const loaders = {
     '#products-edit-page': TenantPages.initProductsEdit,
     '#purchases-index-page': TenantPages.initPurchasesIndex,
     '#purchases-create-page': TenantPages.initPurchasesCreate,
+    '#purchases-edit-page': TenantPages.initPurchasesEdit,
     '#suppliers-index-page': TenantPages.initSuppliersIndex,
     '#suppliers-create-page': TenantPages.initSuppliersCreate,
     '#cash-registers-index-page': TenantPages.initCashRegistersIndex,

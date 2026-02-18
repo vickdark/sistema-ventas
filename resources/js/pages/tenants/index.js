@@ -11,6 +11,7 @@ export { initProductsCreate } from './products/create';
 export { initProductsEdit } from './products/edit';
 export { initPurchasesIndex } from './purchases/index';
 export { initPurchasesCreate } from './purchases/create';
+export { initPurchasesEdit } from './purchases/edit';
 export { initSuppliersIndex } from './suppliers/index';
 export { initSuppliersCreate } from './suppliers/create';
 export { initCashRegistersIndex } from './cash_registers/index';
