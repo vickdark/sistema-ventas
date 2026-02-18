@@ -162,7 +162,11 @@ export default class DataGrid {
             });
         });
 
-        const doc = new window.jsPDF();
+        // Dynamic Import
+        const { jsPDF } = await import('jspdf');
+        const autoTable = (await import('jspdf-autotable')).default;
+
+        const doc = new jsPDF();
         doc.text("Reporte de " + (document.title || 'Datos'), 14, 15);
         
         const autoTableConfig = {
@@ -173,14 +177,7 @@ export default class DataGrid {
             headStyles: { fillStyle: [78, 115, 223] }
         };
 
-        if (typeof doc.autoTable !== 'function' && typeof window.autoTable === 'function') {
-            window.autoTable(doc, autoTableConfig);
-        } else if (typeof doc.autoTable === 'function') {
-            doc.autoTable(autoTableConfig);
-        } else {
-            console.error('autoTable is not available');
-        }
-
+        autoTable(doc, autoTableConfig);
         doc.save(`${document.title || 'reporte'}.pdf`);
     }
 
@@ -204,10 +201,13 @@ export default class DataGrid {
             return row;
         });
 
-        const worksheet = window.XLSX.utils.json_to_sheet(rows);
-        const workbook = window.XLSX.utils.book_new();
-        window.XLSX.utils.book_append_sheet(workbook, worksheet, "Datos");
-        window.XLSX.writeFile(workbook, `${document.title || 'reporte'}.xlsx`);
+        // Dynamic Import
+        const XLSX = await import('xlsx');
+
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Datos");
+        XLSX.writeFile(workbook, `${document.title || 'reporte'}.xlsx`);
     }
 
     static html(content) {

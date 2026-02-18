@@ -1,10 +1,8 @@
-import * as XLSX from 'xlsx';
-
 export const initExcelExport = (data, topProductos) => {
     const exportBtn = document.getElementById('exportExcel');
     if (!exportBtn) return;
 
-    exportBtn.addEventListener('click', function() {
+    exportBtn.addEventListener('click', async function() {
         let exportData = [
             ["REPORTE ESTRATÉGICO DE VENTAS"],
             ["Generado el:", new Date().toLocaleString()],
@@ -25,6 +23,9 @@ export const initExcelExport = (data, topProductos) => {
         topProductos.forEach(tp => {
             exportData.push([tp.product_name, tp.total_vendido]);
         });
+
+        // Dynamic Import
+        const XLSX = await import('xlsx');
 
         const ws = XLSX.utils.aoa_to_sheet(exportData);
         const wb = XLSX.utils.book_new();
