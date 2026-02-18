@@ -31,7 +31,7 @@
                 <div class="invalid-feedback d-block">{{ $message }}</div>
             @enderror
             <div class="mt-3">
-                <div class="g-recaptcha" data-sitekey="{{ env('NOCAPTCHA_SITEKEY') }}" data-callback="onGateCaptchaSuccess" data-expired-callback="onGateCaptchaExpired"></div>
+                <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.sitekey') }}" data-callback="onGateCaptchaSuccess" data-expired-callback="onGateCaptchaExpired"></div>
             </div>
         </div>
 
@@ -87,7 +87,7 @@
         </div>
 
         <div class="mb-4">
-            <div class="g-recaptcha" data-sitekey="{{ env('NOCAPTCHA_SITEKEY') }}" data-callback="onLoginCaptchaSuccess" data-expired-callback="onLoginCaptchaExpired"></div>
+            <div class="g-recaptcha" data-sitekey="{{ config('services.recaptcha.sitekey') }}" data-callback="onLoginCaptchaSuccess" data-expired-callback="onLoginCaptchaExpired"></div>
         </div>
 
         <button type="submit" id="centralLoginButton" class="btn btn-primary w-100 py-3 rounded-3 shadow-sm fw-bold transition-all hover-lift">
