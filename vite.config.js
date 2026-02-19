@@ -27,10 +27,12 @@ export default defineConfig({
                 cleanupOutdatedCaches: true,
                 clientsClaim: true,
                 skipWaiting: true,
+                navigateFallback: null, // Evita el error de index.html no precacheado
                 globPatterns: [
                     'build/assets/*.{js,css,woff,woff2}',
                     'img/*.{png,jpg,ico,svg}',
                 ],
+                globIgnores: ['**/manifest.webmanifest'], // Evita que el SW intente precachear el manifest y falle
             },
             manifest: {
                 start_url: '/',

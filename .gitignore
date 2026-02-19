@@ -26,3 +26,8 @@ Thumbs.db
 # Legacy system
 /ventas-legacy/
 _ide_helper.php
+
+# PWA Generated files
+/public/sw.js
+/public/workbox-*.js
+/public/manifest.webmanifest

@@ -13,25 +13,10 @@
     <link rel="apple-touch-icon" href="/img/logo-pwa-192.png">
 
     <script>
-        @php
-            $isTenant = function_exists('tenant') && tenant();
-            $tenantConfig = [
-                'expirationDate' => $isTenant ? (tenant('next_payment_date') ?? '') : '',
-                'serviceType' => $isTenant ? (tenant('service_type') ?? '') : '',
-                'businessName' => $isTenant ? (tenant('business_name') ?? 'Sistema') : config('app.name'),
-                'isOfflineSupported' => $isTenant,
-                'user' => auth()->check() ? [
-                    'name' => auth()->user()->name,
-                    'email' => auth()->user()->email,
-                ] : null,
-                'routes' => [
-                    'sales_store' => $isTenant ? route('sales.store') : null,
-                    'low_stock' => $isTenant && Route::has('notifications.low-stock') ? route('notifications.low-stock') : null
-                ],
-                'csrfToken' => csrf_token()
-            ];
-        @endphp
-        window.TenantConfig = @json($tenantConfig);
+        window.TenantConfig = {
+            businessName: "{{ function_exists('tenant') && tenant() ? (tenant('business_name') ?? 'Sistema') : config('app.name') }}",
+            csrfToken: "{{ csrf_token() }}"
+        };
     </script>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
