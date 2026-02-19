@@ -1,7 +1,7 @@
             </div>
         <footer class="app-footer">
             <span>{{ config('app.name', 'Laravel') }} {{ date('Y') }}</span>
-            <span>Hecho con Bootstrap 5</span>
+            <span>Made with ❤️ by Mambacode &copy; all rights reserved</span>
         </footer>
     </main>
 </div>
