@@ -28,11 +28,6 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
-    'recaptcha' => [
-        'sitekey' => env('NOCAPTCHA_SITEKEY'),
-        'secret' => env('NOCAPTCHA_SECRET'),
-    ],
-
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
