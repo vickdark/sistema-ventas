@@ -27,12 +27,14 @@ export default defineConfig({
                 cleanupOutdatedCaches: true,
                 clientsClaim: true,
                 skipWaiting: true,
-                navigateFallback: null, // Evita el error de index.html no precacheado
+                navigateFallback: null, 
                 globPatterns: [
                     'build/assets/*.{js,css,woff,woff2}',
                     'img/*.{png,jpg,ico,svg}',
                 ],
-                globIgnores: ['**/manifest.webmanifest'], // Evita que el SW intente precachear el manifest y falle
+                // IMPORTANTE: No dejar que Workbox intente precachear el manifest
+                globIgnores: ['**/manifest.webmanifest', 'build/manifest.webmanifest'],
+                maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
             },
             manifest: {
                 start_url: '/',

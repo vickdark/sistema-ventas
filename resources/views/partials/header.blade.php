@@ -9,14 +9,14 @@
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#4e73df">
-    <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">
+    <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/img/logo-pwa-192.png">
 
     <script>
-        window.TenantConfig = {
-            businessName: "{{ function_exists('tenant') && tenant() ? (tenant('business_name') ?? 'Sistema') : config('app.name') }}",
-            csrfToken: "{{ csrf_token() }}"
-        };
+        window.TenantConfig = @json([
+            'businessName' => function_exists('tenant') && tenant() ? (tenant('business_name') ?? 'Sistema') : config('app.name'),
+            'csrfToken' => csrf_token()
+        ]);
     </script>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
