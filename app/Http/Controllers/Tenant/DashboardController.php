@@ -23,26 +23,31 @@ class DashboardController extends Controller
 
             $subscriptionData = $this->getSubscriptionData();
 
-            // 1. Si es admin, mostramos admin (Ruta fija para evitar fallos de mayúsculas)
+            // 1. Si es admin
             if ($user->isAdmin()) {
                 return view('tenant.dashboards.admin', $subscriptionData);
             }
 
-            // 2. Si es vendedor, mostramos vendedor
+            // 2. Si es vendedor
             if ($user->hasRole('vendedor') || $user->hasRole('Vendedor')) {
                 return view('tenant.dashboards.vendedor', $subscriptionData);
             }
 
-            // 3. Si no coincide nada o no tiene rol, el genérico
+            // 3. Genérico
             return view('tenant.dashboards.generic', $subscriptionData);
 
         } catch (\Throwable $e) {
-            \Log::error("Error Fatal en Dashboard: " . $e->getMessage());
-            // En producción, al menos mostramos el genérico si el específico falla
+            \Log::error("Dashboard Error: " . $e->getMessage());
+            
             return view('tenant.dashboards.generic', [
                 'showSubscriptionStatus' => false,
                 'businessName' => config('app.name'),
-                'label' => 'ERROR'
+                'label' => 'ERROR',
+                'serviceType' => null,
+                'isMaintenance' => false,
+                'auxLine' => 'Error al cargar el panel de control.',
+                'nextPaymentDate' => null,
+                'formattedNextPaymentDate' => null
             ]);
         }
     }
