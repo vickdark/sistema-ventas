@@ -13,49 +13,57 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        /** @var \App\Models\Tenant\Usuario $user */
-        $user = Auth::user();
+        try {
+            /** @var \App\Models\Tenant\Usuario $user */
+            $user = Auth::user();
 
-        // Validamos que el usuario y su rol existan para evitar errores
-        if (!$user || !$user->role) {
-            return view('tenant.dashboards.generic');
-        }
-
-        $subscriptionData = $this->getSubscriptionData();
-
-        // 1. Intentar por permiso específico (ej: dashboard.admin, dashboard.vendedor)
-        $roleDashboard = $user->role->permissions()
-            ->where('slug', 'like', 'dashboard.%')
-            ->where('slug', '!=', 'dashboard')
-            ->first();
-
-        if ($roleDashboard) {
-            $viewName = str_replace('dashboard.', 'tenant.dashboards.', $roleDashboard->slug);
-            if (view()->exists($viewName)) {
-                return view($viewName, $subscriptionData);
+            if (!$user || !$user->role) {
+                return view('tenant.dashboards.generic', $this->getSubscriptionData());
             }
-        }
 
-        // 2. Intentar por el slug del rol directamente (ej: rol 'admin' -> dashboards.admin)
-        $roleSlug = $user->role->slug;
-        $roleViewName = "tenant.dashboards.{$roleSlug}";
-        if (view()->exists($roleViewName)) {
-            return view($roleViewName, $subscriptionData);
-        }
+            $subscriptionData = $this->getSubscriptionData();
 
-        // 3. Dashboard genérico por defecto
-        return view('tenant.dashboards.generic', $subscriptionData);
+            // 1. Intentar por permiso específico
+            $roleDashboard = $user->role->permissions()
+                ->where('slug', 'like', 'dashboard.%')
+                ->where('slug', '!=', 'dashboard')
+                ->first();
+
+            if ($roleDashboard) {
+                $viewName = str_replace('dashboard.', 'tenant.dashboards.', $roleDashboard->slug);
+                if (view()->exists($viewName)) {
+                    return view($viewName, $subscriptionData);
+                }
+            }
+
+            // 2. Intentar por el slug del rol directamente
+            $roleSlug = $user->role->slug;
+            $roleViewName = "tenant.dashboards.{$roleSlug}";
+            if (view()->exists($roleViewName)) {
+                return view($roleViewName, $subscriptionData);
+            }
+
+            return view('tenant.dashboards.generic', $subscriptionData);
+        } catch (\Exception $e) {
+            \Log::error("Dashboard Error: " . $e->getMessage());
+            return view('tenant.dashboards.generic', [
+                'showSubscriptionStatus' => false,
+                'badgeClass' => 'bg-secondary',
+                'label' => 'ERROR',
+                'serviceType' => null,
+                'isMaintenance' => false,
+                'auxLine' => 'Error al cargar datos del dashboard: ' . $e->getMessage(),
+                'nextPaymentDate' => null,
+                'formattedNextPaymentDate' => null
+            ]);
+        }
     }
 
     private function getSubscriptionData()
     {
-        $serviceType = tenant('service_type');
-        $isMaintenance = ($serviceType === 'purchase');
-        
-        // Default values
         $data = [
-            'serviceType' => $serviceType,
-            'isMaintenance' => $isMaintenance,
+            'serviceType' => null,
+            'isMaintenance' => false,
             'badgeClass' => 'bg-success',
             'label' => 'ACTIVA',
             'auxLine' => null,
@@ -64,56 +72,47 @@ class DashboardController extends Controller
             'showSubscriptionStatus' => false,
         ];
 
-        if (!in_array($serviceType, ['subscription', 'purchase'])) {
-            return $data;
-        }
-
-        $data['showSubscriptionStatus'] = true;
-        $next = tenant('next_payment_date');
-        $data['nextPaymentDate'] = $next;
-        
-        if (!$next) {
-            return $data;
-        }
-
-        $tz = tenant('timezone') ?? config('app.timezone', 'UTC');
-        $data['formattedNextPaymentDate'] = \Carbon\Carbon::parse($next, $tz)->format('d/m/Y');
-
-        $now = \Carbon\Carbon::now($tz);
-        $dueStart = \Carbon\Carbon::parse($next, $tz)->startOfDay();
-        $dueEnd = \Carbon\Carbon::parse($next, $tz)->endOfDay();
-        $todayStart = $now->copy()->startOfDay();
-
-        if ($now->gt($dueEnd)) {
-            $data['badgeClass'] = 'bg-danger';
-            $data['label'] = 'VENCIDA';
-        } elseif ($todayStart->equalTo($dueStart)) {
-            $data['badgeClass'] = 'bg-warning';
-            $data['label'] = 'VENCE HOY';
-        } else {
-            $days = $todayStart->diffInDays($dueStart, false);
-            if ($days > 0) {
-                if ($isMaintenance) {
-                    // Para purchase/maintenance solo mostramos mensaje si faltan 5 días o menos
-                    if ($days <= 5) {
-                        $data['badgeClass'] = 'bg-warning';
-                        $daysText = ($days === 1) ? '1 día' : "$days días";
-                        $data['auxLine'] = "Faltan $daysText para el pago de mantenimiento.";
-                        $data['label'] = "VENCE EN " . strtoupper($daysText);
-                    } else {
-                        // Si faltan más de 5 días, ocultamos la tarjeta para tipo purchase
-                        $data['showSubscriptionStatus'] = false;
-                    }
-                } else {
-                    // Para suscripción normal
-                    if ($days <= 5) { 
-                        $data['badgeClass'] = 'bg-warning';
-                    }
-                    $data['label'] = 'VENCE EN ' . $days . 'D';
-                }
+        try {
+            $serviceType = tenant('service_type');
+            $data['serviceType'] = $serviceType;
+            $data['isMaintenance'] = ($serviceType === 'purchase');
+            
+            if (!in_array($serviceType, ['subscription', 'purchase'])) {
+                return $data;
             }
+
+            $next = tenant('next_payment_date');
+            if (!$next) return $data;
+            
+            $data['nextPaymentDate'] = $next;
+            $data['showSubscriptionStatus'] = true;
+
+            $tz = tenant('timezone') ?? config('app.timezone', 'UTC');
+            try {
+                $now = \Carbon\Carbon::now($tz);
+                $due = \Carbon\Carbon::parse($next, $tz);
+                $data['formattedNextPaymentDate'] = $due->format('d/m/Y');
+                
+                if ($now->gt($due->endOfDay())) {
+                    $data['badgeClass'] = 'bg-danger';
+                    $data['label'] = 'VENCIDA';
+                } elseif ($now->isSameDay($due)) {
+                    $data['badgeClass'] = 'bg-warning';
+                    $data['label'] = 'VENCE HOY';
+                } else {
+                    $days = (int)$now->diffInDays($due, false);
+                    if ($days > 0) {
+                        $data['label'] = "VENCE EN {$days}D";
+                        if ($days <= 5) $data['badgeClass'] = 'bg-warning';
+                    }
+                }
+            } catch (\Exception $dateErr) {
+                $data['formattedNextPaymentDate'] = $next;
+            }
+        } catch (\Exception $e) {
+            \Log::warning("Subscription data error: " . $e->getMessage());
         }
-        
+
         return $data;
     }
 }
