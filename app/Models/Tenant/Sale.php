@@ -8,11 +8,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Sale extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\Tenant\BelongsToBranch;
 
     protected $fillable = [
         'nro_venta',
         'client_id',
+        'branch_id',
         'total_paid',
         'user_id',
         'sale_date',
@@ -35,5 +36,10 @@ class Sale extends Model
     public function items()
     {
         return $this->hasMany(SaleItem::class);
+    }
+
+    public function creditNotes()
+    {
+        return $this->hasMany(CreditNote::class);
     }
 }

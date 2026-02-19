@@ -41,11 +41,11 @@ Route::middleware([
     require __DIR__.'/auth.php';
 
     // Dashboard único (el controlador redirige internamente)
-    Route::middleware(['auth'])->group(function () {
+    Route::middleware(['auth', 'active_branch'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     });
 
-    Route::middleware(['auth', CheckPermission::class])->group(function () {
+    Route::middleware(['auth', 'active_branch', CheckPermission::class])->group(function () {
         // Rutas administrativas que requieren permiso
         Route::get('/dashboard/admin', [DashboardController::class, 'index'])->name('dashboard.admin');
             
@@ -58,11 +58,22 @@ Route::middleware([
                 'purchases' => \App\Http\Controllers\Tenant\PurchaseController::class,
                 'suppliers' => \App\Http\Controllers\Tenant\SupplierController::class,
                 'sales' => \App\Http\Controllers\Tenant\SaleController::class,
+                'branches' => \App\Http\Controllers\Tenant\BranchController::class,
                 'abonos' => \App\Http\Controllers\Tenant\AbonoController::class,
-                'cash-registers' => \App\Http\Controllers\Tenant\CashRegisterController::class,
                 'reports' => \App\Http\Controllers\Tenant\ReportController::class,
+                'credit-notes' => \App\Http\Controllers\Tenant\CreditNoteController::class,
+                'cash-registers' => \App\Http\Controllers\Tenant\CashRegisterController::class,
+                'expenses' => \App\Http\Controllers\Tenant\ExpenseController::class,
+                'expense-categories' => \App\Http\Controllers\Tenant\ExpenseCategoryController::class,
             ]);
             
+            // Inventario & Kardex
+            Route::get('inventory', [\App\Http\Controllers\Tenant\InventoryController::class, 'index'])->name('inventory.index');
+            Route::get('inventory/{product}/kardex', [\App\Http\Controllers\Tenant\InventoryController::class, 'kardex'])->name('inventory.kardex');
+            Route::post('inventory/adjust', [\App\Http\Controllers\Tenant\InventoryController::class, 'adjust'])->name('inventory.adjust');
+            
+            Route::post('branches/set-active', [\App\Http\Controllers\Tenant\BranchController::class, 'setActive'])->name('branches.set-active');
+
             // Purchase & Supplier Extras
             Route::get('purchases/{purchase}/voucher', [\App\Http\Controllers\Tenant\PurchaseController::class, 'voucher'])->name('purchases.voucher');
             Route::post('purchases/quick-supplier', [\App\Http\Controllers\Tenant\PurchaseController::class, 'quickStoreSupplier'])->name('purchases.quick-supplier');
@@ -77,6 +88,7 @@ Route::middleware([
 
             Route::get('cash-registers/{cash_register}/close', [\App\Http\Controllers\Tenant\CashRegisterController::class, 'closeForm'])->name('cash-registers.close-form');
             Route::post('cash-registers/{cash_register}/close', [\App\Http\Controllers\Tenant\CashRegisterController::class, 'close'])->name('cash-registers.close');
+
 
             // ETL Import Module
             Route::get('import', [\App\Http\Controllers\Tenant\ImportController::class, 'index'])->name('import.index');

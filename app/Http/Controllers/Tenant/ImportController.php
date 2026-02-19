@@ -564,9 +564,8 @@ class ImportController extends Controller
                 // Crear Compra
                 \App\Models\Tenant\Purchase::create($purchaseData);
                 
-                // Actualizar Stock del Producto
-                $product->stock += $quantity;
-                $product->save();
+                // Actualizar Stock del Producto using helper
+                $product->addStock($quantity, 'Importación de Compra', 'Carga masiva: Compra #' . $nroCompra);
 
                 $created++;
             } catch (\Exception $e) {

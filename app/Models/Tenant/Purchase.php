@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Purchase extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\Tenant\BelongsToBranch;
 
     protected $table = 'purchases';
     protected $primaryKey = 'id';
@@ -35,6 +35,7 @@ class Purchase extends Model
     protected $fillable = [
         'nro_compra',
         'supplier_id',
+        'branch_id',
         'purchase_date',
         'voucher',
         'total',

@@ -32,7 +32,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Product extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\Tenant\BelongsToBranch;
 
     protected $table = 'products'; // Assuming the table name is 'products'
     protected $primaryKey = 'id'; // Assuming 'id' is the primary key
@@ -49,6 +49,7 @@ class Product extends Model
         'entry_date',
         'image',
         'category_id',
+        'branch_id',
         'user_id',
     ];
 
@@ -65,5 +66,54 @@ class Product extends Model
     public function suppliers()
     {
         return $this->belongsToMany(Supplier::class, 'product_supplier');
+    }
+
+    public function branches()
+    {
+        return $this->belongsToMany(Branch::class, 'product_branch')
+            ->withPivot('stock', 'min_stock', 'max_stock')
+            ->withTimestamps();
+    }
+
+    public function addStock($quantity, $reason, $description = null, $reference = null)
+    {
+        $prevStock = $this->stock;
+        $this->stock += $quantity;
+        $this->save();
+
+        return StockMovement::create([
+            'product_id' => $this->id,
+            'branch_id' => $this->branch_id,
+            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+            'type' => 'input',
+            'quantity' => $quantity,
+            'reason' => $reason,
+            'description' => $description,
+            'prev_stock' => $prevStock,
+            'new_stock' => $this->stock,
+            'reference_id' => $reference ? $reference->id : null,
+            'reference_type' => $reference ? get_class($reference) : null,
+        ]);
+    }
+
+    public function removeStock($quantity, $reason, $description = null, $reference = null)
+    {
+        $prevStock = $this->stock;
+        $this->stock -= $quantity;
+        $this->save();
+
+        return StockMovement::create([
+            'product_id' => $this->id,
+            'branch_id' => $this->branch_id,
+            'user_id' => \Illuminate\Support\Facades\Auth::id(),
+            'type' => 'output',
+            'quantity' => $quantity,
+            'reason' => $reason,
+            'description' => $description,
+            'prev_stock' => $prevStock,
+            'new_stock' => $this->stock,
+            'reference_id' => $reference ? $reference->id : null,
+            'reference_type' => $reference ? get_class($reference) : null,
+        ]);
     }
 }

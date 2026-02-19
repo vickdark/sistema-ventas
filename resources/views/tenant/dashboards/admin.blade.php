@@ -142,24 +142,52 @@
             </div>
         </div>
 
-        <!-- Permisos Card -->
+        <!-- Bajo Stock Card -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card shadow-sm rounded-4 h-100 border-start border-danger" style="border-width: 0 0 0 4px;">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div>
+                            <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                Productos Bajo Stock</div>
+                            <div class="h5 mb-0 font-weight-bold text-gray-800">
+                                {{ \App\Models\Tenant\Product::whereColumn('stock', '<=', 'min_stock')->count() }}
+                            </div>
+                        </div>
+                        <div class="bg-danger bg-opacity-10 p-3 rounded-circle">
+                            <i class="fa-solid fa-triangle-exclamation fs-4 text-danger"></i>
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <a href="{{ route('inventory.index') }}" class="text-xs text-decoration-none text-danger">
+                            Ver inventario crítico <i class="fa-solid fa-arrow-right ms-1"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Valor Inventario Card -->
         <div class="col-xl-3 col-md-6">
             <div class="card shadow-sm rounded-4 h-100 border-start border-info" style="border-width: 0 0 0 4px;">
                 <div class="card-body">
                     <div class="d-flex align-items-center justify-content-between">
                         <div>
                             <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
-                                Permisos Activos</div>
+                                Valoración (Costo)</div>
                             <div class="h5 mb-0 font-weight-bold text-gray-800">
-                                {{ \App\Models\Tenant\Permission::count() }}
+                                @php
+                                    $totalValue = \App\Models\Tenant\Product::sum(DB::raw('stock * purchase_price'));
+                                @endphp
+                                ${{ number_format($totalValue, 2) }}
                             </div>
                         </div>
                         <div class="bg-info bg-opacity-10 p-3 rounded-circle">
-                            <i class="fa-solid fa-key fs-4 text-info"></i>
+                            <i class="fa-solid fa-vault fs-4 text-info"></i>
                         </div>
                     </div>
                     <div class="mt-3">
-                        <span class="text-xs text-muted">Sincronizados con rutas</span>
+                        <span class="text-xs text-muted">Stock actual x precio compra</span>
                     </div>
                 </div>
             </div>

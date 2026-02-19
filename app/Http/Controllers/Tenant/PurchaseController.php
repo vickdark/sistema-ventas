@@ -129,12 +129,11 @@ class PurchaseController extends Controller
                     'subtotal' => $subtotal,
                 ]);
 
-                // Update product stock
+                // Update product stock using helper
                 /** @var Product $product */
                 $product = Product::find($itemData['product_id']);
                 if ($product) {
-                    $product->stock += $itemData['quantity'];
-                    $product->save();
+                    $product->addStock($itemData['quantity'], 'Compra', 'Compra #' . $purchase->nro_compra, $purchase);
                 }
             }
 
@@ -225,8 +224,7 @@ class PurchaseController extends Controller
                 /** @var Product $product */
                 $product = Product::find($item->product_id);
                 if ($product) {
-                    $product->stock -= $item->quantity;
-                    $product->save();
+                    $product->removeStock($item->quantity, 'Edición de Compra', 'Compra #' . $purchase->nro_compra);
                 }
             }
 
@@ -257,8 +255,7 @@ class PurchaseController extends Controller
                 /** @var Product $product */
                 $product = Product::find($itemData['product_id']);
                 if ($product) {
-                    $product->stock += $itemData['quantity'];
-                    $product->save();
+                    $product->addStock($itemData['quantity'], 'Edición de Compra', 'Compra #' . $purchase->nro_compra, $purchase);
                 }
             }
 
@@ -279,8 +276,7 @@ class PurchaseController extends Controller
                 /** @var Product $product */
                 $product = Product::find($item->product_id);
                 if ($product) {
-                    $product->stock -= $item->quantity;
-                    $product->save();
+                    $product->removeStock($item->quantity, 'Anulación de Compra', 'Compra #' . $purchase->nro_compra . ' eliminada');
                 }
             }
 

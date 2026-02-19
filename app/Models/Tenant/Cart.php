@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cart extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\Tenant\BelongsToBranch;
 
     protected $fillable = [
         'sale_id',
         'product_id',
+        'branch_id',
         'quantity',
     ];
 

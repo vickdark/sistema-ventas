@@ -52,7 +52,8 @@ class SaleController extends Controller
                 'index' => route('sales.index'),
                 'show' => route('sales.show', ':id'),
                 'ticket' => route('sales.ticket', ':id'),
-                'destroy' => route('sales.destroy', ':id')
+                'destroy' => route('sales.destroy', ':id'),
+                'credit_notes_create' => route('credit-notes.create')
             ]
         ];
 
@@ -140,9 +141,8 @@ class SaleController extends Controller
                     'voucher' => $request->voucher,
                 ]);
 
-                // Update stock
-                $product->stock -= $itemData['quantity'];
-                $product->save();
+                // Update stock using helper
+                $product->removeStock($itemData['quantity'], 'Venta', 'Venta #' . $sale->nro_venta, $sale);
             }
 
             return response()->json([
@@ -155,7 +155,7 @@ class SaleController extends Controller
 
     public function show(string $id)
     {
-        $sale = Sale::with(['client', 'user', 'items.product'])->findOrFail($id);
+        $sale = Sale::with(['client', 'user', 'items.product', 'creditNotes'])->findOrFail($id);
         return view('tenant.sales.show', compact('sale'));
     }
 
@@ -167,8 +167,7 @@ class SaleController extends Controller
             foreach ($sale->items as $item) {
                 $product = Product::find($item->product_id);
                 if ($product) {
-                    $product->stock += $item->quantity;
-                    $product->save();
+                    $product->addStock($item->quantity, 'Anulación de Venta', 'Venta #' . $sale->nro_venta . ' eliminada');
                 }
             }
 

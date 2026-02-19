@@ -41,6 +41,9 @@ export const getColumns = (routes) => [
                     <a href="${ticketUrl}" target="_blank" class="btn btn-sm btn-outline-warning rounded-pill mx-1" title="Imprimir Ticket">
                         <i class="fas fa-print"></i>
                     </a>
+                    <a href="${routes.credit_notes_create}?sale_id=${id}" class="btn btn-sm btn-outline-primary rounded-pill me-1" title="Procesar Devolución">
+                        <i class="fas fa-undo"></i>
+                    </a>
                     <button type="button" 
                         class="btn btn-sm btn-outline-danger rounded-pill btn-delete" 
                         data-url="${deleteUrl}"

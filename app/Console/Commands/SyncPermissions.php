@@ -172,6 +172,11 @@ class SyncPermissions extends Command
             'reports'        => ['singular' => 'Reporte', 'plural' => 'Reportes'],
             'config'         => ['singular' => 'Configuración', 'plural' => 'Configuraciones'],
             'import'         => ['singular' => 'Importación', 'plural' => 'Importación Masiva'],
+            'branches'       => ['singular' => 'Sucursal', 'plural' => 'Sucursales'],
+            'credit-notes'   => ['singular' => 'Nota de Crédito', 'plural' => 'Notas de Crédito'],
+            'inventory'      => ['singular' => 'Inventario', 'plural' => 'Inventario'],
+            'expenses'       => ['singular' => 'Gasto', 'plural' => 'Gastos'],
+            'expense-categories' => ['singular' => 'Categoría de Gasto', 'plural' => 'Categorías de Gastos'],
         ];
     }
 
@@ -271,6 +276,11 @@ class SyncPermissions extends Command
             'ventas'         => 'fa-solid fa-money-bill-transfer',
             'reportes'       => 'fa-solid fa-chart-pie',
             'import'         => 'fa-solid fa-file-import',
+            'branches'       => 'fa-solid fa-building',
+            'credit-notes'   => 'fa-solid fa-file-invoice-dollar',
+            'inventory'      => 'fa-solid fa-boxes-stacked',
+            'expenses'       => 'fa-solid fa-money-bill-wave',
+            'expense-categories' => 'fa-solid fa-tags',
         ];
 
         return $icons[strtolower($entity)] ?? 'fa-solid fa-circle-dot';
@@ -300,6 +310,11 @@ class SyncPermissions extends Command
             'reports'        => 'Análisis',
             'cash-registers' => 'Caja',
             'import'         => 'Herramientas',
+            'branches'       => 'Configuración',
+            'credit-notes'   => 'Ventas',
+            'inventory'      => 'Inventario',
+            'expenses'       => 'Gastos',
+            'expense-categories' => 'Gastos',
         ];
         
         return $moduleMapping[strtolower($entity)] ?? 'General';
@@ -328,7 +343,12 @@ class SyncPermissions extends Command
             'import'         => 5,
             'usuarios'       => 100,
             'roles'          => 101,
-            'permissions'    => 102,
+            'branches'       => 102,
+            'permissions'    => 103,
+            'credit-notes'   => 23,
+            'inventory'      => 9,
+            'expenses'       => 35,
+            'expense-categories' => 36,
         ];
 
         return $orderMapping[strtolower($entity)] ?? 50;

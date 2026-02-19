@@ -105,8 +105,8 @@ class ImportPurchasesJob implements ShouldQueue
                 DB::transaction(function () use ($purchaseData, $product) {
                     $purchase = Purchase::create($purchaseData);
                     
-                    // Actualizar stock del producto
-                    $product->increment('stock', $purchaseData['quantity']);
+                    // Actualizar stock del producto using helper
+                    $product->addStock($purchaseData['quantity'], 'Importación de Compra', 'Carga masiva (Job): Compra #' . $purchaseData['nro_compra']);
                 });
             } catch (\Exception $e) {
                 Log::error("Error importando compra en Job: " . $e->getMessage());

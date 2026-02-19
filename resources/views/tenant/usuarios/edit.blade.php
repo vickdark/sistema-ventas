@@ -21,19 +21,37 @@
                     <form action="{{ route('usuarios.update', $usuario) }}" method="POST">
                         @csrf
                         @method('PUT')
-                        <div class="mb-3">
-                            <label for="role_id" class="form-label">Rol</label>
-                            <select class="form-select rounded-3 @error('role_id') is-invalid @enderror" id="role_id" name="role_id" required>
-                                <option value="" disabled>Selecciona un rol</option>
-                                @foreach($roles as $role)
-                                    <option value="{{ $role->id }}" {{ old('role_id', $usuario->role_id) == $role->id ? 'selected' : '' }}>
-                                        {{ $role->nombre }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('role_id')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div x-data="{ roleId: '{{ old('role_id', $usuario->role_id) }}', roles: @js($roles->pluck('slug', 'id')) }">
+                            <div class="mb-3">
+                                <label for="role_id" class="form-label">Rol</label>
+                                <select class="form-select rounded-3 @error('role_id') is-invalid @enderror" id="role_id" name="role_id" required x-model="roleId">
+                                    <option value="" disabled>Selecciona un rol</option>
+                                    @foreach($roles as $role)
+                                        <option value="{{ $role->id }}">{{ $role->nombre }}</option>
+                                    @endforeach
+                                </select>
+                                @error('role_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
+
+                            <div class="mb-3" x-show="roleId && roles[roleId] !== 'admin'" x-transition>
+                                <label for="branch_id" class="form-label">Sucursal Asignada</label>
+                                <select class="form-select rounded-3 @error('branch_id') is-invalid @enderror" id="branch_id" name="branch_id">
+                                    <option value="" disabled>Selecciona una sucursal</option>
+                                    @foreach($branches as $branch)
+                                        <option value="{{ $branch->id }}" {{ old('branch_id', $usuario->branch_id ?? ($branch->is_main ? $branch->id : '')) == $branch->id ? 'selected' : '' }}>
+                                            {{ $branch->name }} {{ $branch->is_main ? '(Principal)' : '' }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                <div class="form-text mt-1">
+                                    <i class="fas fa-info-circle me-1"></i> Los datos del sistema se filtrarán automáticamente para este usuario según la sucursal elegida.
+                                </div>
+                                @error('branch_id')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
                         <div class="mb-3">

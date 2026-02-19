@@ -36,7 +36,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Usuario extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, \App\Traits\Tenant\BelongsToBranch;
 
     protected $table = 'users';
 
@@ -47,6 +47,7 @@ class Usuario extends Authenticatable
      */
     protected $fillable = [
         'role_id',
+        'branch_id',
         'name',
         'email',
         'password',

@@ -30,13 +30,16 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'Crear Permisos', 'slug' => 'permissions.create', 'is_menu' => 0, 'icon' => null, 'module' => 'Seguridad', 'order' => 0, 'descripcion' => 'Permite crear nuevos permisos'],
             ['nombre' => 'Editar Permisos', 'slug' => 'permissions.edit', 'is_menu' => 0, 'icon' => null, 'module' => 'Seguridad', 'order' => 0, 'descripcion' => 'Permite editar permisos existentes'],
             ['nombre' => 'Eliminar Permisos', 'slug' => 'permissions.destroy', 'is_menu' => 0, 'icon' => null, 'module' => 'Seguridad', 'order' => 0, 'descripcion' => 'Permite eliminar permisos'],
-            ['nombre' => 'Sincronizar Permiso', 'slug' => 'permissions.sync', 'is_menu' => 0, 'icon' => 'fa-solid fa-key', 'module' => 'Configuración', 'order' => 102, 'descripcion' => 'Permite Sincronizar Permiso en el sistema'],
+            ['nombre' => 'Sincronizar Permiso', 'slug' => 'permissions.sync', 'is_menu' => 0, 'icon' => 'fa-solid fa-key', 'module' => 'Configuración', 'order' => 103, 'descripcion' => 'Permite Sincronizar Permiso en el sistema'],
             ['nombre' => 'Productos', 'slug' => 'products.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-box', 'module' => 'Inventario', 'order' => 10, 'descripcion' => 'Permite Ver Producto en el sistema'],
             ['nombre' => 'Compras', 'slug' => 'purchases.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-cart-shopping', 'module' => 'Inventario', 'order' => 12, 'descripcion' => 'Permite Ver Compra en el sistema'],
             ['nombre' => 'Ventas', 'slug' => 'sales.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-cash-register', 'module' => 'Ventas', 'order' => 20, 'descripcion' => 'Permite Ver Venta en el sistema'],
             ['nombre' => 'Proveedores', 'slug' => 'suppliers.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-truck', 'module' => 'Inventario', 'order' => 13, 'descripcion' => 'Permite Ver Proveedor en el sistema'],
             ['nombre' => 'Categorías', 'slug' => 'categories.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-tags', 'module' => 'Inventario', 'order' => 11, 'descripcion' => 'Permite Ver Categoría en el sistema'],
             ['nombre' => 'Cajas', 'slug' => 'cash-registers.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-vault', 'module' => 'Caja', 'order' => 30, 'descripcion' => 'Permite Ver Caja en el sistema'],
+            ['nombre' => 'Inventario', 'slug' => 'inventory.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-boxes-stacked', 'module' => 'Inventario', 'order' => 9, 'descripcion' => 'Permite Ver Inventario en el sistema'],
+            ['nombre' => 'Kardex Inventario', 'slug' => 'inventory.kardex', 'is_menu' => 0, 'icon' => 'fa-solid fa-boxes-stacked', 'module' => 'Inventario', 'order' => 9, 'descripcion' => 'Permite Ver Kardex en el sistema'],
+            ['nombre' => 'Ajustar Inventario', 'slug' => 'inventory.adjust', 'is_menu' => 0, 'icon' => 'fa-solid fa-boxes-stacked', 'module' => 'Inventario', 'order' => 9, 'descripcion' => 'Permite Ajustar Inventario en el sistema'],
             ['nombre' => 'Dashboard Admin', 'slug' => 'dashboard.admin', 'is_menu' => 0, 'icon' => 'fa-solid fa-circle-dot', 'module' => 'General', 'order' => 50, 'descripcion' => 'Vista de panel principal personalizada para el rol admin'],
             ['nombre' => 'Dashboard Vendedor', 'slug' => 'dashboard.vendedor', 'is_menu' => 0, 'icon' => 'fa-solid fa-circle-dot', 'module' => 'General', 'order' => 50, 'descripcion' => 'Vista de panel principal personalizada para el rol vendedor'],
             ['nombre' => 'Usuarios', 'slug' => 'usuarios.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-users', 'module' => 'Configuración', 'order' => 100, 'descripcion' => 'Permite Ver Usuario en el sistema'],
@@ -124,6 +127,32 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'Suppliers Importación', 'slug' => 'import.suppliers', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-import', 'module' => 'Herramientas', 'order' => 5, 'descripcion' => 'Permite Suppliers Importación en el sistema'],
             ['nombre' => 'Products Importación', 'slug' => 'import.products', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-import', 'module' => 'Herramientas', 'order' => 5, 'descripcion' => 'Permite Products Importación en el sistema'],
             ['nombre' => 'Purchases Importación', 'slug' => 'import.purchases', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-import', 'module' => 'Herramientas', 'order' => 5, 'descripcion' => 'Permite Purchases Importación en el sistema'],
+            ['nombre' => 'Sucursales', 'slug' => 'branches.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-building', 'module' => 'Configuración', 'order' => 102, 'descripcion' => 'Permite Ver Sucursal en el sistema'],
+            ['nombre' => 'Crear Sucursal', 'slug' => 'branches.create', 'is_menu' => 0, 'icon' => 'fa-solid fa-building', 'module' => 'Configuración', 'order' => 102, 'descripcion' => 'Permite Crear Sucursal en el sistema'],
+            ['nombre' => 'Guardar Sucursal', 'slug' => 'branches.store', 'is_menu' => 0, 'icon' => 'fa-solid fa-building', 'module' => 'Configuración', 'order' => 102, 'descripcion' => 'Permite Guardar Sucursal en el sistema'],
+            ['nombre' => 'Ver Detalle Sucursal', 'slug' => 'branches.show', 'is_menu' => 0, 'icon' => 'fa-solid fa-building', 'module' => 'Configuración', 'order' => 102, 'descripcion' => 'Permite Ver Detalle Sucursal en el sistema'],
+            ['nombre' => 'Editar Sucursal', 'slug' => 'branches.edit', 'is_menu' => 0, 'icon' => 'fa-solid fa-building', 'module' => 'Configuración', 'order' => 102, 'descripcion' => 'Permite Editar Sucursal en el sistema'],
+            ['nombre' => 'Actualizar Sucursal', 'slug' => 'branches.update', 'is_menu' => 0, 'icon' => 'fa-solid fa-building', 'module' => 'Configuración', 'order' => 102, 'descripcion' => 'Permite Actualizar Sucursal en el sistema'],
+            ['nombre' => 'Eliminar Sucursal', 'slug' => 'branches.destroy', 'is_menu' => 0, 'icon' => 'fa-solid fa-building', 'module' => 'Configuración', 'order' => 102, 'descripcion' => 'Permite Eliminar Sucursal en el sistema'],
+            ['nombre' => 'Notas de Crédito', 'slug' => 'credit-notes.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-file-invoice-dollar', 'module' => 'Ventas', 'order' => 25, 'descripcion' => 'Permite Ver Notas de Crédito y Devoluciones'],
+            ['nombre' => 'Crear Nota de Crédito', 'slug' => 'credit-notes.create', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-invoice-dollar', 'module' => 'Ventas', 'order' => 25, 'descripcion' => 'Permite Crear Nota de Crédito'],
+            ['nombre' => 'Guardar Nota de Crédito', 'slug' => 'credit-notes.store', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-invoice-dollar', 'module' => 'Ventas', 'order' => 25, 'descripcion' => 'Permite Guardar Nota de Crédito'],
+            ['nombre' => 'Ver Detalle Nota de Crédito', 'slug' => 'credit-notes.show', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-invoice-dollar', 'module' => 'Ventas', 'order' => 25, 'descripcion' => 'Permite Ver Detalle Nota de Crédito'],
+            ['nombre' => 'Anular Nota de Crédito', 'slug' => 'credit-notes.destroy', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-invoice-dollar', 'module' => 'Ventas', 'order' => 25, 'descripcion' => 'Permite Anular Nota de Crédito'],
+            ['nombre' => 'Gastos', 'slug' => 'expenses.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-money-bill-wave', 'module' => 'Gastos', 'order' => 35, 'descripcion' => 'Permite Ver Gasto en el sistema'],
+            ['nombre' => 'Crear Gasto', 'slug' => 'expenses.create', 'is_menu' => 0, 'icon' => 'fa-solid fa-money-bill-wave', 'module' => 'Gastos', 'order' => 35, 'descripcion' => 'Permite Crear Gasto en el sistema'],
+            ['nombre' => 'Guardar Gasto', 'slug' => 'expenses.store', 'is_menu' => 0, 'icon' => 'fa-solid fa-money-bill-wave', 'module' => 'Gastos', 'order' => 35, 'descripcion' => 'Permite Guardar Gasto en el sistema'],
+            ['nombre' => 'Ver Detalle Gasto', 'slug' => 'expenses.show', 'is_menu' => 0, 'icon' => 'fa-solid fa-money-bill-wave', 'module' => 'Gastos', 'order' => 35, 'descripcion' => 'Permite Ver Detalle Gasto en el sistema'],
+            ['nombre' => 'Editar Gasto', 'slug' => 'expenses.edit', 'is_menu' => 0, 'icon' => 'fa-solid fa-money-bill-wave', 'module' => 'Gastos', 'order' => 35, 'descripcion' => 'Permite Editar Gasto en el sistema'],
+            ['nombre' => 'Actualizar Gasto', 'slug' => 'expenses.update', 'is_menu' => 0, 'icon' => 'fa-solid fa-money-bill-wave', 'module' => 'Gastos', 'order' => 35, 'descripcion' => 'Permite Actualizar Gasto en el sistema'],
+            ['nombre' => 'Eliminar Gasto', 'slug' => 'expenses.destroy', 'is_menu' => 0, 'icon' => 'fa-solid fa-money-bill-wave', 'module' => 'Gastos', 'order' => 35, 'descripcion' => 'Permite Eliminar Gasto en el sistema'],
+            ['nombre' => 'Categorías de Gastos', 'slug' => 'expense-categories.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-tags', 'module' => 'Gastos', 'order' => 36, 'descripcion' => 'Permite Ver Categoría de Gasto en el sistema'],
+            ['nombre' => 'Crear Categoría Gasto', 'slug' => 'expense-categories.create', 'is_menu' => 0, 'icon' => 'fa-solid fa-tags', 'module' => 'Gastos', 'order' => 36, 'descripcion' => 'Permite Crear Categoría de Gasto en el sistema'],
+            ['nombre' => 'Guardar Categoría Gasto', 'slug' => 'expense-categories.store', 'is_menu' => 0, 'icon' => 'fa-solid fa-tags', 'module' => 'Gastos', 'order' => 36, 'descripcion' => 'Permite Guardar Categoría de Gasto en el sistema'],
+            ['nombre' => 'Ver Detalle Categoría Gasto', 'slug' => 'expense-categories.show', 'is_menu' => 0, 'icon' => 'fa-solid fa-tags', 'module' => 'Gastos', 'order' => 36, 'descripcion' => 'Permite Ver Detalle Categoría de Gasto en el sistema'],
+            ['nombre' => 'Editar Categoría Gasto', 'slug' => 'expense-categories.edit', 'is_menu' => 0, 'icon' => 'fa-solid fa-tags', 'module' => 'Gastos', 'order' => 36, 'descripcion' => 'Permite Editar Categoría de Gasto en el sistema'],
+            ['nombre' => 'Actualizar Categoría Gasto', 'slug' => 'expense-categories.update', 'is_menu' => 0, 'icon' => 'fa-solid fa-tags', 'module' => 'Gastos', 'order' => 36, 'descripcion' => 'Permite Actualizar Categoría de Gasto en el sistema'],
+            ['nombre' => 'Eliminar Categoría Gasto', 'slug' => 'expense-categories.destroy', 'is_menu' => 0, 'icon' => 'fa-solid fa-tags', 'module' => 'Gastos', 'order' => 36, 'descripcion' => 'Permite Eliminar Categoría de Gasto en el sistema'],
         ];
 
         foreach ($permissions as $permissionData) {
@@ -174,7 +203,11 @@ class DatabaseSeeder extends Seeder
                       ->orWhere('slug', 'like', 'sales.%')
                       ->orWhere('slug', 'like', 'clients.%')
                       ->orWhere('slug', 'like', 'cash-registers.%')
-                      ->orWhere('slug', 'like', 'abonos.%');
+                      ->orWhere('slug', 'like', 'abonos.%')
+                      ->orWhere('slug', 'like', 'credit-notes.%')
+                      ->orWhere('slug', 'like', 'inventory.%')
+                      ->orWhere('slug', 'like', 'products.index')
+                      ->orWhere('slug', 'like', 'products.show');
             })->get();
 
             $vendedorRole->permissions()->sync($vendedorPermissions->pluck('id'));

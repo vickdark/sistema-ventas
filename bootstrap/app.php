@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'central_domain' => \App\Http\Middleware\Central\EnsureCentralDomain::class,
             'auth' => \App\Http\Middleware\Authenticate::class,
             'verified' => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'active_branch' => \App\Http\Middleware\Tenant\SetActiveBranch::class,
         ]);
 
         $middleware->validateCsrfTokens(except: [

@@ -8,6 +8,11 @@
                 <i class="fas fa-arrow-left me-2"></i> Volver al Listado
             </a>
         </div>
+        <div class="col-auto">
+            <a href="{{ route('credit-notes.create', ['sale_id' => $sale->id]) }}" class="btn btn-outline-primary rounded-pill px-4">
+                <i class="fas fa-undo me-2"></i> Procesar Devolución
+            </a>
+        </div>
     </div>
 
     <div class="row justify-content-center">
@@ -102,6 +107,20 @@
                     <div class="alert alert-light border-0 mb-4 py-2">
                         <small class="text-muted fw-bold d-block">REFERENCIA:</small>
                         <span>{{ $sale->voucher }}</span>
+                    </div>
+                    @endif
+
+                    @if($sale->creditNotes->count() > 0)
+                    <div class="mb-4">
+                        <h6 class="text-uppercase text-danger fw-bold small mb-2 text-center border-bottom pb-2">Devoluciones / Notas de Crédito</h6>
+                        @foreach($sale->creditNotes as $note)
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <a href="{{ route('credit-notes.show', $note->id) }}" class="small fw-bold text-decoration-none">
+                                    {{ $note->number }} {{ $note->status === 'void' ? '(Anulada)' : '' }}
+                                </a>
+                                <span class="text-danger fw-bold">-${{ number_format($note->total, 2) }}</span>
+                            </div>
+                        @endforeach
                     </div>
                     @endif
 

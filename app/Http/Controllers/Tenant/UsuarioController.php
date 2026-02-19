@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Tenant;
 use App\Http\Controllers\Controller;
 use App\Models\Tenant\Usuario;
 use App\Models\Tenant\Role;
+use App\Models\Tenant\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
@@ -65,7 +66,8 @@ class UsuarioController extends Controller
     public function create()
     {
         $roles = Role::all();
-        return view('tenant.usuarios.create', compact('roles'));
+        $branches = Branch::where('is_active', true)->get();
+        return view('tenant.usuarios.create', compact('roles', 'branches'));
     }
 
     /**
@@ -87,8 +89,12 @@ class UsuarioController extends Controller
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
+        $role = Role::find($request->role_id);
+        $branchId = ($role->slug === 'admin' || $role->nombre === 'Administrador') ? null : $request->branch_id;
+
         Usuario::create([
             'role_id' => $request->role_id,
+            'branch_id' => $branchId,
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
@@ -114,7 +120,8 @@ class UsuarioController extends Controller
     {
         $usuario = Usuario::findOrFail($id);
         $roles = Role::all();
-        return view('tenant.usuarios.edit', compact('usuario', 'roles'));
+        $branches = Branch::where('is_active', true)->get();
+        return view('tenant.usuarios.edit', compact('usuario', 'roles', 'branches'));
     }
 
     /**
@@ -142,8 +149,12 @@ class UsuarioController extends Controller
 
         $request->validate($rules);
 
+        $role = Role::find($request->role_id);
+        $branchId = ($role->slug === 'admin' || $role->nombre === 'Administrador') ? null : $request->branch_id;
+
         $data = [
             'role_id' => $request->role_id,
+            'branch_id' => $branchId,
             'name' => $request->name,
             'email' => $request->email,
         ];

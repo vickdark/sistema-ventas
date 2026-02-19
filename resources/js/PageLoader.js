@@ -26,9 +26,13 @@ const loaders = {
     '#sales-pos-page': () => import('./pages/tenants/sales/pos/index').then(m => m.initSalesPOS),
     '#abonos-index-page': () => import('./pages/tenants/abonos/index').then(m => m.initAbonosIndex),
     '#abonos-create-page': () => import('./pages/tenants/abonos/create').then(m => m.initAbonosCreate),
+    '#credit-notes-index-page': () => import('./pages/tenants/credit_notes/index').then(m => m.initCreditNotesIndex),
+    '#inventory-index-page': () => import('./pages/tenants/inventory/index').then(m => m.initInventoryIndex),
     '#reports-index-page': () => import('./pages/tenants/reports/index').then(m => m.initReportsIndex),
     '#roles-index-page': () => import('./pages/tenants/roles/index').then(m => m.initRolesIndex),
     '#role-permissions-page': () => import('./pages/tenants/roles/permissions').then(m => m.initRolePermissions),
+    '#expense-categories-index-page': () => import('./pages/tenants/expenses/categories/index').then(m => m.initExpenseCategoriesIndex),
+    '#expenses-index-page': () => import('./pages/tenants/expenses/index').then(m => m.initExpensesIndex),
 
     // Central Pages
     '#central-login-page': () => import('./pages/central/auth/login').then(m => m.initCentralLogin),

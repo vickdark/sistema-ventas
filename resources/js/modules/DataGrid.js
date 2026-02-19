@@ -113,6 +113,9 @@ export default class DataGrid {
             return;
         }
 
+        // Limpiar el contenedor antes de renderizar (evita error "container is not empty")
+        container.innerHTML = '';
+
         this.instance = new window.Gridjs.Grid(this.options);
         this.instance.render(container);
         this.addExportButtons();

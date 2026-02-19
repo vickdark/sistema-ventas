@@ -10,10 +10,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class CashRegister extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\Tenant\BelongsToBranch;
 
     protected $fillable = [
         'name',
+        'branch_id',
         'opening_date',
         'scheduled_closing_time',
         'closing_date',
