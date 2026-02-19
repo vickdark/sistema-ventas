@@ -17,44 +17,32 @@ class DashboardController extends Controller
             /** @var \App\Models\Tenant\Usuario $user */
             $user = Auth::user();
 
-            if (!$user || !$user->role) {
-                return view('tenant.dashboards.generic', $this->getSubscriptionData());
+            if (!$user) {
+                return redirect()->route('login');
             }
 
             $subscriptionData = $this->getSubscriptionData();
 
-            // 1. Intentar por permiso específico
-            $roleDashboard = $user->role->permissions()
-                ->where('slug', 'like', 'dashboard.%')
-                ->where('slug', '!=', 'dashboard')
-                ->first();
-
-            if ($roleDashboard) {
-                $viewName = str_replace('dashboard.', 'tenant.dashboards.', $roleDashboard->slug);
-                if (view()->exists($viewName)) {
-                    return view($viewName, $subscriptionData);
-                }
+            // 1. Si es admin, mostramos admin (Ruta fija para evitar fallos de mayúsculas)
+            if ($user->isAdmin()) {
+                return view('tenant.dashboards.admin', $subscriptionData);
             }
 
-            // 2. Intentar por el slug del rol directamente
-            $roleSlug = $user->role->slug;
-            $roleViewName = "tenant.dashboards.{$roleSlug}";
-            if (view()->exists($roleViewName)) {
-                return view($roleViewName, $subscriptionData);
+            // 2. Si es vendedor, mostramos vendedor
+            if ($user->hasRole('vendedor') || $user->hasRole('Vendedor')) {
+                return view('tenant.dashboards.vendedor', $subscriptionData);
             }
 
+            // 3. Si no coincide nada o no tiene rol, el genérico
             return view('tenant.dashboards.generic', $subscriptionData);
-        } catch (\Exception $e) {
-            \Log::error("Dashboard Error: " . $e->getMessage());
+
+        } catch (\Throwable $e) {
+            \Log::error("Error Fatal en Dashboard: " . $e->getMessage());
+            // En producción, al menos mostramos el genérico si el específico falla
             return view('tenant.dashboards.generic', [
                 'showSubscriptionStatus' => false,
-                'badgeClass' => 'bg-secondary',
-                'label' => 'ERROR',
-                'serviceType' => null,
-                'isMaintenance' => false,
-                'auxLine' => 'Error al cargar datos del dashboard: ' . $e->getMessage(),
-                'nextPaymentDate' => null,
-                'formattedNextPaymentDate' => null
+                'businessName' => config('app.name'),
+                'label' => 'ERROR'
             ]);
         }
     }

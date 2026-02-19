@@ -5,6 +5,10 @@ declare(strict_types=1);
 use Illuminate\Support\Facades\Route;
 use Stancl\Tenancy\Middleware\InitializeTenancyByDomain;
 use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
+use App\Http\Controllers\Tenant\DashboardController;
+use App\Http\Controllers\Tenant\PaymentNotificationController;
+use App\Http\Middleware\Tenant\CheckTenantPaymentStatus;
+use App\Http\Middleware\Tenant\CheckPermission;
 
 /*
 |--------------------------------------------------------------------------
@@ -18,30 +22,32 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
 |
 */
 
-    Route::middleware([
-        InitializeTenancyByDomain::class,
-        PreventAccessFromCentralDomains::class,
-        'web',
-        \App\Http\Middleware\Tenant\CheckTenantPaymentStatus::class,
-    ])->group(function () {
+Route::middleware([
+    InitializeTenancyByDomain::class,
+    PreventAccessFromCentralDomains::class,
+    'web',
+    CheckTenantPaymentStatus::class,
+])->group(function () {
+    
     Route::get('payment-pending', function () {
         $tenant = tenant();
         return view('tenant.payment-pending', compact('tenant'));
     })->name('tenant.payment-pending');
 
-        Route::post('payment-notification', [\App\Http\Controllers\Tenant\PaymentNotificationController::class, 'send'])
-            ->name('tenant.payment-notification.send');
+    Route::post('payment-notification', [PaymentNotificationController::class, 'send'])
+        ->name('tenant.payment-notification.send');
 
-        // Tenant Login/Auth
-        require __DIR__.'/auth.php';
+    // Tenant Login/Auth
+    require __DIR__.'/auth.php';
 
-        // Dashboard accesible para todos los usuarios autenticados (el controlador decide qué mostrar)
-        Route::middleware(['auth'])->group(function () {
-            Route::get('/dashboard', [\App\Http\Controllers\Tenant\DashboardController::class, 'index'])->name('dashboard');
-        });
+    // Dashboard único (el controlador redirige internamente)
+    Route::middleware(['auth'])->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    });
 
-        Route::middleware(['auth', \App\Http\Middleware\Tenant\CheckPermission::class])->group(function () {
-            Route::get('/dashboard/admin', [\App\Http\Controllers\Tenant\DashboardController::class, 'index'])->name('dashboard.admin');
+    Route::middleware(['auth', CheckPermission::class])->group(function () {
+        // Rutas administrativas que requieren permiso
+        Route::get('/dashboard/admin', [DashboardController::class, 'index'])->name('dashboard.admin');
             
             Route::resources([
                 'usuarios' => \App\Http\Controllers\Tenant\UsuarioController::class,
