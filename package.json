@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build",
+        "build": "vite build && node -e \"require('fs').copyFileSync('public/build/manifest.webmanifest', 'public/manifest.webmanifest')\"",
         "dev": "vite"
     },
     "devDependencies": {

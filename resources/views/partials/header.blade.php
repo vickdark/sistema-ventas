@@ -13,10 +13,10 @@
     <link rel="apple-touch-icon" href="/img/logo-pwa-192.png">
 
     <script>
-        window.TenantConfig = @json([
-            'businessName' => function_exists('tenant') && tenant() ? (tenant('business_name') ?? 'Sistema') : config('app.name'),
-            'csrfToken' => csrf_token()
-        ]);
+        window.TenantConfig = {
+            businessName: "{{ config('app.name') }}",
+            csrfToken: "{{ csrf_token() }}"
+        };
     </script>
 
     <link rel="preconnect" href="https://fonts.bunny.net">
