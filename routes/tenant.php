@@ -35,8 +35,12 @@ use Stancl\Tenancy\Middleware\PreventAccessFromCentralDomains;
         // Tenant Login/Auth
         require __DIR__.'/auth.php';
 
-        Route::middleware(['auth', \App\Http\Middleware\Tenant\CheckPermission::class])->group(function () {
+        // Dashboard accesible para todos los usuarios autenticados (el controlador decide qué mostrar)
+        Route::middleware(['auth'])->group(function () {
             Route::get('/dashboard', [\App\Http\Controllers\Tenant\DashboardController::class, 'index'])->name('dashboard');
+        });
+
+        Route::middleware(['auth', \App\Http\Middleware\Tenant\CheckPermission::class])->group(function () {
             Route::get('/dashboard/admin', [\App\Http\Controllers\Tenant\DashboardController::class, 'index'])->name('dashboard.admin');
             
             Route::resources([

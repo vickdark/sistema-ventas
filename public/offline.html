@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sin Conexión - Sistema de Ventas</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fc;
+            color: #5a5c69;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+            padding: 20px;
+        }
+        .icon {
+            font-size: 4rem;
+            color: #e74a3b;
+            margin-bottom: 20px;
+        }
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #4e73df;
+        }
+        p {
+            margin-bottom: 20px;
+            max-width: 400px;
+            line-height: 1.5;
+        }
+        .btn {
+            background-color: #4e73df;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #2e59d9;
+        }
+        .refresh-btn {
+            background-color: #1cc88a;
+            margin-top: 10px;
+            cursor: pointer;
+            border: none;
+            font-size: 1rem;
+        }
+        .refresh-btn:hover {
+            background-color: #17a673;
+        }
+    </style>
+</head>
+<body>
+    <div class="icon">📡</div>
+    <h1>¡Estás Offline!</h1>
+    <p>Parece que perdiste la conexión a internet. No te preocupes, puedes seguir trabajando en las secciones que ya visitaste.</p>
+    <a href="/dashboard" class="btn">Ir al Dashboard</a>
+    <br><br>
+    <button onclick="window.location.reload()" class="btn refresh-btn">Intentar reconectar</button>
+</body>
+</html>

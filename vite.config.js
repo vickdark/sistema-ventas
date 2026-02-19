@@ -14,56 +14,107 @@ export default defineConfig({
         }),
         VitePWA({
             registerType: 'autoUpdate',
-            injectRegister: 'auto',
+            injectRegister: null, // Registro manual en pwa-handler.js
+            scope: '/',
+            base: '/',
+            // Apuntar el SW generado a la carpeta public/ para que se sirva en la raíz
+            outDir: 'public',
+            // No emitir index.html de Vite (lo maneja Laravel)
+            filename: 'sw.js',
+            manifestFilename: 'manifest.webmanifest',
+            includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
             workbox: {
-                globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
-                // Aseguramos que las rutas de Laravel funcionen offline
-                navigateFallback: '/',
-                // Excluimos explícitamente el panel central y APIs de la caché offline
-                navigateFallbackDenylist: [
-                    /^\/api/, 
-                    /^\/storage/,
-                    /^\/central/, // Excluir rutas que empiecen con /central
-                    /^\/admin-central/ // Por si acaso usas otro prefijo para el panel central
+                // El SW vive en public/, apuntar al directorio correcto de assets
+                swDest: 'public/sw.js',
+                globDirectory: 'public',
+                additionalManifestEntries: [
+                    { url: '/offline.html', revision: '2' }
                 ],
-                // No cachear dinámicamente rutas del panel central
+                cleanupOutdatedCaches: true,
+                clientsClaim: true,
+                skipWaiting: true,
+                // Sin modifyURLPrefix: Vite ya genera URLs absolutas correctas como /build/assets/xxx.js
+                globPatterns: [
+                    'build/assets/*.{js,css,woff,woff2}',
+                    'img/*.{png,jpg,ico,svg}',
+                    'offline.html',
+                ],
+                // navigateFallback muestra offline.html cuando no hay red NI caché
+                navigateFallback: '/offline.html',
+                navigateFallbackDenylist: [
+                    /^\/api\//,
+                    /^\/build\//,
+                    /^\/storage\//,
+                    /^\/central\//,
+                ],
                 runtimeCaching: [
+                    // Rutas que SIEMPRE necesitan red
                     {
                         urlPattern: /^\/central/,
-                        handler: 'NetworkOnly', // El panel central SIEMPRE requiere internet
+                        handler: 'NetworkOnly',
                     },
                     {
-                        urlPattern: /\.(?:png|jpg|jpeg|svg|gif)$/,
-                        handler: 'CacheFirst', // Cachear imágenes primero (logos, productos)
+                        urlPattern: /^\/api/,
+                        handler: 'NetworkOnly',
+                    },
+                    {
+                        urlPattern: /^\/storage/,
+                        handler: 'NetworkOnly',
+                    },
+                    // PÁGINAS HTML: NetworkFirst con caché de 24h
+                    // Intenta red primero; si falla usa caché; si tampoco hay caché → offline.html
+                    {
+                        urlPattern: ({ request }) => request.mode === 'navigate',
+                        handler: 'NetworkFirst',
+                        options: {
+                            cacheName: 'pages-cache',
+                            networkTimeoutSeconds: 5, // Si no responde en 5s, usa caché
+                            expiration: {
+                                maxEntries: 200,
+                                maxAgeSeconds: 24 * 60 * 60, // 24 horas
+                            },
+                            cacheableResponse: {
+                                statuses: [200], // Solo cachear respuestas 200 OK (no redirecciones al login)
+                            },
+                            precacheFallback: {
+                                fallbackURL: '/offline.html',
+                            },
+                        },
+                    },
+                    // IMÁGENES: CacheFirst (30 días)
+                    {
+                        urlPattern: ({ request }) => request.destination === 'image',
+                        handler: 'CacheFirst',
                         options: {
                             cacheName: 'tenant-images-cache',
                             expiration: {
                                 maxEntries: 100,
-                                maxAgeSeconds: 30 * 24 * 60 * 60, // 30 días
+                                maxAgeSeconds: 30 * 24 * 60 * 60,
                             },
                             cacheableResponse: {
-                                statuses: [0, 200]
-                            }
-                        }
+                                statuses: [0, 200],
+                            },
+                        },
                     },
+                    // JS/CSS dinámicos no incluidos en precache (e.g. carga diferida)
                     {
-                        urlPattern: /^\/storage\//, // Cachear cualquier cosa en la carpeta storage (logos subidos)
+                        urlPattern: ({ request }) =>
+                            request.destination === 'script' || request.destination === 'style',
                         handler: 'StaleWhileRevalidate',
                         options: {
-                            cacheName: 'tenant-storage-cache',
+                            cacheName: 'static-resources',
                             expiration: {
-                                maxEntries: 50,
-                                maxAgeSeconds: 7 * 24 * 60 * 60, // 7 días
+                                maxEntries: 100,
+                                maxAgeSeconds: 7 * 24 * 60 * 60,
                             },
-                            cacheableResponse: {
-                                statuses: [0, 200]
-                            }
-                        }
-                    }
+                        },
+                    },
                 ],
-                maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // Aumentar a 5MB por el tamaño del bundle
+                maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
             },
             manifest: {
+                start_url: '/',
+                scope: '/',
                 name: 'Sistema de Ventas',
                 short_name: 'VentasPOS',
                 description: 'Sistema de Ventas Robusto con soporte Offline',
@@ -74,15 +125,17 @@ export default defineConfig({
                     {
                         src: '/img/logo-pwa-192.png',
                         sizes: '192x192',
-                        type: 'image/png'
+                        type: 'image/png',
+                        purpose: 'any maskable',
                     },
                     {
                         src: '/img/logo-pwa-512.png',
                         sizes: '512x512',
-                        type: 'image/png'
-                    }
-                ]
-            }
+                        type: 'image/png',
+                        purpose: 'any maskable',
+                    },
+                ],
+            },
         })
     ],
     server: {

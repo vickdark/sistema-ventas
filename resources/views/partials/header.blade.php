@@ -9,7 +9,7 @@
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#4e73df">
-    <link rel="manifest" href="/build/manifest.webmanifest">
+    <link rel="manifest" href="/manifest.webmanifest">
     <link rel="apple-touch-icon" href="/img/logo-pwa-192.png">
 
     <script>
@@ -20,6 +20,10 @@
                 'serviceType' => $isTenant ? (tenant('service_type') ?? '') : '',
                 'businessName' => $isTenant ? (tenant('business_name') ?? 'Sistema') : config('app.name'),
                 'isOfflineSupported' => $isTenant,
+                'user' => auth()->check() ? [
+                    'name' => auth()->user()->name,
+                    'email' => auth()->user()->email,
+                ] : null,
                 'routes' => [
                     'sales_store' => $isTenant ? route('sales.store') : null,
                     'low_stock' => $isTenant && Route::has('notifications.low-stock') ? route('notifications.low-stock') : null

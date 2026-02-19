@@ -12,6 +12,8 @@ import DataGrid from './modules/DataGrid';
 import Notifications from './modules/Notifications';
 import { initUI } from './initUI';
 import { initPageLoader } from './PageLoader';
+import { initPWA } from './pwa-handler';
+
 
 
 // ==========================================
@@ -32,3 +34,4 @@ window.Notify = Notifications;
 Alpine.start();
 initUI();
 initPageLoader(); // Inicialización automática de páginas
+initPWA();
