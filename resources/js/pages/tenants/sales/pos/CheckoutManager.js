@@ -1,5 +1,4 @@
 import Notifications from '../../../../modules/Notifications';
-import { saveOfflineSale } from '../../../../modules/OfflineDB';
 
 export class CheckoutManager {
     constructor(config, cartManager, customerManager) {
@@ -19,6 +18,12 @@ export class CheckoutManager {
     }
 
     async processSale() {
+        // Verificar conexión antes de procesar
+        if (!navigator.onLine) {
+            Notifications.error('Sin conexión', 'Se requiere conexión a internet para procesar la venta.');
+            return;
+        }
+
         const client_id = this.customerManager.getSelectedClientId();
         const payment_type = document.querySelector('input[name="payment_type"]:checked').value;
         const voucher = document.getElementById('voucher')?.value;
@@ -50,23 +55,12 @@ export class CheckoutManager {
                 client_name: this.customerManager.getSelectedClientName()
             };
 
-            // Intentar enviar al servidor si hay conexión
-            if (navigator.onLine) {
-                try {
-                    await this.sendToServer(saleData);
-                } catch (error) {
-                    console.error('Error enviando al servidor, intentando guardar localmente:', error);
-                    // Si falla el servidor pero es por red, seguimos al guardado offline
-                    if (!navigator.onLine || error.message.includes('Failed to fetch')) {
-                        await this.handleOfflineSale(saleData);
-                    } else {
-                        Notifications.error('Error', error.message);
-                        this.setProcessing(false);
-                    }
-                }
-            } else {
-                // Estamos offline directamente
-                await this.handleOfflineSale(saleData);
+            try {
+                await this.sendToServer(saleData);
+            } catch (error) {
+                console.error('Error enviando al servidor:', error);
+                Notifications.error('Error', error.message);
+                this.setProcessing(false);
             }
         }
     }
@@ -111,21 +105,6 @@ export class CheckoutManager {
             }, 500);
         } else {
             throw new Error(result.message || 'Error al procesar la venta');
-        }
-    }
-
-    async handleOfflineSale(saleData) {
-        try {
-            await saveOfflineSale(saleData);
-            Notifications.success('Venta guardada localmente', 'La venta se sincronizará cuando recuperes la conexión.');
-            
-            // Simular éxito para el usuario
-            setTimeout(() => {
-                window.location.reload();
-            }, 1500);
-        } catch (err) {
-            Notifications.error('Error al guardar localmente', err.message);
-            this.setProcessing(false);
         }
     }
 }

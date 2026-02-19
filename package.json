@@ -3,7 +3,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "vite build && node move-pwa.js",
+        "build": "vite build",
         "dev": "vite"
     },
     "devDependencies": {
@@ -21,7 +21,6 @@
         "bootstrap": "^5.3.8",
         "chart.js": "^4.5.1",
         "gridjs": "^6.2.0",
-        "idb": "^8.0.3",
         "jquery": "^4.0.0",
         "jspdf": "^4.1.0",
         "jspdf-autotable": "^5.0.7",

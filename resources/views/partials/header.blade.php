@@ -9,7 +9,7 @@
 
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#4e73df">
-    <link rel="manifest" href="/manifest.webmanifest">
+    <link rel="manifest" href="{{ asset('build/manifest.webmanifest') }}">
     <link rel="apple-touch-icon" href="/img/logo-pwa-192.png">
 
     <script>

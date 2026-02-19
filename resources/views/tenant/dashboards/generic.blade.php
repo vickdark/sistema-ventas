@@ -29,15 +29,12 @@
     </div>
 
     <div class="row g-4 mb-4">
-        <div class="col-md-6 col-lg-4">
-            <div class="card border-0 shadow-lg rounded-4 overflow-hidden bg-dark h-100 transform-hover cursor-pointer" onclick="window.downloadOfflineMode()">
-                <div class="card-body p-4 d-flex align-items-center justify-content-between position-relative">
-                    <div class="z-1">
-                        <h5 class="fw-bold text-white mb-1">MODO OFFLINE</h5>
-                        <p class="text-white text-opacity-75 mb-0 small">Descargar todos los recursos para trabajar sin internet</p>
-                    </div>
-                    <i class="fa-solid fa-cloud-arrow-down fa-3x text-white opacity-50 z-1"></i>
-                    <div class="decoration-circle-1"></div>
+        <div class="col-12">
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 text-center">
+                    <i class="fa-solid fa-circle-check fa-3x text-success mb-3"></i>
+                    <h4>Sistema Configurado</h4>
+                    <p class="text-muted">Utiliza el menú lateral para navegar por los módulos de tu cuenta.</p>
                 </div>
             </div>
         </div>
