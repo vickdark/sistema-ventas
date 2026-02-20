@@ -114,6 +114,16 @@ Route::middleware([
             
             // Gestión de Permisos (Sincronización)
             Route::post('permissions/sync', [\App\Http\Controllers\Tenant\PermissionController::class, 'sync'])->name('permissions.sync');
+            Route::get('attendance/status', [\App\Http\Controllers\Tenant\AttendanceController::class, 'status'])->name('attendance.status');
+            Route::post('attendance/clock-in', [\App\Http\Controllers\Tenant\AttendanceController::class, 'store'])->name('attendance.clock-in');
+            Route::put('attendance/clock-out/{id}', [\App\Http\Controllers\Tenant\AttendanceController::class, 'update'])->name('attendance.clock-out');
+            
+            Route::get('attendance', [\App\Http\Controllers\Tenant\AttendanceController::class, 'index'])->name('attendance.index');
+
+            // Contabilidad
+            Route::get('journal-entries', [\App\Http\Controllers\Tenant\JournalEntryController::class, 'index'])->name('journal-entries.index');
+            Route::get('accounting', [\App\Http\Controllers\Tenant\BalanceSheetController::class, 'index'])->name('accounting.index');
+
             // Notificaciones
             Route::get('notifications/low-stock', [\App\Http\Controllers\Tenant\NotificationController::class, 'getLowStockProducts'])->name('notifications.low-stock');
         });

@@ -35,5 +35,10 @@ class AppServiceProvider extends ServiceProvider
         
         // Vinculación explícita para Tenant
         Route::model('tenant', \App\Models\Central\Tenant::class);
+
+        // Observers
+        \App\Models\Tenant\Sale::observe(\App\Observers\Tenant\SaleObserver::class);
+        \App\Models\Tenant\Purchase::observe(\App\Observers\Tenant\PurchaseObserver::class);
+        \App\Models\Tenant\Expense::observe(\App\Observers\Tenant\ExpenseObserver::class);
     }
 }

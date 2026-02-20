@@ -58,7 +58,8 @@ export default class CrudManager {
         this.grid = new DataGrid(this.options.containerId, {
             url: routes.index,
             columns: columns,
-            mapData: this.options.mapData
+            mapData: this.options.mapData,
+            ...this.options.gridOptions
         }).render();
     }
 

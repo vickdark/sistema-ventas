@@ -181,6 +181,9 @@ class SyncPermissions extends Command
             'quotes'         => ['singular' => 'Cotización', 'plural' => 'Cotizaciones'],
             'stock-transfers'=> ['singular' => 'Traslado de Stock', 'plural' => 'Traslados de Stock'],
             'supplier-payments' => ['singular' => 'Pago a Proveedor', 'plural' => 'Cuentas por Pagar'],
+            'attendance'     => ['singular' => 'Asistencia', 'plural' => 'Control de Asistencia'],
+            'journal-entries' => ['singular' => 'Asiento Contable', 'plural' => 'Libro Diario'],
+            'accounting'     => ['singular' => 'Contabilidad', 'plural' => 'Contabilidad'],
         ];
     }
 
@@ -292,6 +295,9 @@ class SyncPermissions extends Command
             'quotes'         => 'fa-solid fa-file-invoice',
             'stock-transfers'=> 'fa-solid fa-truck-ramp-box',
             'supplier-payments' => 'fa-solid fa-file-invoice-dollar',
+            'attendance'     => 'fa-solid fa-calendar-check',
+            'journal-entries'=> 'fa-solid fa-book-journal-whills',
+            'accounting'     => 'fa-solid fa-calculator',
         ];
 
         return $icons[strtolower($entity)] ?? 'fa-solid fa-circle-dot';
@@ -308,28 +314,50 @@ class SyncPermissions extends Command
         $entity = count($parts) > 1 ? $parts[count($parts) - 2] : 'General';
 
         $moduleMapping = [
+            // Configuración
             'usuarios'       => 'Configuración',
             'roles'          => 'Configuración',
             'permissions'    => 'Configuración',
-            'products'       => 'Inventario',
-            'categories'     => 'Inventario',
-            'purchases'      => 'Inventario',
-            'suppliers'      => 'Inventario',
+            'branches'       => 'Configuración',
+            'config'         => 'Configuración',
+
+            // Ventas
             'sales'          => 'Ventas',
             'abonos'         => 'Ventas',
             'clients'        => 'Ventas',
-            'reports'        => 'Análisis',
-            'cash-registers' => 'Caja',
-            'import'         => 'Herramientas',
-            'branches'       => 'Configuración',
             'credit-notes'   => 'Ventas',
+            'quotes'         => 'Ventas',
+            'cash-registers' => 'Ventas',
+
+            // Inventario
+            'products'       => 'Inventario',
+            'categories'     => 'Inventario',
             'inventory'      => 'Inventario',
-            'expenses'       => 'Gastos',
-            'expense-categories' => 'Gastos',
-            'activity-logs'  => 'Auditoría',
-            'quotes'         => 'Cotizaciones',
             'stock-transfers'=> 'Inventario',
-            'supplier-payments' => 'Finanzas',
+            
+            // Compras
+            'purchases'      => 'Compras',
+            'suppliers'      => 'Compras',
+            'supplier-payments' => 'Compras',
+
+            // Contabilidad
+            'journal-entries'=> 'Contabilidad',
+            'accounting'     => 'Contabilidad',
+            'expenses'       => 'Contabilidad',
+            'expense-categories' => 'Contabilidad',
+
+            // Análisis & Reportes
+            'reports'        => 'Tablero',
+            
+            // Configuración & Herramientas
+            'usuarios'       => 'Configuración',
+            'roles'          => 'Configuración',
+            'permissions'    => 'Configuración',
+            'branches'       => 'Configuración',
+            'config'         => 'Configuración',
+            'attendance'     => 'Configuración',
+            'activity-logs'  => 'Configuración',
+            'import'         => 'Configuración',
         ];
         
         return $moduleMapping[strtolower($entity)] ?? 'General';
@@ -346,28 +374,48 @@ class SyncPermissions extends Command
         $entity = count($parts) > 1 ? $parts[count($parts) - 2] : 'General';
 
         $orderMapping = [
-            'products'       => 10,
-            'categories'     => 11,
-            'purchases'      => 12,
-            'suppliers'      => 13,
-            'sales'          => 20,
-            'abonos'         => 21,
-            'clients'        => 22,
-            'reports'        => 40,
-            'cash-registers' => 30,
-            'import'         => 5,
+            'dashboard'      => 1,
+            
+            // Ventas
+            'sales'          => 10,
+            'pos'            => 11,
+            'quotes'         => 12,
+            'clients'        => 13,
+            'abonos'         => 14,
+            'credit-notes'   => 15,
+            'cash-registers' => 16,
+
+            // Inventario
+            'products'       => 20,
+            'categories'     => 21,
+            'inventory'      => 22,
+            'stock-transfers'=> 23,
+
+            // Compras
+            'purchases'      => 30,
+            'suppliers'      => 31,
+            'supplier-payments' => 32,
+
+            // Contabilidad
+            'accounting'     => 40,
+            'journal-entries'=> 41,
+            'expenses'       => 42,
+            'expense-categories' => 43,
+
+            // RRHH
+            'attendance'     => 50,
+
+            // Reportes
+            'reports'        => 2, // En tablero
+
+            // Configuración
             'usuarios'       => 100,
             'roles'          => 101,
             'branches'       => 102,
             'permissions'    => 103,
-            'credit-notes'   => 23,
-            'inventory'      => '9',
-            'expenses'       => 35,
-            'expense-categories' => 36,
-            'activity-logs'  => 200,
-            'quotes'         => 25,
-            'stock-transfers'=> 15,
-            'supplier-payments' => 85,
+            'config'         => 104,
+            'activity-logs'  => 105,
+            'import'         => 106,
         ];
 
         return $orderMapping[strtolower($entity)] ?? 50;
