@@ -133,13 +133,16 @@
                 <div class="app-user-avatar d-flex align-items-center justify-content-center shadow-sm">
                     {{ strtoupper(substr($authenticatedUser->name ?? 'U', 0, 1)) }}
                 </div>
-                <div class="app-user-info overflow-hidden">
+                <div class="app-user-info overflow-hidden flex-grow-1">
                     <div class="fw-bold text-white text-truncate small">{{ $authenticatedUser->name ?? 'Usuario' }}</div>
                     <div class="text-sidebar-muted text-truncate" style="font-size: 0.7rem;">
                         <i class="fa-solid fa-shield-halved me-1 text-primary opacity-75"></i>
                         {{ $isOwner ? 'Administrador Central' : (optional($authenticatedUser->role)->nombre ?? 'Sin Rol') }}
                     </div>
                 </div>
+                <a class="btn btn-link text-sidebar-muted p-0 border-0" href="{{ route('profile.index') }}" title="Mi Perfil">
+                    <i class="fa-solid fa-gear small"></i>
+                </a>
             </div>
             
             <form id="logout-form-aside" method="POST" action="{{ $logoutRoute }}" class="d-none">
@@ -173,86 +176,4 @@ async function handleLogout(formId) {
     }
 }
 
-/**
- * Maneja el cambio de contraseña mediante un formulario en SweetAlert2
- */
-async function handleChangePassword() {
-    const { value: formValues } = await Swal.fire({
-        title: 'Cambiar Contraseña',
-        html: `
-            <div class="text-start mb-3">
-                <label class="form-label small fw-bold">Contraseña Actual</label>
-                <input type="password" id="current_password" class="form-control" placeholder="Ingrese su contraseña actual">
-            </div>
-            <div class="text-start mb-3">
-                <label class="form-label small fw-bold">Nueva Contraseña</label>
-                <input type="password" id="password" class="form-control" placeholder="Mínimo 8 caracteres">
-            </div>
-            <div class="text-start">
-                <label class="form-label small fw-bold">Confirmar Nueva Contraseña</label>
-                <input type="password" id="password_confirmation" class="form-control" placeholder="Repita la nueva contraseña">
-            </div>
-        `,
-        focusConfirm: false,
-        showCancelButton: true,
-        confirmButtonText: 'Actualizar Contraseña',
-        cancelButtonText: 'Cancelar',
-        confirmButtonColor: '#c05a1e',
-        preConfirm: () => {
-            const current_password = document.getElementById('current_password').value;
-            const password = document.getElementById('password').value;
-            const password_confirmation = document.getElementById('password_confirmation').value;
-
-            if (!current_password || !password || !password_confirmation) {
-                Swal.showValidationMessage('Por favor complete todos los campos');
-                return false;
-            }
-
-            if (password.length < 8) {
-                Swal.showValidationMessage('La nueva contraseña debe tener al menos 8 caracteres');
-                return false;
-            }
-
-            if (password !== password_confirmation) {
-                Swal.showValidationMessage('Las contraseñas no coinciden');
-                return false;
-            }
-
-            return { current_password, password, password_confirmation };
-        }
-    });
-
-    if (formValues) {
-        try {
-            window.Notify.loading('Actualizando contraseña...');
-            
-            const response = await fetch('{{ Route::has("password.update.ajax") ? route("password.update.ajax") : "#" }}', {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(formValues)
-            });
-
-            const data = await response.json();
-
-            if (data.success) {
-                window.Notify.success(data.message);
-            } else {
-                // Manejar errores de validación de Laravel
-                let errorMessage = data.message || 'Error al actualizar la contraseña';
-                if (data.errors) {
-                    const firstError = Object.values(data.errors)[0][0];
-                    errorMessage = firstError;
-                }
-                window.Notify.error(errorMessage);
-            }
-        } catch (error) {
-            window.Notify.error('Ocurrió un error en la conexión');
-            console.error(error);
-        }
-    }
-}
 </script>

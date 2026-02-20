@@ -107,11 +107,11 @@ Route::middleware([
             
             // Gestión de Permisos (Sincronización)
             Route::post('permissions/sync', [\App\Http\Controllers\Tenant\PermissionController::class, 'sync'])->name('permissions.sync');
-            
             // Notificaciones
             Route::get('notifications/low-stock', [\App\Http\Controllers\Tenant\NotificationController::class, 'getLowStockProducts'])->name('notifications.low-stock');
-
-            // Perfil y Seguridad
-            Route::put('/password', [\App\Http\Controllers\Profile\PasswordController::class, 'update'])->name('tenant.profile.password.update');
         });
+
+        // Perfil y Seguridad (Accesible para todos los usuarios autenticados)
+        Route::get('/profile', [\App\Http\Controllers\Profile\ProfileController::class, 'index'])->name('profile.index');
+        Route::put('/password', [\App\Http\Controllers\Profile\PasswordController::class, 'update'])->name('password.update.ajax');
     });
