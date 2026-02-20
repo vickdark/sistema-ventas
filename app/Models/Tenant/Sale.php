@@ -5,10 +5,11 @@ namespace App\Models\Tenant;
 use App\Models\Tenant\Usuario;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Tenant\LogsActivity;
 
 class Sale extends Model
 {
-    use HasFactory, \App\Traits\Tenant\BelongsToBranch;
+    use HasFactory, \App\Traits\Tenant\BelongsToBranch, LogsActivity;
 
     protected $fillable = [
         'nro_venta',

@@ -34,6 +34,12 @@ const loaders = {
     '#expense-categories-index-page': () => import('./pages/tenants/expenses/categories/index').then(m => m.initExpenseCategoriesIndex),
     '#expenses-index-page': () => import('./pages/tenants/expenses/index').then(m => m.initExpensesIndex),
     '#branches-index-page': () => import('./pages/tenants/branches/index').then(m => m.initBranchesIndex),
+    '#activity-logs-index-page': () => import('./pages/tenants/activity_logs/index').then(m => m.initActivityLogsIndex),
+    '#quotes-index-page': () => import('./pages/tenants/quotes/index').then(m => m.initQuotesIndex),
+    '#quotes-create-page': () => import('./pages/tenants/quotes/create').then(m => m.initQuotesCreate),
+    '#stock-transfers-index-page': () => import('./pages/tenants/stock_transfers/index').then(m => m.initStockTransfersIndex),
+    '#stock-transfers-create-page': () => import('./pages/tenants/stock_transfers/create').then(m => m.initStockTransfersCreate),
+    '#supplier-payments-index-page': () => import('./pages/tenants/supplier_payments/index').then(m => m.initSupplierPaymentsIndex),
 
     // Central Pages
     '#central-login-page': () => import('./pages/central/auth/login').then(m => m.initCentralLogin),

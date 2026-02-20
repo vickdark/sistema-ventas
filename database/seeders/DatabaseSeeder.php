@@ -153,6 +153,29 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'Editar Categoría Gasto', 'slug' => 'expense-categories.edit', 'is_menu' => 0, 'icon' => 'fa-solid fa-tags', 'module' => 'Gastos', 'order' => 36, 'descripcion' => 'Permite Editar Categoría de Gasto en el sistema'],
             ['nombre' => 'Actualizar Categoría Gasto', 'slug' => 'expense-categories.update', 'is_menu' => 0, 'icon' => 'fa-solid fa-tags', 'module' => 'Gastos', 'order' => 36, 'descripcion' => 'Permite Actualizar Categoría de Gasto en el sistema'],
             ['nombre' => 'Eliminar Categoría Gasto', 'slug' => 'expense-categories.destroy', 'is_menu' => 0, 'icon' => 'fa-solid fa-tags', 'module' => 'Gastos', 'order' => 36, 'descripcion' => 'Permite Eliminar Categoría de Gasto en el sistema'],
+            
+            // Auditoría
+            ['nombre' => 'Logs de Actividad', 'slug' => 'activity-logs.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-clock-rotate-left', 'module' => 'Auditoría', 'order' => 200, 'descripcion' => 'Permite Ver Logs de Actividad'],
+            ['nombre' => 'Detalle Log', 'slug' => 'activity-logs.show', 'is_menu' => 0, 'icon' => 'fa-solid fa-clock-rotate-left', 'module' => 'Auditoría', 'order' => 200, 'descripcion' => 'Permite Ver Detalle Log de Actividad'],
+            
+            // Cotizaciones
+            ['nombre' => 'Cotizaciones', 'slug' => 'quotes.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-file-invoice', 'module' => 'Cotizaciones', 'order' => 25, 'descripcion' => 'Permite Ver Cotización en el sistema'],
+            ['nombre' => 'Crear Cotización', 'slug' => 'quotes.create', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-invoice', 'module' => 'Cotizaciones', 'order' => 25, 'descripcion' => 'Permite Crear Cotización en el sistema'],
+            ['nombre' => 'Guardar Cotización', 'slug' => 'quotes.store', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-invoice', 'module' => 'Cotizaciones', 'order' => 25, 'descripcion' => 'Permite Guardar Cotización en el sistema'],
+            ['nombre' => 'Convertir Cotización', 'slug' => 'quotes.convert', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-invoice', 'module' => 'Cotizaciones', 'order' => 25, 'descripcion' => 'Permite Convertir Cotización en el sistema'],
+            ['nombre' => 'Ver Detalle Cotización', 'slug' => 'quotes.show', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-invoice', 'module' => 'Cotizaciones', 'order' => 25, 'descripcion' => 'Permite Ver Detalle Cotización en el sistema'],
+            
+            // Traslados
+            ['nombre' => 'Traslados de Stock', 'slug' => 'stock-transfers.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-truck-ramp-box', 'module' => 'Inventario', 'order' => 15, 'descripcion' => 'Permite Ver Traslado de Stock en el sistema'],
+            ['nombre' => 'Crear Traslado', 'slug' => 'stock-transfers.create', 'is_menu' => 0, 'icon' => 'fa-solid fa-truck-ramp-box', 'module' => 'Inventario', 'order' => 15, 'descripcion' => 'Permite Crear Traslado de Stock en el sistema'],
+            ['nombre' => 'Guardar Traslado', 'slug' => 'stock-transfers.store', 'is_menu' => 0, 'icon' => 'fa-solid fa-truck-ramp-box', 'module' => 'Inventario', 'order' => 15, 'descripcion' => 'Permite Guardar Traslado de Stock en el sistema'],
+            ['nombre' => 'Ver Detalle Traslado', 'slug' => 'stock-transfers.show', 'is_menu' => 0, 'icon' => 'fa-solid fa-truck-ramp-box', 'module' => 'Inventario', 'order' => 15, 'descripcion' => 'Permite Ver Detalle Traslado de Stock en el sistema'],
+            ['nombre' => 'Recibir Traslado', 'slug' => 'stock-transfers.receive', 'is_menu' => 0, 'icon' => 'fa-solid fa-truck-ramp-box', 'module' => 'Inventario', 'order' => 15, 'descripcion' => 'Permite Recibir Traslado de Stock en el sistema'],
+
+            // Cuentas por Pagar
+            ['nombre' => 'Cuentas por Pagar', 'slug' => 'supplier-payments.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-file-invoice-dollar', 'module' => 'Finanzas', 'order' => 85, 'descripcion' => 'Permite Ver Pago a Proveedor en el sistema'],
+            ['nombre' => 'Registrar Abono', 'slug' => 'supplier-payments.store', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-invoice-dollar', 'module' => 'Finanzas', 'order' => 85, 'descripcion' => 'Permite Registrar Pago a Proveedor en el sistema'],
+            ['nombre' => 'Detalle de Deuda', 'slug' => 'supplier-payments.show', 'is_menu' => 0, 'icon' => 'fa-solid fa-file-invoice-dollar', 'module' => 'Finanzas', 'order' => 85, 'descripcion' => 'Permite Ver Detalle de Pago a Proveedor en el sistema'],
         ];
 
         foreach ($permissions as $permissionData) {

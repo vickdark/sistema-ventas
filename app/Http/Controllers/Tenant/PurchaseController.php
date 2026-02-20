@@ -116,6 +116,17 @@ class PurchaseController extends Controller
             $purchaseData = $request->only(['supplier_id', 'purchase_date', 'voucher', 'nro_compra']);
             $purchaseData['user_id'] = Auth::id();
             $purchaseData['total'] = $total;
+            $purchaseData['total_amount'] = $total;
+            
+            // Si el usuario marcó crédito (ej: enviando una fecha de vencimiento)
+            if ($request->filled('due_date')) {
+                $purchaseData['pending_amount'] = $total;
+                $purchaseData['payment_status'] = 'PENDIENTE';
+                $purchaseData['due_date'] = $request->due_date;
+            } else {
+                $purchaseData['pending_amount'] = 0;
+                $purchaseData['payment_status'] = 'PAGADO';
+            }
 
             $purchase = Purchase::create($purchaseData);
 

@@ -4,6 +4,7 @@ namespace App\Models\Tenant;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Traits\Tenant\LogsActivity;
 
 /**
  * @property int $id
@@ -32,7 +33,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Product extends Model
 {
-    use HasFactory, \App\Traits\Tenant\BelongsToBranch;
+    use HasFactory, \App\Traits\Tenant\BelongsToBranch, LogsActivity;
 
     protected $table = 'products'; // Assuming the table name is 'products'
     protected $primaryKey = 'id'; // Assuming 'id' is the primary key

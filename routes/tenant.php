@@ -65,7 +65,14 @@ Route::middleware([
                 'cash-registers' => \App\Http\Controllers\Tenant\CashRegisterController::class,
                 'expenses' => \App\Http\Controllers\Tenant\ExpenseController::class,
                 'expense-categories' => \App\Http\Controllers\Tenant\ExpenseCategoryController::class,
+                'activity-logs' => \App\Http\Controllers\Tenant\ActivityLogController::class,
+                'quotes' => \App\Http\Controllers\Tenant\QuoteController::class,
+                'stock-transfers' => \App\Http\Controllers\Tenant\StockTransferController::class,
+                'supplier-payments' => \App\Http\Controllers\Tenant\SupplierPaymentController::class,
             ]);
+
+            Route::post('quotes/{quote}/convert', [\App\Http\Controllers\Tenant\QuoteController::class, 'convert'])->name('quotes.convert');
+            Route::post('stock-transfers/{transfer}/receive', [\App\Http\Controllers\Tenant\StockTransferController::class, 'receive'])->name('stock-transfers.receive');
             
             // Inventario & Kardex
             Route::get('inventory', [\App\Http\Controllers\Tenant\InventoryController::class, 'index'])->name('inventory.index');

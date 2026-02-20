@@ -27,7 +27,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Purchase extends Model
 {
-    use HasFactory, \App\Traits\Tenant\BelongsToBranch;
+    use HasFactory, \App\Traits\Tenant\BelongsToBranch, LogsActivity;
 
     protected $table = 'purchases';
     protected $primaryKey = 'id';
@@ -39,7 +39,19 @@ class Purchase extends Model
         'purchase_date',
         'voucher',
         'total',
+        'total_amount',
+        'pending_amount',
+        'payment_status',
+        'due_date',
         'user_id',
+    ];
+
+    protected $casts = [
+        'purchase_date' => 'date',
+        'due_date' => 'date',
+        'total' => 'decimal:2',
+        'total_amount' => 'decimal:2',
+        'pending_amount' => 'decimal:2',
     ];
 
     public function items()
@@ -55,5 +67,10 @@ class Purchase extends Model
     public function user()
     {
         return $this->belongsTo(\App\Models\Tenant\Usuario::class, 'user_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(SupplierPayment::class);
     }
 }

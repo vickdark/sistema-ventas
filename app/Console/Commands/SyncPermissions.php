@@ -177,6 +177,10 @@ class SyncPermissions extends Command
             'inventory'      => ['singular' => 'Inventario', 'plural' => 'Inventario'],
             'expenses'       => ['singular' => 'Gasto', 'plural' => 'Gastos'],
             'expense-categories' => ['singular' => 'Categoría de Gasto', 'plural' => 'Categorías de Gastos'],
+            'activity-logs'  => ['singular' => 'Log de Actividad', 'plural' => 'Logs de Actividad'],
+            'quotes'         => ['singular' => 'Cotización', 'plural' => 'Cotizaciones'],
+            'stock-transfers'=> ['singular' => 'Traslado de Stock', 'plural' => 'Traslados de Stock'],
+            'supplier-payments' => ['singular' => 'Pago a Proveedor', 'plural' => 'Cuentas por Pagar'],
         ];
     }
 
@@ -198,6 +202,9 @@ class SyncPermissions extends Command
             'import'  => 'Importar',
             'close'   => 'Cerrar',
             'close-form' => 'Cierre',
+            'convert' => 'Convertir',
+            'receive' => 'Recibir',
+            'voucher' => 'Ver Comprobante',
         ];
     }
 
@@ -281,6 +288,10 @@ class SyncPermissions extends Command
             'inventory'      => 'fa-solid fa-boxes-stacked',
             'expenses'       => 'fa-solid fa-money-bill-wave',
             'expense-categories' => 'fa-solid fa-tags',
+            'activity-logs'  => 'fa-solid fa-clock-rotate-left',
+            'quotes'         => 'fa-solid fa-file-invoice',
+            'stock-transfers'=> 'fa-solid fa-truck-ramp-box',
+            'supplier-payments' => 'fa-solid fa-file-invoice-dollar',
         ];
 
         return $icons[strtolower($entity)] ?? 'fa-solid fa-circle-dot';
@@ -315,6 +326,10 @@ class SyncPermissions extends Command
             'inventory'      => 'Inventario',
             'expenses'       => 'Gastos',
             'expense-categories' => 'Gastos',
+            'activity-logs'  => 'Auditoría',
+            'quotes'         => 'Cotizaciones',
+            'stock-transfers'=> 'Inventario',
+            'supplier-payments' => 'Finanzas',
         ];
         
         return $moduleMapping[strtolower($entity)] ?? 'General';
@@ -346,9 +361,13 @@ class SyncPermissions extends Command
             'branches'       => 102,
             'permissions'    => 103,
             'credit-notes'   => 23,
-            'inventory'      => 9,
+            'inventory'      => '9',
             'expenses'       => 35,
             'expense-categories' => 36,
+            'activity-logs'  => 200,
+            'quotes'         => 25,
+            'stock-transfers'=> 15,
+            'supplier-payments' => 85,
         ];
 
         return $orderMapping[strtolower($entity)] ?? 50;
