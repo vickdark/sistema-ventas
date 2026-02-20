@@ -91,25 +91,23 @@
                 </a>
             @endif
 
-
             @php $currentModule = null; @endphp
             @foreach($permissions as $item)
                 @php
-                    $isDashboard = $item->slug === 'dashboard' || str_starts_with($item->slug, 'dashboard.');
                     $isActive = request()->routeIs($item->slug) || request()->routeIs(explode('.', $item->slug)[0] . '.*');
                     $routeExists = Route::has($item->slug);
                     $itemUrl = $routeExists ? route($item->slug) : '#';
                 @endphp
                 
                 @if($item->module !== $currentModule)
-                    <div class="sidebar-heading px-4 mt-3 mb-1 text-sidebar-muted text-uppercase fw-bold" style="font-size: 0.6rem; letter-spacing: 0.05em; opacity: 0.8;">
+                    <div class="sidebar-heading px-4 mt-2 mb-1 text-sidebar-muted text-uppercase fw-bold" style="font-size: 0.55rem; letter-spacing: 0.05em; opacity: 0.6;">
                         {{ $item->module }}
                     </div>
                     @php $currentModule = $item->module; @endphp
                 @endif
 
-                <a class="nav-link {{ $isActive ? 'active' : '' }}" href="{{ $itemUrl }}">
-                    <i class="{{ $item->icon ?: 'fa-solid fa-circle-dot' }}"></i>
+                <a class="nav-link {{ $isActive ? 'active' : '' }} py-1-5 px-3 mx-2 my-0 shadow-none" href="{{ $itemUrl }}" style="font-size: 0.82rem; min-height: 32px;">
+                    <i class="{{ $item->icon ?: 'fa-solid fa-circle-dot' }} me-2" style="font-size: 0.9rem; width: 1.2rem;"></i>
                     <span class="app-link-text">{{ $item->nombre }}</span>
                 </a>
             @endforeach

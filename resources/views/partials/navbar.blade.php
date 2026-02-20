@@ -88,27 +88,40 @@
             @csrf
         </form>
 
-        @if(function_exists('tenant') && tenant())
+        {{-- Selector de Sucursal (Solo en Tenant y con Usuario Autenticado) --}}
+        @if(function_exists('tenant') && tenant() && auth()->check())
             @php
                 $user = auth()->user();
                 $activeBranchId = session('active_branch_id');
-                $branches = \App\Models\Tenant\Branch::where('is_active', true);
                 
+                // Obtener sucursales disponibles según el rol
+                $branchesQuery = \App\Models\Tenant\Branch::where('is_active', true);
                 if (!$user->isAdmin()) {
-                    $branches->where('id', $user->branch_id);
+                    $branchesQuery->where('id', $user->branch_id);
                 }
+                $availableBranches = $branchesQuery->get();
                 
-                $availableBranches = $branches->get();
-                $currentBranch = $availableBranches->firstWhere('id', $activeBranchId) ?? \App\Models\Tenant\Branch::find($activeBranchId);
+                // Determinar la sucursal actual para mostrar en el botón
+                $currentBranch = $availableBranches->firstWhere('id', $activeBranchId) 
+                                ?? \App\Models\Tenant\Branch::find($activeBranchId)
+                                ?? $availableBranches->first();
             @endphp
 
-            @if($availableBranches->count() > 0)
+            @if($currentBranch)
             <div class="dropdown me-3 border-start ps-3">
-                <button class="btn btn-light d-flex align-items-center gap-2 border-0 shadow-sm rounded-pill px-3" type="button" id="branchSelectorBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                <button class="btn btn-light d-flex align-items-center gap-2 border-0 shadow-sm rounded-pill px-3" 
+                        type="button" id="branchSelectorBtn" 
+                        data-bs-toggle="dropdown" 
+                        aria-expanded="false"
+                        @if($availableBranches->count() <= 1) disabled @endif>
                     <i class="fa-solid fa-building text-primary small"></i>
-                    <span class="small fw-semibold d-none d-md-inline">{{ $currentBranch->name ?? 'Seleccionar Sucursal' }}</span>
-                    <i class="fa-solid fa-chevron-down text-muted small" style="font-size: 0.6rem;"></i>
+                    <span class="small fw-semibold d-none d-md-inline">{{ $currentBranch->name }}</span>
+                    @if($availableBranches->count() > 1)
+                        <i class="fa-solid fa-chevron-down text-muted small" style="font-size: 0.6rem;"></i>
+                    @endif
                 </button>
+                
+                @if($availableBranches->count() > 1)
                 <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 mt-2 p-2" aria-labelledby="branchSelectorBtn" style="min-width: 220px;">
                     <li class="px-3 py-2 border-bottom mb-2 text-muted small fw-bold">CAMBIAR SUCURSAL</li>
                     @foreach($availableBranches as $branch)
@@ -126,6 +139,7 @@
                     </li>
                     @endforeach
                 </ul>
+                @endif
             </div>
             @endif
         @endif

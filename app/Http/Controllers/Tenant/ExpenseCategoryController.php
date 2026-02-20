@@ -28,11 +28,11 @@ class ExpenseCategoryController extends Controller
                                 ->limit($limit)
                                 ->get();
  
-             return response()->json([
-                 'data' => $categories,
-                 'total' => $total,
-                 'status' => 'success'
-             ]);
+            return response()->json([
+                'data' => $categories,
+                'total' => $total,
+                'status' => 'success'
+            ]);
          }
 
         $config = [

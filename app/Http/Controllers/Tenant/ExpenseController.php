@@ -36,8 +36,19 @@ class ExpenseController extends Controller
                               ->limit($limit)
                               ->get();
 
+            $data = $expenses->map(function($expense) {
+                return [
+                    'id' => $expense->id,
+                    'date' => $expense->date->format('d/m/Y'),
+                    'name' => $expense->name,
+                    'category_name' => $expense->category ? $expense->category->name : 'N/A',
+                    'category_color' => $expense->category ? $expense->category->color : '#6c757d',
+                    'amount' => $expense->amount,
+                ];
+            });
+
             return response()->json([
-                'data' => $expenses,
+                'data' => $data,
                 'total' => $total,
                 'status' => 'success'
             ]);

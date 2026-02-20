@@ -33,6 +33,7 @@ const loaders = {
     '#role-permissions-page': () => import('./pages/tenants/roles/permissions').then(m => m.initRolePermissions),
     '#expense-categories-index-page': () => import('./pages/tenants/expenses/categories/index').then(m => m.initExpenseCategoriesIndex),
     '#expenses-index-page': () => import('./pages/tenants/expenses/index').then(m => m.initExpensesIndex),
+    '#branches-index-page': () => import('./pages/tenants/branches/index').then(m => m.initBranchesIndex),
 
     // Central Pages
     '#central-login-page': () => import('./pages/central/auth/login').then(m => m.initCentralLogin),

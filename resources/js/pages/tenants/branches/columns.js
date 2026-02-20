@@ -1,6 +1,6 @@
-import { html } from 'gridjs';
+import DataGrid from '../../../modules/DataGrid';
 
-export const columns = [
+export const columns = (routes) => [
     { id: 'id', name: "ID", width: "80px" },
     { id: 'name', name: "Nombre" },
     { id: 'address', name: "Dirección" },
@@ -9,11 +9,33 @@ export const columns = [
     { 
         id: 'is_main', 
         name: "Principal",
-        formatter: (cell) => html(cell 
+        formatter: (cell) => DataGrid.html(cell 
             ? '<span class="badge bg-success rounded-pill">Principal</span>' 
             : '<span class="badge bg-light text-dark rounded-pill">Secundaria</span>')
     },
-    { id: 'actions', name: "Acciones" }
+    { 
+        id: 'actions', 
+        name: "Acciones",
+        formatter: (cell, row) => {
+            const id = row.cells[0].data;
+            const editUrl = routes.edit.replace(':id', id);
+            const deleteUrl = routes.destroy.replace(':id', id);
+            const isMain = row.cells[5].data;
+
+            return DataGrid.html(`
+                <div class="btn-group">
+                    <a href="${editUrl}" class="btn btn-sm btn-outline-primary rounded-pill me-2" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    ${!isMain ? `
+                    <button class="btn btn-sm btn-outline-danger rounded-pill btn-delete" data-url="${deleteUrl}" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                    ` : ''}
+                </div>
+            `);
+        }
+    }
 ];
 
 export const mapData = (b) => [

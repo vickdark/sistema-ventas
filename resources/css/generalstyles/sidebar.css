@@ -53,13 +53,18 @@
 
 .app-sidebar-nav .nav-link {
     color: var(--sidebar-text);
-    border-radius: 12px;
-    padding: 10px 16px;
+    border-radius: 8px;
+    padding: 6px 14px;
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin: 2px 12px;
+    gap: 8px;
+    margin: 1px 10px;
     transition: all 0.2s ease;
+}
+
+.py-1-5 {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
 }
 
 .app-sidebar-nav .nav-link:hover,

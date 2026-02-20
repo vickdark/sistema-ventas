@@ -25,6 +25,7 @@
                         {{ strtoupper($cashRegister->status) }}
                     </span>
                     <p class="text-muted small mb-0">Usuario: <strong>{{ $cashRegister->user->name }}</strong></p>
+                    <p class="text-muted small mb-0">Sucursal: <strong>{{ $cashRegister->branch ? $cashRegister->branch->name : 'N/A' }}</strong></p>
                 </div>
             </div>
         </div>

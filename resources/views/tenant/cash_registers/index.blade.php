@@ -80,7 +80,10 @@
                                         @endif
                                     </h6>
                                     <h2 class="fw-bold mb-1">${{ number_format($register->initial_amount, 2) }}</h2>
-                                    <p class="mb-0 opacity-75 small">Monto Inicial el {{ \Carbon\Carbon::parse($register->opening_date)->format('d/m/Y H:i') }}</p>
+                                    <p class="mb-0 opacity-75 small">
+                                        Sucursal: <strong>{{ $register->branch ? $register->branch->name : 'N/A' }}</strong><br>
+                                        Monto Inicial el {{ \Carbon\Carbon::parse($register->opening_date)->format('d/m/Y H:i') }}
+                                    </p>
                                 </div>
                                 <div class="col-auto">
                                     <div class="d-flex flex-column gap-2">

@@ -16,7 +16,7 @@
     </div>
 
     <div class="row justify-content-center">
-        <div class="col-md-5">
+        <div class="col-md-5" id="sale-print-area">
             <div class="card border-0 shadow rounded-4 overflow-hidden mb-4">
                 <div class="card-header bg-white py-4 border-0 text-center">
                     @if(tenant('logo'))
@@ -124,9 +124,9 @@
                     </div>
                     @endif
 
-                    <div class="d-grid">
-                        <button onclick="window.print()" class="btn btn-primary rounded-pill py-2 no-print">
-                            <i class="fas fa-print me-2"></i> Imprimir
+                    <div class="d-grid no-print mt-4">
+                        <button onclick="window.print()" class="btn btn-primary rounded-pill py-2 shadow-sm">
+                            <i class="fas fa-print me-2"></i> Imprimir Recibo
                         </button>
                     </div>
                 </div>

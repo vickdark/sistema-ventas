@@ -16,7 +16,7 @@ class CashRegisterController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax() || $request->wantsJson()) {
-            $query = CashRegister::with('user');
+            $query = CashRegister::with(['user', 'branch']);
 
             // Si no es administrador, solo puede ver sus propias cajas
             if (!Auth::user()->isAdmin()) {
@@ -55,6 +55,7 @@ class CashRegisterController extends Controller
                     'initial_amount' => $register->initial_amount,
                     'final_amount' => $register->final_amount,
                     'user' => $register->user,
+                    'branch' => $register->branch ? $register->branch->name : 'N/A',
                     'status' => $register->status,
                 ];
             });
@@ -67,7 +68,7 @@ class CashRegisterController extends Controller
         }
 
         if (Auth::user()->isAdmin()) {
-            $openRegisters = CashRegister::open()->with('user')->get();
+            $openRegisters = CashRegister::open()->with(['user', 'branch'])->get();
             $currentRegister = $openRegisters->where('user_id', Auth::id())->first();
         } else {
             $currentRegister = CashRegister::open()->where('user_id', Auth::id())->first();

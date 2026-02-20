@@ -15,7 +15,12 @@
     <script>
         window.TenantConfig = {
             businessName: "{{ config('app.name') }}",
-            csrfToken: "{{ csrf_token() }}"
+            csrfToken: "{{ csrf_token() }}",
+            routes: {
+                @if(function_exists('tenant') && tenant() && Route::has('notifications.low-stock'))
+                    low_stock: "{{ route('notifications.low-stock') }}",
+                @endif
+            }
         };
     </script>
 

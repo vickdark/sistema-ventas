@@ -3,7 +3,7 @@ import { columns, mapData } from './columns';
 
 export function initBranchesIndex(config) {
     new CrudManager(config, {
-        columns: columns,
+        columns: columns(config.routes),
         mapData: mapData,
         deleteMessage: {
             title: '¿Eliminar sucursal?',

@@ -24,4 +24,5 @@
 @import "generalstyles/footer.css";
 @import "generalstyles/gridjs.css";
 @import "generalstyles/vendor-overrides.css";
+@import "generalstyles/print.css";
 
