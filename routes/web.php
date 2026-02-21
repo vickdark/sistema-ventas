@@ -72,8 +72,8 @@ Route::prefix('central')->name('central.')->middleware(EnsureCentralDomain::clas
 
 // Perfil y Seguridad (Universal)
 Route::middleware([EnsureCentralDomain::class, 'auth:owner'])->group(function () {
-    Route::get('/central/profile', [\App\Http\Controllers\Profile\ProfileController::class, 'index'])->name('profile.index');
-    Route::put('/central/password-update', [\App\Http\Controllers\Profile\PasswordController::class, 'update'])->name('password.update.ajax');
+    Route::get('/central/profile', [\App\Http\Controllers\Profile\ProfileController::class, 'index'])->name('central.profile.index');
+    Route::put('/central/password-update', [\App\Http\Controllers\Profile\PasswordController::class, 'update'])->name('central.password.update.ajax');
 });
 
 // Redirect /login to /central/login ONLY on central domains

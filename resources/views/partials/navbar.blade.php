@@ -161,7 +161,7 @@
                     <div class="text-muted small">{{ optional(auth()->user()->role)->nombre ?? 'Usuario' }}</div>
                 </li>
                 <li>
-                    <a class="dropdown-item rounded-2 py-2" href="{{ route('profile.index') }}">
+                    <a class="dropdown-item rounded-2 py-2" href="{{ request()->routeIs('central.*') ? route('central.profile.index') : route('profile.index') }}">
                         <i class="fa-solid fa-user-circle me-2 text-muted"></i> Mi Perfil
                     </a>
                 </li>
