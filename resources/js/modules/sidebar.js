@@ -13,4 +13,45 @@ export function initSidebar() {
             }
         });
     });
+
+    // Custom Accordion Logic
+    const accordionToggles = document.querySelectorAll('[data-toggle="collapse-custom"]');
+    
+    accordionToggles.forEach(toggle => {
+        toggle.addEventListener('click', (e) => {
+            e.preventDefault();
+            
+            const targetId = toggle.getAttribute('data-target');
+            const target = document.querySelector(targetId);
+            
+            if (!target) return;
+            
+            const isExpanded = toggle.getAttribute('aria-expanded') === 'true';
+            
+            // Close other groups (Accordion behavior)
+            accordionToggles.forEach(otherToggle => {
+                if (otherToggle !== toggle) {
+                    const otherTargetId = otherToggle.getAttribute('data-target');
+                    const otherTarget = document.querySelector(otherTargetId);
+                    
+                    if (otherTarget) {
+                        otherToggle.setAttribute('aria-expanded', 'false');
+                        otherToggle.classList.add('collapsed');
+                        otherTarget.classList.remove('show');
+                    }
+                }
+            });
+            
+            // Toggle current group
+            if (isExpanded) {
+                toggle.setAttribute('aria-expanded', 'false');
+                toggle.classList.add('collapsed');
+                target.classList.remove('show');
+            } else {
+                toggle.setAttribute('aria-expanded', 'true');
+                toggle.classList.remove('collapsed');
+                target.classList.add('show');
+            }
+        });
+    });
 }

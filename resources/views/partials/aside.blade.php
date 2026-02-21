@@ -91,25 +91,63 @@
                 </a>
             @endif
 
-            @php $currentModule = null; @endphp
-            @foreach($permissions as $item)
-                @php
-                    $isActive = request()->routeIs($item->slug) || request()->routeIs(explode('.', $item->slug)[0] . '.*');
-                    $routeExists = Route::has($item->slug);
-                    $itemUrl = $routeExists ? route($item->slug) : '#';
-                @endphp
-                
-                @if($item->module !== $currentModule)
-                    <div class="sidebar-heading px-4 mt-2 mb-1 text-sidebar-muted text-uppercase fw-bold" style="font-size: 0.55rem; letter-spacing: 0.05em; opacity: 0.6;">
-                        {{ $item->module }}
-                    </div>
-                    @php $currentModule = $item->module; @endphp
-                @endif
+            @php 
+                $groupedPermissions = $permissions->groupBy('module');
+            @endphp
 
-                <a class="nav-link {{ $isActive ? 'active' : '' }} py-1-5 px-3 mx-2 my-0 shadow-none" href="{{ $itemUrl }}" style="font-size: 0.82rem; min-height: 32px;">
-                    <i class="{{ $item->icon ?: 'fa-solid fa-circle-dot' }} me-2" style="font-size: 0.9rem; width: 1.2rem;"></i>
-                    <span class="app-link-text">{{ $item->nombre }}</span>
-                </a>
+            @foreach($groupedPermissions as $moduleName => $moduleItems)
+                @if($loop->first)
+                    @foreach($moduleItems as $item)
+                        @php
+                            $isActive = request()->routeIs($item->slug) || request()->routeIs(explode('.', $item->slug)[0] . '.*');
+                            $routeExists = Route::has($item->slug);
+                            $itemUrl = $routeExists ? route($item->slug) : '#';
+                        @endphp
+                        <a class="nav-link {{ $isActive ? 'active' : '' }} shadow-none rounded-2" href="{{ $itemUrl }}">
+                            <i class="{{ $item->icon ?: 'fa-solid fa-circle-dot' }} me-2" style="font-size: 1.1rem; width: 1.5rem; text-align: center;"></i>
+                            <span class="app-link-text">{{ $item->nombre }}</span>
+                        </a>
+                    @endforeach
+                @else
+                    @php
+                        $isModuleActive = false;
+                        foreach($moduleItems as $item) {
+                            if (request()->routeIs($item->slug) || request()->routeIs(explode('.', $item->slug)[0] . '.*')) {
+                                $isModuleActive = true;
+                                break;
+                            }
+                        }
+                        $collapseId = 'collapse-' . \Illuminate\Support\Str::slug($moduleName);
+                    @endphp
+
+                    <div class="sidebar-group mb-1">
+                        <button class="btn sidebar-group-toggle w-100 d-flex align-items-center justify-content-between px-3 py-2 text-start shadow-none {{ $isModuleActive ? '' : 'collapsed' }}" 
+                                type="button" 
+                                data-toggle="collapse-custom" 
+                                data-target="#{{ $collapseId }}" 
+                                aria-expanded="{{ $isModuleActive ? 'true' : 'false' }}" 
+                                aria-controls="{{ $collapseId }}">
+                            <span class="sidebar-group-label fw-bold text-uppercase text-sidebar-muted">{{ $moduleName }}</span>
+                            <i class="fa-solid fa-chevron-right group-chevron text-sidebar-muted"></i>
+                        </button>
+                        
+                        <div class="collapse {{ $isModuleActive ? 'show' : '' }}" id="{{ $collapseId }}">
+                            <div class="sidebar-group-content pb-2">
+                                @foreach($moduleItems as $item)
+                                    @php
+                                        $isActive = request()->routeIs($item->slug) || request()->routeIs(explode('.', $item->slug)[0] . '.*');
+                                        $routeExists = Route::has($item->slug);
+                                        $itemUrl = $routeExists ? route($item->slug) : '#';
+                                    @endphp
+                                    <a class="nav-link {{ $isActive ? 'active' : '' }} shadow-none rounded-2" href="{{ $itemUrl }}">
+                                        <i class="{{ $item->icon ?: 'fa-solid fa-circle-dot' }} me-2 opacity-75"></i>
+                                        <span class="app-link-text">{{ $item->nombre }}</span>
+                                    </a>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
+                @endif
             @endforeach
         </nav>
 
