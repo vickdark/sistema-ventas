@@ -69,25 +69,34 @@
                         @csrf
                         @method('PUT')
                         <div class="row g-4">
-                            <div class="col-md-12">
+                            <div class="col-md-12" x-data="{ show: false }">
                                 <label class="form-label fw-bold small">Contraseña Actual</label>
                                 <div class="input-group shadow-sm rounded-3 overflow-hidden border">
                                     <span class="input-group-text bg-light border-0"><i class="fa-solid fa-lock text-muted"></i></span>
-                                    <input type="password" name="current_password" class="form-control border-0 py-2" placeholder="Introduce tu clave actual" required>
+                                    <input :type="show ? 'text' : 'password'" name="current_password" class="form-control border-0 py-2" placeholder="Introduce tu clave actual" required>
+                                    <button type="button" class="btn bg-white border-0 text-muted" @click="show = !show">
+                                        <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6" x-data="{ show: false }">
                                 <label class="form-label fw-bold small">Nueva Contraseña</label>
                                 <div class="input-group shadow-sm rounded-3 overflow-hidden border">
                                     <span class="input-group-text bg-light border-0"><i class="fa-solid fa-key text-muted"></i></span>
-                                    <input type="password" name="password" class="form-control border-0 py-2" placeholder="Mínimo 8 caracteres" required>
+                                    <input :type="show ? 'text' : 'password'" name="password" class="form-control border-0 py-2" placeholder="Mínimo 8 caracteres" required>
+                                    <button type="button" class="btn bg-white border-0 text-muted" @click="show = !show">
+                                        <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-6" x-data="{ show: false }">
                                 <label class="form-label fw-bold small">Confirmar Contraseña</label>
                                 <div class="input-group shadow-sm rounded-3 overflow-hidden border">
                                     <span class="input-group-text bg-light border-0"><i class="fa-solid fa-check-circle text-muted"></i></span>
-                                    <input type="password" name="password_confirmation" class="form-control border-0 py-2" placeholder="Repite la nueva clave" required>
+                                    <input :type="show ? 'text' : 'password'" name="password_confirmation" class="form-control border-0 py-2" placeholder="Repite la nueva clave" required>
+                                    <button type="button" class="btn bg-white border-0 text-muted" @click="show = !show">
+                                        <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                    </button>
                                 </div>
                             </div>
                             <div class="col-12 text-end mt-4">

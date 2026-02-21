@@ -7,11 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Abono extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\Tenant\BelongsToBranch;
 
     protected $fillable = [
         'client_id',
         'sale_id',
+        'branch_id',
         'amount',
         'payment_type',
         'voucher',

@@ -25,24 +25,38 @@ class SetActiveBranch
             }
         }
 
-        // Si no hay sucursal activa, buscar una
-        if (auth()->check() && !Session::has('active_branch_id')) {
+        // Si hay usuario autenticado
+        if (auth()->check()) {
             $user = auth()->user();
-            
-            // 1. Usar la sucursal asignada al usuario si es válida
-            if ($user->branch_id && Branch::where('id', $user->branch_id)->exists()) {
-                Session::put('active_branch_id', $user->branch_id);
-            } else {
-                // 2. Usar la sucursal principal
-                $mainBranch = Branch::where('is_main', true)->first();
+
+            // Para usuarios NO administradores, FORZAR su sucursal asignada
+            // Esto asegura que solo vean datos de su sucursal, independientemente de la sesión anterior
+            if (method_exists($user, 'isAdmin') && !$user->isAdmin() && $user->branch_id) {
+                if (Session::get('active_branch_id') != $user->branch_id) {
+                    // Verificar que la sucursal asignada exista antes de forzarla
+                    if (Branch::where('id', $user->branch_id)->exists()) {
+                        Session::put('active_branch_id', $user->branch_id);
+                    }
+                }
+            }
+            // Si no hay sucursal activa en sesión (para admins o inicialización), buscar una
+            elseif (!Session::has('active_branch_id')) {
                 
-                if ($mainBranch) {
-                    Session::put('active_branch_id', $mainBranch->id);
+                // 1. Usar la sucursal asignada al usuario si es válida
+                if ($user->branch_id && Branch::where('id', $user->branch_id)->exists()) {
+                    Session::put('active_branch_id', $user->branch_id);
                 } else {
-                    // 3. Fallback a la primera sucursal disponible
-                    $firstBranch = Branch::first();
-                    if ($firstBranch) {
-                        Session::put('active_branch_id', $firstBranch->id);
+                    // 2. Usar la sucursal principal
+                    $mainBranch = Branch::where('is_main', true)->first();
+                    
+                    if ($mainBranch) {
+                        Session::put('active_branch_id', $mainBranch->id);
+                    } else {
+                        // 3. Fallback a la primera sucursal disponible
+                        $firstBranch = Branch::first();
+                        if ($firstBranch) {
+                            Session::put('active_branch_id', $firstBranch->id);
+                        }
                     }
                 }
             }

@@ -126,8 +126,9 @@ export function initStockTransfersCreate(config) {
     function addToCart(product) {
         const existing = cart.find(item => item.id === product.id);
         if (existing) {
-            if (existing.quantity >= product.stock) {
-                Notifications.error('Sin stock', 'No puedes trasladar más de lo que tienes en esta sucursal.');
+            // Usamos existing.stock porque puede incluir el stock virtual en modo edición
+            if (existing.quantity >= existing.stock) {
+                Notifications.error('Sin stock', 'No puedes trasladar más de lo que tienes disponible.');
                 return;
             }
             existing.quantity++;
@@ -225,7 +226,7 @@ export function initStockTransfersCreate(config) {
             }
 
             elements.btnSaveTransfer.disabled = true;
-            elements.btnSaveTransfer.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> PROCESANDO ENVIÓ...';
+            elements.btnSaveTransfer.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> PROCESANDO...';
 
             const payload = {
                 destination_branch_id: elements.destinationBranchId.value,
@@ -236,12 +237,16 @@ export function initStockTransfersCreate(config) {
                 }))
             };
 
+            const isEdit = !!config.transfer;
+            const url = isEdit ? config.routes.update : config.routes.store;
+            const method = isEdit ? 'PUT' : 'POST';
+
             try {
-                const response = await fetch(config.routes.store, {
-                    method: 'POST',
+                const response = await fetch(url, {
+                    method: method,
                     headers: {
                         'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': config.tokens.csrf || document.querySelector('meta[name="csrf-token"]').content,
+                        'X-CSRF-TOKEN': config.tokens?.csrf || document.querySelector('meta[name="csrf-token"]').content,
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify(payload)
@@ -250,18 +255,29 @@ export function initStockTransfersCreate(config) {
                 const data = await response.json();
 
                 if (response.ok) {
-                    Notifications.success('Éxito', 'Traslado enviado correctamente.');
+                    Notifications.success('Éxito', isEdit ? 'Traslado actualizado correctamente.' : 'Traslado enviado correctamente.');
                     window.location.href = config.routes.index;
                 } else {
                     Notifications.error('Error', data.message || 'Error al procesar el traslado.');
                     elements.btnSaveTransfer.disabled = false;
-                    elements.btnSaveTransfer.innerHTML = '<i class="fas fa-paper-plane me-2"></i> CONFIRMAR ENVÍO';
+                    elements.btnSaveTransfer.innerHTML = isEdit ? '<i class="fas fa-sync-alt me-2"></i> ACTUALIZAR ENVÍO' : '<i class="fas fa-paper-plane me-2"></i> CONFIRMAR ENVÍO';
                 }
             } catch (error) {
                 Notifications.error('Error de red', 'No se pudo conectar con el servidor.');
                 elements.btnSaveTransfer.disabled = false;
-                elements.btnSaveTransfer.innerHTML = '<i class="fas fa-paper-plane me-2"></i> CONFIRMAR ENVÍO';
+                elements.btnSaveTransfer.innerHTML = isEdit ? '<i class="fas fa-sync-alt me-2"></i> ACTUALIZAR ENVÍO' : '<i class="fas fa-paper-plane me-2"></i> CONFIRMAR ENVÍO';
             }
         };
+    }
+
+    // Inicializar datos si es edición
+    if (config.transfer) {
+        cart = config.transfer.items.map(item => ({
+            id: String(item.id), // Aseguramos que sea string para coincidencias
+            name: item.name,
+            stock: item.stock,
+            quantity: item.quantity
+        }));
+        renderCart();
     }
 }

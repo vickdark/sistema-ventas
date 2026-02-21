@@ -41,11 +41,21 @@ Route::middleware([
     require __DIR__.'/auth.php';
 
     // Dashboard único (el controlador redirige internamente)
-    Route::middleware(['auth', 'active_branch'])->group(function () {
+    Route::middleware(['auth', 'active_user', 'active_branch'])->group(function () {
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Attendance Routes (Accessible for all authenticated users)
+        Route::get('attendance/status', [\App\Http\Controllers\Tenant\AttendanceController::class, 'status'])->name('attendance.status');
+    Route::post('attendance/clock-in', [\App\Http\Controllers\Tenant\AttendanceController::class, 'store'])->name('attendance.clock-in');
+    
+    // Explicitly define both PUT and PATCH for flexibility
+    Route::match(['put', 'patch'], 'attendance/clock-out/{id}', [\App\Http\Controllers\Tenant\AttendanceController::class, 'update'])->name('attendance.clock-out');
+    
+    Route::get('attendance', [\App\Http\Controllers\Tenant\AttendanceController::class, 'index'])->name('attendance.index');
     });
 
-    Route::middleware(['auth', 'active_branch', CheckPermission::class])->group(function () {
+    
+    Route::middleware(['auth', 'active_user', 'active_branch', CheckPermission::class])->group(function () {
         // Rutas administrativas que requieren permiso
         Route::get('/dashboard/admin', [DashboardController::class, 'index'])->name('dashboard.admin');
             
@@ -71,6 +81,7 @@ Route::middleware([
                 'supplier-payments' => \App\Http\Controllers\Tenant\SupplierPaymentController::class,
             ]);
 
+            // Rutas adicionales para usuarios
             Route::post('quotes/{quote}/convert', [\App\Http\Controllers\Tenant\QuoteController::class, 'convert'])->name('quotes.convert');
             Route::post('stock-transfers/{transfer}/receive', [\App\Http\Controllers\Tenant\StockTransferController::class, 'receive'])->name('stock-transfers.receive');
             
@@ -114,12 +125,7 @@ Route::middleware([
             
             // Gestión de Permisos (Sincronización)
             Route::post('permissions/sync', [\App\Http\Controllers\Tenant\PermissionController::class, 'sync'])->name('permissions.sync');
-            Route::get('attendance/status', [\App\Http\Controllers\Tenant\AttendanceController::class, 'status'])->name('attendance.status');
-            Route::post('attendance/clock-in', [\App\Http\Controllers\Tenant\AttendanceController::class, 'store'])->name('attendance.clock-in');
-            Route::put('attendance/clock-out/{id}', [\App\Http\Controllers\Tenant\AttendanceController::class, 'update'])->name('attendance.clock-out');
             
-            Route::get('attendance', [\App\Http\Controllers\Tenant\AttendanceController::class, 'index'])->name('attendance.index');
-
             // Contabilidad
             Route::get('journal-entries', [\App\Http\Controllers\Tenant\JournalEntryController::class, 'index'])->name('journal-entries.index');
             Route::get('accounting', [\App\Http\Controllers\Tenant\BalanceSheetController::class, 'index'])->name('accounting.index');
@@ -128,7 +134,15 @@ Route::middleware([
             Route::get('notifications/low-stock', [\App\Http\Controllers\Tenant\NotificationController::class, 'getLowStockProducts'])->name('notifications.low-stock');
         });
 
-        // Perfil y Seguridad (Accesible para todos los usuarios autenticados)
-        Route::get('/profile', [\App\Http\Controllers\Profile\ProfileController::class, 'index'])->name('profile.index');
-        Route::put('/password', [\App\Http\Controllers\Profile\PasswordController::class, 'update'])->name('password.update.ajax');
+        // Grupo para rutas que requieren autenticación pero no permisos específicos globales
+        Route::middleware(['auth', 'active_user', 'active_branch'])->group(function () {
+            
+            Route::post('usuarios/{usuario}/toggle-status', [\App\Http\Controllers\Tenant\UsuarioController::class, 'toggleStatus'])
+                ->name('usuarios.toggle-status')
+                ->middleware('permission:usuarios.edit');
+
+            // Perfil y Seguridad (Accesible para todos los usuarios autenticados)
+            Route::get('/profile', [\App\Http\Controllers\Profile\ProfileController::class, 'index'])->name('profile.index');
+            Route::put('/password', [\App\Http\Controllers\Profile\PasswordController::class, 'update'])->name('password.update.ajax');
+        });
     });

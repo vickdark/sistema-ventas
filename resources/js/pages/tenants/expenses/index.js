@@ -1,9 +1,9 @@
 import CrudManager from '../../../modules/CrudManager';
-import { columns, mapData } from './columns';
+import { getColumns, mapData } from './columns';
 
 export function initExpensesIndex(config) {
     const manager = new CrudManager(config, {
-        columns: columns,
+        columns: getColumns(config.routes),
         mapData: mapData,
         deleteMessage: {
             title: '¿Anular registro de gasto?',

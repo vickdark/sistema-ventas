@@ -37,7 +37,7 @@
 
                             <div class="mb-3" x-show="roleId && roles[roleId] !== 'admin'" x-transition>
                                 <label for="branch_id" class="form-label">Sucursal Asignada</label>
-                                <select class="form-select rounded-3 @error('branch_id') is-invalid @enderror" id="branch_id" name="branch_id">
+                                <select class="form-select rounded-3 @error('branch_id') is-invalid @enderror" id="branch_id" name="branch_id" :required="roleId && roles[roleId] !== 'admin'">
                                     <option value="" disabled>Selecciona una sucursal</option>
                                     @foreach($branches as $branch)
                                         <option value="{{ $branch->id }}" {{ old('branch_id', $usuario->branch_id ?? ($branch->is_main ? $branch->id : '')) == $branch->id ? 'selected' : '' }}>
@@ -73,17 +73,27 @@
                         <hr class="my-4">
                         <p class="text-muted small mb-3">Deja en blanco si no deseas cambiar la contraseña.</p>
 
-                        <div class="mb-3">
+                        <div class="mb-3" x-data="{ show: false }">
                             <label for="password" class="form-label">Nueva Contraseña</label>
-                            <input type="password" class="form-control rounded-3 @error('password') is-invalid @enderror" id="password" name="password">
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="input-group">
+                                <input :type="show ? 'text' : 'password'" class="form-control rounded-3 @error('password') is-invalid @enderror" id="password" name="password">
+                                <button type="button" class="btn btn-outline-secondary" @click="show = !show">
+                                    <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                </button>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-4" x-data="{ show: false }">
                             <label for="password_confirmation" class="form-label">Confirmar Nueva Contraseña</label>
-                            <input type="password" class="form-control rounded-3" id="password_confirmation" name="password_confirmation">
+                            <div class="input-group">
+                                <input :type="show ? 'text' : 'password'" class="form-control rounded-3" id="password_confirmation" name="password_confirmation">
+                                <button type="button" class="btn btn-outline-secondary" @click="show = !show">
+                                    <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="d-grid">

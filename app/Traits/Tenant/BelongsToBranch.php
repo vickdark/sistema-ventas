@@ -26,6 +26,12 @@ trait BelongsToBranch
 
         // Aplicar scope global para filtrar por sucursal
         static::addGlobalScope('branch', function (Builder $builder) {
+            // Si el usuario es administrador, no aplicar el filtro
+            // Usamos auth()->hasUser() para evitar ciclos infinitos al cargar el usuario
+            if (auth()->hasUser() && method_exists(auth()->user(), 'isAdmin') && auth()->user()->isAdmin()) {
+                return;
+            }
+
             if (Session::has('active_branch_id')) {
                 $builder->where(function (Builder $query) {
                     $query->where('branch_id', Session::get('active_branch_id'))

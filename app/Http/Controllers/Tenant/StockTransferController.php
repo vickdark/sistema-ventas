@@ -63,6 +63,9 @@ class StockTransferController extends Controller
                 'index' => route('stock-transfers.index'),
                 'show' => route('stock-transfers.show', ':id'),
                 'create' => route('stock-transfers.create'),
+                'edit' => route('stock-transfers.edit', ':id'),
+                'update' => route('stock-transfers.update', ':id'),
+                'destroy' => route('stock-transfers.destroy', ':id'),
                 'receive' => route('stock-transfers.receive', ':id'),
             ]
         ];
@@ -104,7 +107,7 @@ class StockTransferController extends Controller
                 return response()->json(['message' => 'La sucursal de destino debe ser diferente a la de origen.'], 422);
             }
 
-            $lastTransfer = StockTransfer::latest()->first();
+            $lastTransfer = StockTransfer::withoutGlobalScope('branch')->latest()->first();
             $nroTraslado = $lastTransfer ? (int)$lastTransfer->nro_traslado + 1 : 1;
 
             $transfer = StockTransfer::create([
@@ -140,6 +143,141 @@ class StockTransferController extends Controller
                 'transfer_id' => $transfer->id
             ]);
         });
+    }
+
+    public function edit($id)
+    {
+        $transfer = StockTransfer::with(['items.product', 'originBranch', 'destinationBranch'])->findOrFail($id);
+
+        if ($transfer->status !== 'ENVIADO') {
+            return redirect()->route('stock-transfers.index')
+                ->with('error', 'Solo se pueden editar traslados en estado ENVIADO.');
+        }
+
+        if (session('active_branch_id') != $transfer->origin_branch_id) {
+            return redirect()->route('stock-transfers.index')
+                ->with('error', 'Debes estar en la sucursal de origen para editar este traslado.');
+        }
+
+        $branches = Branch::where('id', '!=', session('active_branch_id'))->get();
+        $products = Product::where('stock', '>', 0)->with('category')->get();
+        
+        $config = [
+            'routes' => [
+                'update' => route('stock-transfers.update', $transfer->id),
+                'index' => route('stock-transfers.index'),
+            ],
+            'transfer' => [
+                'id' => $transfer->id,
+                'nro_traslado' => $transfer->nro_traslado,
+                'destination_branch_id' => $transfer->destination_branch_id,
+                'notes' => $transfer->notes,
+                'items' => $transfer->items->map(function($item) {
+                    return [
+                        'id' => $item->product_id,
+                        'name' => $item->product->name,
+                        'stock' => $item->product->stock + $item->quantity, // Virtual stock (current + what was taken)
+                        'quantity' => $item->quantity
+                    ];
+                })
+            ]
+        ];
+
+        return view('tenant.stock_transfers.edit', compact('branches', 'products', 'transfer', 'config'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $transfer = StockTransfer::findOrFail($id);
+
+        if ($transfer->status !== 'ENVIADO') {
+            return response()->json(['message' => 'Solo se pueden editar traslados en estado ENVIADO.'], 403);
+        }
+
+        if (session('active_branch_id') != $transfer->origin_branch_id) {
+            return response()->json(['message' => 'Debes estar en la sucursal de origen para editar este traslado.'], 403);
+        }
+
+        $request->validate([
+            'destination_branch_id' => 'required|exists:branches,id',
+            'items' => 'required|array|min:1',
+            'items.*.product_id' => 'required|exists:products,id',
+            'items.*.quantity' => 'required|integer|min:1',
+            'notes' => 'nullable|string',
+        ]);
+
+        return DB::transaction(function () use ($request, $transfer) {
+            // 1. Revertir stock original
+            foreach ($transfer->items as $item) {
+                $product = Product::findOrFail($item->product_id);
+                $product->addStock($item->quantity, 'Edición de Traslado (Reversión)', 'Traslado #' . $transfer->nro_traslado, $transfer);
+            }
+
+            // 2. Eliminar items anteriores
+            $transfer->items()->delete();
+
+            // 3. Validar y procesar nuevos items
+            foreach ($request->items as $itemData) {
+                $productOrigin = Product::findOrFail($itemData['product_id']);
+                
+                if ($productOrigin->stock < $itemData['quantity']) {
+                    throw new \Exception("Stock insuficiente para el producto: {$productOrigin->name}");
+                }
+
+                // Deduct stock from origin
+                $productOrigin->removeStock($itemData['quantity'], 'Edición de Traslado', 'Hacia Sucursal ID #' . $request->destination_branch_id, $transfer);
+
+                StockTransferItem::create([
+                    'stock_transfer_id' => $transfer->id,
+                    'product_id' => $productOrigin->id,
+                    'quantity' => $itemData['quantity']
+                ]);
+            }
+
+            // 4. Actualizar registro principal
+            $transfer->update([
+                'destination_branch_id' => $request->destination_branch_id,
+                'notes' => $request->notes,
+            ]);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Traslado actualizado correctamente.',
+                'transfer_id' => $transfer->id
+            ]);
+        });
+    }
+
+    public function destroy($id)
+    {
+        $transfer = StockTransfer::findOrFail($id);
+
+        if ($transfer->status !== 'ENVIADO') {
+            return redirect()->route('stock-transfers.index')
+                ->with('error', 'Solo se pueden eliminar traslados en estado ENVIADO.');
+        }
+
+        if (session('active_branch_id') != $transfer->origin_branch_id) {
+            return redirect()->route('stock-transfers.index')
+                ->with('error', 'Debes estar en la sucursal de origen para eliminar este traslado.');
+        }
+
+        try {
+            DB::transaction(function () use ($transfer) {
+                // Revertir stock
+                foreach ($transfer->items as $item) {
+                    $product = Product::findOrFail($item->product_id);
+                    $product->addStock($item->quantity, 'Anulación de Traslado', 'Traslado #' . $transfer->nro_traslado, $transfer);
+                }
+
+                $transfer->items()->delete();
+                $transfer->delete();
+            });
+
+            return redirect()->route('stock-transfers.index')->with('success', 'Traslado eliminado y stock reajustado correctamente.');
+        } catch (\Exception $e) {
+            return redirect()->route('stock-transfers.index')->with('error', 'Error al eliminar: ' . $e->getMessage());
+        }
     }
 
     public function show($id)

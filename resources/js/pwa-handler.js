@@ -15,8 +15,6 @@ export async function initPWA() {
                 scope: '/',
             });
 
-            console.log('PWA: Service Worker registrado.');
-
             registration.addEventListener('updatefound', () => {
                 const newWorker = registration.installing;
                 if (newWorker) {

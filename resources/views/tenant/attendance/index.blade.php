@@ -8,7 +8,7 @@
         'routes' => [
             'index'     => route('attendance.index'),
             'clock_in'  => route('attendance.clock-in'),
-            'clock_out' => route('attendance.clock-out', ':id'),
+            'clock_out' => route('attendance.clock-out', 'FAKE_ID'),
             'status'    => route('attendance.status'),
         ],
         'user_id'  => auth()->id(),
@@ -39,6 +39,17 @@
         <div class="card-body p-4">
             <!-- Filtros -->
             <div class="row g-3 mb-4">
+                @if(auth()->user()->hasRole('admin'))
+                <div class="col-md-3">
+                    <label class="form-label small fw-bold">Empleado</label>
+                    <select id="filterUser" class="form-select">
+                        <option value="">Todos</option>
+                        @foreach($users as $user)
+                            <option value="{{ $user->id }}">{{ $user->name }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                @endif
                 <div class="col-md-3">
                     <label class="form-label small fw-bold">Desde</label>
                     <input type="date" id="filterStartDate" class="form-control" value="{{ now()->startOfMonth()->format('Y-m-d') }}">

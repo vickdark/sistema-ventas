@@ -62,7 +62,7 @@ export const mapData = (purchase) => {
         : (suppliers[0] || 'N/A');
 
     return [
-        purchase.id, 
+        purchase.id,
         purchase.nro_compra,
         supplierDisplay,
         purchase.items && purchase.items.length > 0 
@@ -74,7 +74,11 @@ export const mapData = (purchase) => {
             ? purchase.items.reduce((sum, item) => sum + item.quantity, 0)
             : purchase.quantity,
         `$${(purchase.total || (purchase.quantity * purchase.price)).toLocaleString()}`,
-        purchase.purchase_date,
+        purchase.purchase_date ? new Date(purchase.purchase_date).toLocaleDateString('es-ES', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        }) : '',
         null
     ];
 };

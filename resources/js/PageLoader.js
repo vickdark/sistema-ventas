@@ -41,7 +41,7 @@ const loaders = {
     '#stock-transfers-create-page': () => import('./pages/tenants/stock_transfers/create').then(m => m.initStockTransfersCreate),
     '#supplier-payments-index-page': () => import('./pages/tenants/supplier_payments/index').then(m => m.initSupplierPaymentsIndex),
     '#attendance-index-page': () => import('./pages/tenants/attendance/index').then(m => m.initAttendanceIndex),
-    '#dashboard-admin-page': () => import('./pages/tenants/dashboard/index').then(m => m.initDashboardIndex),
+    '#dashboard-attendance-widget': () => import('./pages/tenants/dashboard/index').then(m => m.initDashboardIndex),
     '#journal-entries-index-page': () => import('./pages/tenants/accounting/journal_entries/index').then(m => m.initJournalEntriesIndex),
 
     // Central Pages
@@ -67,8 +67,8 @@ export function initPageLoader() {
                     try {
                         config = JSON.parse(configStr);
                     } catch (e) {
-                        console.error(`PageLoader: Error parsing JSON config for ${selector}`, e);
-                        console.error('Invalid JSON:', configStr);
+                        //console.error(`PageLoader: Error parsing JSON config for ${selector}`, e);
+                        //console.error('Invalid JSON:', configStr);
                     }
                 }
 
@@ -80,17 +80,17 @@ export function initPageLoader() {
                 }
 
                 // Ejecutar inicializador con Lazy Loading
-                console.log(`PageLoader: Loading module for ${selector}...`);
+                //console.log(`PageLoader: Loading module for ${selector}...`);
                 try {
                     const initFunction = await importFunction();
-                    console.log(`PageLoader: Initializing ${selector}`);
+                    //console.log(`PageLoader: Initializing ${selector}`);
                     if (typeof initFunction === 'function') {
                         initFunction(config);
                     } else {
-                        console.error(`PageLoader: Module for ${selector} does not export a function.`);
+                        //console.error(`PageLoader: Module for ${selector} does not export a function.`);
                     }
                 } catch (error) {
-                    console.error(`PageLoader: Failed to load module for ${selector}`, error);
+                    //console.error(`PageLoader: Failed to load module for ${selector}`, error);
                 }
                 
                 return; // Solo una página activa a la vez

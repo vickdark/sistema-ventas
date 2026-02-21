@@ -39,6 +39,44 @@ export function initQuotesCreate(config) {
         btnCloseCart: document.getElementById('btnCloseCart')
     };
 
+    // Pre-cargar datos si es edición
+    if (config.quote) {
+        cart = config.quote.items.map(item => ({
+            id: item.product_id,
+            name: item.product.name,
+            price: parseFloat(item.price),
+            quantity: item.quantity,
+            image: item.product.image
+        }));
+
+        if (elements.expirationDate && config.quote.expiration_date) {
+            // Asumiendo que viene en formato Y-m-d desde el controlador
+            elements.expirationDate.value = config.quote.expiration_date;
+        }
+
+        if (elements.notes) {
+            elements.notes.value = config.quote.notes || '';
+        }
+
+        if (config.quote.client_id && customerManager.clientSelect) {
+            customerManager.clientSelect.setValue(config.quote.client_id);
+        }
+
+        if (elements.btnSaveQuote) {
+            elements.btnSaveQuote.innerHTML = '<i class="fas fa-save me-2"></i> ACTUALIZAR COTIZACIÓN';
+        }
+        
+        // Renderizar carrito inicial
+        // Necesitamos esperar a que el DOM esté listo o llamar a renderCart aquí
+        // Como initQuotesCreate se llama cuando el DOM ya debería estar listo (o al final del body), debería funcionar.
+        // Pero renderCart usa elements.cartItems que acabamos de definir.
+        // renderCart está definida más abajo, así que necesitamos mover esta llamada después de definir renderCart 
+        // o mover la definición de renderCart antes.
+        // Javascript hoisting de funciones declaradas con 'function' permite llamarlas antes.
+        // renderCart es una function declaration, así que debería funcionar.
+        renderCart();
+    }
+
     // 1. Inicialización de Swiper
     function initSwiper() {
         if (swiper) swiper.destroy(true, true);
@@ -233,8 +271,10 @@ export function initQuotesCreate(config) {
             };
 
             try {
-                const response = await fetch(config.routes.store, {
-                    method: 'POST',
+                const url = config.routes.store || config.routes.update;
+                
+                const response = await fetch(url, {
+                    method: config.quote ? 'PUT' : 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRF-TOKEN': config.tokens.csrf || document.querySelector('meta[name="csrf-token"]').content,

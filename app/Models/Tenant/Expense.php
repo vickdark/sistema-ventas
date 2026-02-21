@@ -9,7 +9,7 @@ use App\Models\Tenant\Branch;
 
 class Expense extends Model
 {
-    use HasFactory;
+    use HasFactory, \App\Traits\Tenant\BelongsToBranch;
 
     protected $fillable = [
         'expense_category_id',

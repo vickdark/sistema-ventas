@@ -36,17 +36,27 @@
                             @enderror
                         </div>
 
-                        <div class="mb-3">
+                        <div class="mb-3" x-data="{ show: false }">
                             <label for="password" class="form-label">{{ __('Contraseña') }}</label>
-                            <input type="password" class="form-control rounded-3 @error('password') is-invalid @enderror" id="password" name="password" required autocomplete="new-password">
-                            @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                            <div class="input-group">
+                                <input :type="show ? 'text' : 'password'" class="form-control rounded-3 @error('password') is-invalid @enderror" id="password" name="password" required autocomplete="new-password">
+                                <button type="button" class="btn btn-outline-secondary" @click="show = !show">
+                                    <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                </button>
+                                @error('password')
+                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
 
-                        <div class="mb-4">
+                        <div class="mb-4" x-data="{ show: false }">
                             <label for="password_confirmation" class="form-label">{{ __('Confirmar Contraseña') }}</label>
-                            <input type="password" class="form-control rounded-3" id="password_confirmation" name="password_confirmation" required autocomplete="new-password">
+                            <div class="input-group">
+                                <input :type="show ? 'text' : 'password'" class="form-control rounded-3" id="password_confirmation" name="password_confirmation" required autocomplete="new-password">
+                                <button type="button" class="btn btn-outline-secondary" @click="show = !show">
+                                    <i class="fas" :class="show ? 'fa-eye-slash' : 'fa-eye'"></i>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="d-grid">

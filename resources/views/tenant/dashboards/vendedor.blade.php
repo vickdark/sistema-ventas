@@ -2,6 +2,16 @@
 
 @section('content')
 <div class="container-fluid">
+    @php
+        $attendanceConfig = json_encode([
+            'routes' => [
+                'status'    => route('attendance.status'),
+                'clock_in'  => route('attendance.clock-in'),
+                'clock_out' => route('attendance.clock-out', 'FAKE_ID'),
+            ],
+        ], JSON_HEX_APOS);
+    @endphp
+    <div id="dashboard-attendance-widget" data-config='{!! $attendanceConfig !!}'></div>
     <div class="row mb-4 align-items-center">
         <div class="col-md-auto mb-3 mb-md-0">
             @if(tenant('logo'))
@@ -114,6 +124,31 @@
         <!-- Estadísticas Rápidas -->
         <div class="col-lg-4">
             <div class="row g-4">
+                <!-- Control Asistencia -->
+                <div class="col-12">
+                    <div class="card shadow-sm rounded-4 border-start border-primary" style="border-width: 0 0 0 4px;">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div>
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Control Asistencia</div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" id="dashboardAttendanceStatus">
+                                        --
+                                    </div>
+                                </div>
+                                <div class="bg-primary bg-opacity-10 p-3 rounded-circle">
+                                    <i class="fa-solid fa-clock fs-4 text-primary"></i>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <button id="btnDashboardClock" class="btn btn-sm btn-outline-primary w-100 rounded-pill" disabled>
+                                    Cargando...
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Ventas Hoy -->
                 <div class="col-12">
                     <div class="card shadow-sm rounded-4 border-start border-primary" style="border-width: 0 0 0 4px;">

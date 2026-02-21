@@ -113,7 +113,7 @@ class SaleController extends Controller
 
             $paymentStatus = in_array($request->payment_type, ['CONTADO', 'TRANSFERENCIA']) ? 'PAGADO' : 'PENDIENTE';
             
-            $lastSale = Sale::latest()->first();
+            $lastSale = Sale::withoutGlobalScope('branch')->latest()->first();
             $nroVenta = $lastSale ? (int)$lastSale->nro_venta + 1 : 1;
 
             $sale = Sale::create([

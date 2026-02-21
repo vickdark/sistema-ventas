@@ -8,11 +8,12 @@ use App\Traits\Tenant\LogsActivity;
 
 class SupplierPayment extends Model
 {
-    use LogsActivity;
+    use LogsActivity, \App\Traits\Tenant\BelongsToBranch;
 
     protected $fillable = [
         'purchase_id',
         'user_id',
+        'branch_id',
         'amount',
         'payment_date',
         'payment_method',

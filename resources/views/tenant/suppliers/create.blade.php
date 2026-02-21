@@ -85,3 +85,77 @@
 
 
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('suppliersContainer');
+        const addButton = document.getElementById('addSupplier');
+        const maxSuppliers = 5;
+
+        function updateIndices() {
+            const items = container.querySelectorAll('.supplier-item');
+            items.forEach((item, index) => {
+                // Actualizar título
+                item.querySelector('h6').textContent = `Proveedor #${index + 1}`;
+                
+                // Actualizar botón eliminar
+                const removeBtn = item.querySelector('.remove-supplier');
+                removeBtn.disabled = items.length === 1;
+
+                // Actualizar inputs
+                item.querySelectorAll('input, textarea, select').forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name) {
+                        // Reemplazar el índice en el nombre: suppliers[0][field] -> suppliers[index][field]
+                        const newName = name.replace(/suppliers\[\d+\]/, `suppliers[${index}]`);
+                        input.setAttribute('name', newName);
+                    }
+                });
+            });
+
+            // Controlar botón agregar
+            addButton.disabled = items.length >= maxSuppliers;
+            addButton.innerHTML = items.length >= maxSuppliers 
+                ? '<i class="fas fa-ban me-1"></i> Máximo alcanzado'
+                : '<i class="fas fa-plus me-1"></i> Agregar Otro (Máx. 5)';
+        }
+
+        addButton.addEventListener('click', function() {
+            const currentItems = container.querySelectorAll('.supplier-item');
+            if (currentItems.length >= maxSuppliers) return;
+
+            const template = currentItems[0].cloneNode(true);
+            
+            // Limpiar valores
+            template.querySelectorAll('input, textarea').forEach(input => {
+                input.value = '';
+                input.classList.remove('is-invalid');
+            });
+
+            // Remover mensajes de error si existen
+            template.querySelectorAll('.invalid-feedback').forEach(el => el.remove());
+
+            container.appendChild(template);
+            updateIndices();
+            
+            // Foco en el primer campo del nuevo item
+            template.querySelector('input').focus();
+        });
+
+        container.addEventListener('click', function(e) {
+            const removeBtn = e.target.closest('.remove-supplier');
+            if (!removeBtn || removeBtn.disabled) return;
+            
+            const item = removeBtn.closest('.supplier-item');
+            if (container.querySelectorAll('.supplier-item').length > 1) {
+                item.remove();
+                updateIndices();
+            }
+        });
+
+        // Inicializar estado
+        updateIndices();
+    });
+</script>
+@endpush

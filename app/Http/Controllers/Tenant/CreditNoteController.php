@@ -64,7 +64,7 @@ class CreditNoteController extends Controller
         // Verificar si la venta tiene abonos o estados que impidan la nota de crédito
         // Por ahora lo permitimos siempre.
 
-        $lastNote = CreditNote::latest()->first();
+        $lastNote = CreditNote::withoutGlobalScope('branch')->latest()->first();
         $nextNumber = $lastNote ? (int)str_replace('NC-', '', $lastNote->number) + 1 : 1;
         $nextNumber = 'NC-' . str_pad((string)$nextNumber, 6, '0', STR_PAD_LEFT);
 
@@ -85,7 +85,7 @@ class CreditNoteController extends Controller
             $sale = Sale::with('items')->findOrFail($request->sale_id);
             $totalNote = 0;
 
-            $lastNote = CreditNote::latest()->first();
+            $lastNote = CreditNote::withoutGlobalScope('branch')->latest()->first();
             $nextNumber = $lastNote ? (int)str_replace('NC-', '', $lastNote->number) + 1 : 1;
             $number = 'NC-' . str_pad((string)$nextNumber, 6, '0', STR_PAD_LEFT);
 

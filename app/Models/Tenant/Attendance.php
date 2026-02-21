@@ -2,8 +2,6 @@
 
 namespace App\Models\Tenant;
 
-use App\Models\Tenant\User;
-use App\Models\Tenant\Branch;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -30,11 +28,11 @@ class Attendance extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(\App\Models\Tenant\Usuario::class, 'user_id');
     }
 
     public function branch()
     {
-        return $this->belongsTo(Branch::class);
+        return $this->belongsTo(\App\Models\Tenant\Branch::class, 'branch_id');
     }
 }

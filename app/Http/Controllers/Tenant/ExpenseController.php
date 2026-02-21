@@ -59,6 +59,8 @@ class ExpenseController extends Controller
                 'index' => route('expenses.index'),
                 'create' => route('expenses.create'),
                 'show' => route('expenses.show', ':id'),
+                'edit' => route('expenses.edit', ':id'),
+                'update' => route('expenses.update', ':id'),
                 'destroy' => route('expenses.destroy', ':id')
             ]
         ];
@@ -92,7 +94,7 @@ class ExpenseController extends Controller
         Expense::create([
             'expense_category_id' => $request->expense_category_id,
             'user_id' => auth()->id(),
-            'branch_id' => auth()->user()->branch_id, // Asumiendo que el usuario tiene branch_id
+            // 'branch_id' => auth()->user()->branch_id, // Handled by BelongsToBranch trait
             'name' => $request->name,
             'amount' => $request->amount,
             'date' => $request->date,
@@ -102,5 +104,44 @@ class ExpenseController extends Controller
 
         return redirect()->route('expenses.index')
                          ->with('success', 'Gasto registrado correctamente');
+    }
+
+    public function edit(Expense $expense)
+    {
+        $categories = ExpenseCategory::all();
+        return view('tenant.expenses.edit', compact('expense', 'categories'));
+    }
+
+    public function update(Request $request, Expense $expense)
+    {
+        $request->validate([
+            'expense_category_id' => 'required|exists:expense_categories,id',
+            'amount' => 'required|numeric|min:0.01',
+            'date' => 'required|date',
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+        ]);
+
+        $expense->update([
+            'expense_category_id' => $request->expense_category_id,
+            'name' => $request->name,
+            'amount' => $request->amount,
+            'date' => $request->date,
+            'description' => $request->description,
+            'reference' => $request->reference,
+        ]);
+
+        return redirect()->route('expenses.index')->with('success', 'Gasto actualizado correctamente');
+    }
+
+    public function destroy($id)
+    {
+        try {
+            $expense = Expense::findOrFail($id);
+            $expense->delete();
+            return redirect()->route('expenses.index')->with('success', 'Gasto eliminado correctamente');
+        } catch (\Exception $e) {
+            return redirect()->route('expenses.index')->with('error', 'Error al eliminar el gasto');
+        }
     }
 }

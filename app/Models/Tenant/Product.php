@@ -84,7 +84,7 @@ class Product extends Model
 
         return StockMovement::create([
             'product_id' => $this->id,
-            'branch_id' => $this->branch_id,
+            // 'branch_id' => ... Handled by BelongsToBranch trait in StockMovement
             'user_id' => \Illuminate\Support\Facades\Auth::id(),
             'type' => 'input',
             'quantity' => $quantity,
@@ -105,7 +105,7 @@ class Product extends Model
 
         return StockMovement::create([
             'product_id' => $this->id,
-            'branch_id' => $this->branch_id,
+            // 'branch_id' => ... Handled by BelongsToBranch trait in StockMovement
             'user_id' => \Illuminate\Support\Facades\Auth::id(),
             'type' => 'output',
             'quantity' => $quantity,

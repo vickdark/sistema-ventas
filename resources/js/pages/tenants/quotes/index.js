@@ -18,8 +18,14 @@ export function initQuotesIndex(config) {
                         
                         if (status === 'PENDIENTE') {
                             html += `
-                                <button type="button" class="btn btn-sm btn-success rounded-pill btn-convert" data-id="${id}" title="Convertir a Venta">
+                                <a href="${config.routes.edit.replace(':id', id)}" class="btn btn-sm btn-outline-primary rounded-pill me-2" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <button type="button" class="btn btn-sm btn-success rounded-pill btn-convert me-2" data-id="${id}" title="Convertir a Venta">
                                     <i class="fas fa-shopping-cart"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-danger rounded-pill btn-delete" data-id="${id}" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
                                 </button>`;
                         }
                         
@@ -49,9 +55,37 @@ export function initQuotesIndex(config) {
             const csrf = document.createElement('input');
             csrf.type = 'hidden';
             csrf.name = '_token';
-            csrf.value = config.tokens.csrf || document.querySelector('meta[name="csrf-token"]').content;
+            csrf.value = (config.tokens && config.tokens.csrf) || document.querySelector('meta[name="csrf-token"]').content;
             
             form.appendChild(csrf);
+            document.body.appendChild(form);
+            form.submit();
+        }
+    });
+
+    // Evento para eliminar cotización
+    document.addEventListener('click', (e) => {
+        const btn = e.target.closest('.btn-delete');
+        if (!btn) return;
+        
+        const id = btn.dataset.id;
+        if (confirm('¿Estás seguro de que deseas eliminar esta cotización? Esta acción no se puede deshacer.')) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = config.routes.destroy.replace(':id', id);
+            
+            const csrf = document.createElement('input');
+            csrf.type = 'hidden';
+            csrf.name = '_token';
+            csrf.value = (config.tokens && config.tokens.csrf) || document.querySelector('meta[name="csrf-token"]').content;
+            
+            const method = document.createElement('input');
+            method.type = 'hidden';
+            method.name = '_method';
+            method.value = 'DELETE';
+            
+            form.appendChild(csrf);
+            form.appendChild(method);
             document.body.appendChild(form);
             form.submit();
         }

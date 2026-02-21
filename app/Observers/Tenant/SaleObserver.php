@@ -67,7 +67,7 @@ class SaleObserver
             if ($debitAccount) {
                 $entry->details()->create([
                     'account_id' => $debitAccount->id,
-                    'debit' => $sale->total,
+                    'debit' => $sale->total_paid,
                     'credit' => 0,
                 ]);
             }
@@ -86,13 +86,13 @@ class SaleObserver
                 $entry->details()->create([
                     'account_id' => $creditAccount->id,
                     'debit' => 0,
-                    'credit' => $sale->total, // Asumiendo sin desglose de impuestos por ahora
+                    'credit' => $sale->total_paid, // Asumiendo sin desglose de impuestos por ahora
                 ]);
              }
              
              // Actualizar saldos (Opcional, si usamos campo current_balance)
-             if ($debitAccount) $debitAccount->increment('current_balance', $sale->total);
-             if ($creditAccount) $creditAccount->increment('current_balance', $sale->total);
+             if ($debitAccount) $debitAccount->increment('current_balance', $sale->total_paid);
+             if ($creditAccount) $creditAccount->increment('current_balance', $sale->total_paid);
         });
     }
 }

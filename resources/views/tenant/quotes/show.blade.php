@@ -12,12 +12,16 @@
         <div class="col-auto">
             @if($quote->status === 'PENDIENTE')
                 <div class="d-flex gap-2">
+                    <a href="{{ route('quotes.edit', $quote->id) }}" class="btn btn-outline-primary rounded-pill px-4 shadow-sm border-0">
+                        <i class="fas fa-edit me-2"></i> Editar
+                    </a>
                     <form action="{{ route('quotes.convert', $quote->id) }}" method="POST" onsubmit="return confirm('¿Convertir esta cotización en una venta? Esto afectará el stock.')">
                         @csrf
                         <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm border-0 fw-bold">
                             <i class="fas fa-shopping-cart me-2"></i> Convertir a Venta
                         </button>
                     </form>
+                    
                     <button class="btn btn-outline-dark rounded-pill px-4 shadow-sm border-0" onclick="window.print()">
                         <i class="fas fa-print me-2"></i> Imprimir
                     </button>
@@ -28,8 +32,39 @@
 
     <div class="row">
         <div class="col-lg-12">
-            <div class="card border-0 shadow-soft rounded-4 overflow-hidden mb-4">
+            <div id="printable-area" class="card border-0 shadow-soft rounded-4 overflow-hidden mb-4">
                 <div class="card-body p-5">
+                    
+                    <!-- Encabezado de Impresión (Solo visible al imprimir) -->
+                    <div class="print-header mb-5 d-none d-print-block">
+                        <div class="row align-items-center">
+                            <div class="col-6">
+                                @if(tenant('logo'))
+                                    <img src="{{ asset('storage/' . tenant('logo')) }}" alt="Logo" class="img-fluid mb-3" style="max-height: 80px;">
+                                @endif
+                                <h2 class="fw-bold text-uppercase mb-1">{{ tenant('business_name') ?? tenant('id') }}</h2>
+                                @if(tenant('tax_id'))
+                                    <p class="mb-0 text-muted">NIT/RUC: {{ tenant('tax_id') }}</p>
+                                @endif
+                                @if(tenant('address'))
+                                    <p class="mb-0 text-muted">{{ tenant('address') }}</p>
+                                @endif
+                                @if(tenant('phone'))
+                                    <p class="mb-0 text-muted">Tel: {{ tenant('phone') }}</p>
+                                @endif
+                                @if(tenant('email'))
+                                    <p class="mb-0 text-muted">{{ tenant('email') }}</p>
+                                @endif
+                            </div>
+                            <div class="col-6 text-end">
+                                <h1 class="fw-bold text-primary display-6 mb-2">COTIZACIÓN</h1>
+                                <h3 class="fw-bold text-dark mb-1">#{{ $quote->nro_cotizacion }}</h3>
+                                <p class="mb-0 text-muted">Fecha: {{ now()->format('d/m/Y') }}</p>
+                            </div>
+                        </div>
+                        <hr class="my-4 border-2 border-primary opacity-100">
+                    </div>
+
                     <!-- Cabecera de Documento -->
                     <div class="row mb-5">
                         <div class="col-md-6">
@@ -99,9 +134,65 @@
 
 <style>
 @media print {
-    .btn, .app-sidebar, .app-header, .sidebar-heading { display: none !important; }
-    .card { border: 0 !important; box-shadow: none !important; }
-    body { background: white !important; }
+    /* Ocultar todo el contenido por defecto */
+    body * {
+        visibility: hidden;
+    }
+
+    /* Mostrar solo el área de impresión y sus hijos */
+    #printable-area, #printable-area * {
+        visibility: visible;
+    }
+
+    /* Posicionar el área de impresión en la parte superior absoluta */
+    #printable-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        border: none !important;
+        box-shadow: none !important;
+        background-color: white !important;
+    }
+
+    /* Asegurar que el cuerpo tenga fondo blanco */
+    body {
+        background-color: white !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+
+    /* Ocultar botones y elementos específicos dentro del área imprimible si los hubiera */
+    .no-print, .btn {
+        display: none !important;
+    }
+
+    /* Asegurar que el card-body ocupe todo el ancho */
+    .card-body {
+        padding: 20px !important;
+        width: 100% !important;
+    }
+
+    /* Mostrar encabezado de impresión */
+    .d-print-block {
+        display: block !important;
+        visibility: visible !important;
+    }
+
+    /* Ajustes de tabla para impresión */
+    .table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+    }
+    
+    .table th, .table td {
+        border: 1px solid #ddd !important;
+        padding: 8px !important;
+    }
 }
 </style>
 @endsection

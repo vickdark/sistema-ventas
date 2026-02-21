@@ -19,6 +19,11 @@ class AttendanceController extends Controller
             // If user is not admin, only show their own attendances
             if (!$user->hasRole('admin')) { 
                 $query->where('user_id', $user->id);
+            } else {
+                // Admin filters
+                if ($request->has('user_id') && $request->user_id) {
+                    $query->where('user_id', $request->user_id);
+                }
             }
 
             if ($request->has('start_date') && $request->has('end_date')) {
@@ -30,7 +35,12 @@ class AttendanceController extends Controller
             return response()->json($attendances);
         }
 
-        return view('tenant.attendance.index');
+        $users = [];
+        if (Auth::user()->hasRole('admin')) {
+            $users = \App\Models\Tenant\Usuario::all(['id', 'name']);
+        }
+
+        return view('tenant.attendance.index', compact('users'));
     }
 
     public function status(Request $request)
@@ -92,22 +102,32 @@ class AttendanceController extends Controller
         $user = Auth::user();
 
         // Check if it's clock-out needed
-        if ($request->has('clock_out')) {
-            $attendance = Attendance::where('user_id', $user->id)
-                ->whereNull('clock_out')
-                ->findOrFail($id);
-
-            $attendance->update([
-                'clock_out' => Carbon::now(),
-                'notes' => $attendance->notes . ($request->notes ? "\n" . $request->notes : ''),
-            ]);
-
-            return response()->json([
-                'message' => 'Salida marcada exitosamente.',
-                'attendance' => $attendance,
-            ]);
-        }
+        // Simplemente asumimos que si llama a update en un registro activo es para clock-out
+        // O verificamos si viene el parametro clock_out (como string "true" o booleano)
         
-        return response()->json(['message' => 'Acción no válida.'], 400);
+        // DEBUG: Imprimir que estamos recibiendo
+        \Log::info('Clock out attempt', ['id' => $id, 'params' => $request->all(), 'user' => $user->id]);
+
+        $attendance = Attendance::where('user_id', $user->id)
+            ->where('id', $id) // Quitamos whereNull('clock_out') temporalmente para ver si encuentra el registro
+            ->first();
+
+        if (!$attendance) {
+             return response()->json(['message' => 'No se encontró el registro de asistencia.'], 404);
+        }
+
+        if ($attendance->clock_out) {
+             return response()->json(['message' => 'Este turno ya fue cerrado.'], 400);
+        }
+
+        $attendance->update([
+            'clock_out' => Carbon::now(),
+            'notes' => $attendance->notes . ($request->notes ? "\n" . $request->notes : ''),
+        ]);
+
+        return response()->json([
+            'message' => 'Salida marcada exitosamente.',
+            'attendance' => $attendance,
+        ]);
     }
 }

@@ -65,4 +65,52 @@
     </div>
 </div>
 
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const container = document.getElementById('categoriesContainer');
+        const addButton = document.getElementById('addCategory');
+
+        // Función para actualizar el estado de los botones de eliminar
+        function updateRemoveButtons() {
+            const items = container.querySelectorAll('.category-item');
+            const removeButtons = container.querySelectorAll('.remove-category');
+            
+            removeButtons.forEach(btn => {
+                btn.disabled = items.length === 1;
+            });
+        }
+
+        // Agregar nueva categoría
+        addButton.addEventListener('click', function() {
+            const template = container.firstElementChild.cloneNode(true);
+            const input = template.querySelector('input');
+            const feedback = template.querySelector('.invalid-feedback');
+            
+            // Limpiar valores y clases de error
+            input.value = '';
+            input.classList.remove('is-invalid');
+            if (feedback) feedback.remove();
+            
+            container.appendChild(template);
+            updateRemoveButtons();
+            
+            // Enfocar el nuevo input
+            input.focus();
+        });
+
+        // Eliminar categoría (delegación de eventos)
+        container.addEventListener('click', function(e) {
+            const removeBtn = e.target.closest('.remove-category');
+            if (!removeBtn || removeBtn.disabled) return;
+            
+            const item = removeBtn.closest('.category-item');
+            if (container.querySelectorAll('.category-item').length > 1) {
+                item.remove();
+                updateRemoveButtons();
+            }
+        });
+    });
+</script>
+@endpush
 @endsection

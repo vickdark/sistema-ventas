@@ -140,9 +140,6 @@
                         {{ $isOwner ? 'Administrador Central' : (optional($authenticatedUser->role)->nombre ?? 'Sin Rol') }}
                     </div>
                 </div>
-                <a class="btn btn-link text-sidebar-muted p-0 border-0" href="{{ route('profile.index') }}" title="Mi Perfil">
-                    <i class="fa-solid fa-gear small"></i>
-                </a>
             </div>
             
             <form id="logout-form-aside" method="POST" action="{{ $logoutRoute }}" class="d-none">

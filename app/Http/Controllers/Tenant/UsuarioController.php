@@ -19,45 +19,67 @@ class UsuarioController extends Controller
      */
     public function index(Request $request)
     {
-        if ($request->ajax() || $request->wantsJson()) {
-            $query = Usuario::with('role');
-
-            // Grid.js envía los parámetros por defecto
+        if ($request->ajax()) {
             $limit = $request->get('limit', 10);
             $offset = $request->get('offset', 0);
             $search = $request->get('search');
+            $sort = $request->get('sort', 'id');
+            $order = $request->get('order', 'desc');
+
+            $query = Usuario::with('role');
 
             if ($search) {
                 $query->where(function($q) use ($search) {
                     $q->where('name', 'like', "%{$search}%")
-                      ->orWhere('email', 'like', "%{$search}%")
-                      ->orWhere('id', 'like', "%{$search}%");
+                      ->orWhere('email', 'like', "%{$search}%");
                 });
             }
 
             $total = $query->count();
             
-            $usuarios = $query->orderBy('id', 'desc')
+            $usuarios = $query->orderBy($sort, $order)
                               ->offset($offset)
                               ->limit($limit)
                               ->get();
 
             return response()->json([
                 'data' => $usuarios,
-                'total' => (int) $total,
-                'status' => 'success'
+                'total' => $total,
+                'totalNotFiltered' => Usuario::count()
             ]);
         }
         
         $config = [
             'routes' => [
                 'index' => route('usuarios.index'),
+                'create' => route('usuarios.create'),
+                'store' => route('usuarios.store'),
                 'edit' => route('usuarios.edit', ':id'),
-                'destroy' => route('usuarios.destroy', ':id')
+                'update' => route('usuarios.update', ':id'),
+                'destroy' => route('usuarios.destroy', ':id'),
+                'toggle_status' => route('usuarios.toggle-status', ':id')
             ]
         ];
         
         return view('tenant.usuarios.index', compact('config'));
+    }
+
+    /**
+     * Alternar el estado activo/inactivo del usuario.
+     */
+    public function toggleStatus(Request $request, $id)
+    {
+        $usuario = Usuario::findOrFail($id);
+        
+        $usuario->update([
+            'is_active' => !$usuario->is_active
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Estado del usuario actualizado correctamente',
+            'is_active' => $usuario->is_active
+        ]);
     }
 
     /**
@@ -77,6 +99,16 @@ class UsuarioController extends Controller
     {
         $request->validate([
             'role_id' => ['required', 'exists:roles,id'],
+            'branch_id' => [
+                function ($attribute, $value, $fail) use ($request) {
+                    $role = Role::find($request->role_id);
+                    if ($role && $role->slug !== 'admin' && $role->slug !== 'super-admin' && empty($value)) {
+                        $fail('La sucursal es obligatoria para este rol.');
+                    }
+                },
+                'nullable',
+                'exists:branches,id',
+            ],
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required', 
@@ -132,6 +164,16 @@ class UsuarioController extends Controller
         $usuario = Usuario::findOrFail($id);
         $rules = [
             'role_id' => ['required', 'exists:roles,id'],
+            'branch_id' => [
+                function ($attribute, $value, $fail) use ($request) {
+                    $role = Role::find($request->role_id);
+                    if ($role && $role->slug !== 'admin' && $role->slug !== 'super-admin' && empty($value)) {
+                        $fail('La sucursal es obligatoria para este rol.');
+                    }
+                },
+                'nullable',
+                'exists:branches,id',
+            ],
             'name' => ['required', 'string', 'max:255'],
             'email' => [
                 'required', 

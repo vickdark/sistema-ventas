@@ -51,6 +51,18 @@ class Usuario extends Authenticatable
         'name',
         'email',
         'password',
+        'is_active',
+    ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+        'is_active' => 'boolean',
     ];
 
     /**

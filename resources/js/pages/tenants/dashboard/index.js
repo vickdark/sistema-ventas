@@ -12,12 +12,11 @@ export function initDashboardIndex(config) {
 
     async function loadStatus() {
         try {
-            const response = await fetch(config.routes.status);
-            const data = await response.json();
-            updateWidget(data);
+            const response = await axios.get(config.routes.status);
+            updateWidget(response.data);
         } catch (error) {
             console.error('Error loading attendance status:', error);
-            elements.statusLabel.textContent = 'Error';
+            if (elements.statusLabel) elements.statusLabel.textContent = 'Error';
         }
     }
 
@@ -66,7 +65,7 @@ export function initDashboardIndex(config) {
         });
 
         if (notes !== undefined) {
-            const url = config.routes.clock_out.replace(':id', currentAttendance.id);
+            const url = config.routes.clock_out.replace('FAKE_ID', currentAttendance.id);
             performAction(url, 'PUT', { notes });
         }
     }
@@ -76,27 +75,19 @@ export function initDashboardIndex(config) {
         elements.btnClock.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
         try {
-            const response = await fetch(url, {
-                method: method,
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': config.tokens.csrf,
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify(body)
+            const response = await axios({
+                method: method.toLowerCase(),
+                url: url,
+                data: body
             });
 
-            const result = await response.json();
-
-            if (response.ok) {
-                Notifications.success('Éxito', result.message);
-                loadStatus(); // Reload to update UI
-            } else {
-                Notifications.error('Error', result.message);
-                loadStatus(); // Revert UI
+            if (response.data) {
+                Notifications.success('Éxito', response.data.message);
+                loadStatus();
             }
         } catch (error) {
-            Notifications.error('Error', 'Error de conexión');
+            const message = error.response?.data?.message || 'Error de conexión';
+            Notifications.error('Error', message);
             loadStatus();
         }
     }
