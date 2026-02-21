@@ -105,6 +105,8 @@ class PurchaseController extends Controller
                 },
             ],
             'items.*.price' => 'required|numeric|min:0',
+            'payment_condition' => 'required|in:cash,credit',
+            'due_date' => 'nullable|date',
         ]);
 
         return DB::transaction(function () use ($request) {
@@ -117,15 +119,18 @@ class PurchaseController extends Controller
             $purchaseData['user_id'] = Auth::id();
             $purchaseData['total'] = $total;
             $purchaseData['total_amount'] = $total;
-            
-            // Si el usuario marcó crédito (ej: enviando una fecha de vencimiento)
-            if ($request->filled('due_date')) {
+
+            // Manejo de condición de pago (Contado vs Crédito)
+            if ($request->payment_condition === 'credit') {
                 $purchaseData['pending_amount'] = $total;
                 $purchaseData['payment_status'] = 'PENDIENTE';
+                // Si viene fecha de vencimiento la usamos, si no, queda NULL (pero sigue siendo crédito/pendiente)
                 $purchaseData['due_date'] = $request->due_date;
             } else {
+                // Contado
                 $purchaseData['pending_amount'] = 0;
                 $purchaseData['payment_status'] = 'PAGADO';
+                $purchaseData['due_date'] = null;
             }
 
             $purchase = Purchase::create($purchaseData);

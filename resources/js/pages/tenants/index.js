@@ -13,6 +13,7 @@ export { initPurchasesIndex } from './purchases/index';
 export { initPurchasesCreate } from './purchases/create';
 export { initPurchasesEdit } from './purchases/edit';
 export { initSuppliersIndex } from './suppliers/index';
+export { initSupplierPaymentsIndex } from './supplier_payments/index';
 export { initSuppliersCreate } from './suppliers/create';
 export { initCashRegistersIndex } from './cash_registers/index';
 export { initSalesIndex } from './sales/index';

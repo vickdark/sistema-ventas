@@ -1,19 +1,4 @@
 export function initProductsCreate(config) {
-    // Inicializar TomSelect para proveedores
-    const supplierSelect = new TomSelect('#supplier_ids', {
-        plugins: ['remove_button'],
-        create: false,
-        placeholder: 'Busca y selecciona proveedores...',
-        render: {
-            option: function(data, escape) {
-                return '<div><i class="fas fa-truck me-2 opacity-50"></i>' + escape(data.text) + '</div>';
-            },
-            item: function(data, escape) {
-                return '<div title="' + escape(data.text) + '"><i class="fas fa-truck me-2 opacity-50"></i>' + escape(data.text) + '</div>';
-            }
-        }
-    });
-
     const container = document.getElementById('productsContainer');
     const addBtn = document.getElementById('addProduct');
     
@@ -22,14 +7,69 @@ export function initProductsCreate(config) {
     let productCount = 1;
     const MAX_PRODUCTS = 5;
 
-    // Obtener las categorías disponibles desde la configuración
+    // Obtener configuración
     const categories = config.categories || [];
+    const suppliers = config.suppliers || [];
     
     // Generar opciones de categoría
     const categoryOptions = `
         <option value="" selected disabled>Selecciona una categoría</option>
         ${categories.map(category => `<option value="${category.id}">${category.name}</option>`).join('')}
     `;
+
+    // Generar opciones de proveedores
+    const supplierOptions = suppliers.map(supplier => 
+        `<option value="${supplier.id}">${supplier.name} ${supplier.company ? '(' + supplier.company + ')' : ''}</option>`
+    ).join('');
+
+    // Función para inicializar TomSelect en selector de proveedores
+    const initSupplierSelect = (element) => {
+        if (!element) return;
+        new TomSelect(element, {
+            plugins: ['remove_button'],
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            placeholder: 'Busca y selecciona proveedores...',
+            dropdownParent: 'body', // Asegura que el dropdown no se corte
+            render: {
+                option: function(data, escape) {
+                    return '<div><i class="fas fa-truck me-2 opacity-50"></i>' + escape(data.text) + '</div>';
+                },
+                item: function(data, escape) {
+                    return '<div title="' + escape(data.text) + '"><i class="fas fa-truck me-2 opacity-50"></i>' + escape(data.text) + '</div>';
+                }
+            }
+        });
+    };
+
+    // Función para inicializar TomSelect en selector de categorías
+    const initCategorySelect = (element) => {
+        if (!element) return;
+        new TomSelect(element, {
+            create: false,
+            sortField: {
+                field: "text",
+                direction: "asc"
+            },
+            placeholder: 'Selecciona una categoría',
+            dropdownParent: 'body', // Asegura que el dropdown no se corte
+            render: {
+                option: function(data, escape) {
+                    return '<div><i class="fas fa-tag me-2 opacity-50"></i>' + escape(data.text) + '</div>';
+                },
+                item: function(data, escape) {
+                    return '<div title="' + escape(data.text) + '"><i class="fas fa-tag me-2 opacity-50"></i>' + escape(data.text) + '</div>';
+                }
+            }
+        });
+    };
+
+    // Inicializar selectores existentes
+    document.querySelectorAll('.category-select').forEach(initCategorySelect);
+    document.querySelectorAll('.supplier-select').forEach(initSupplierSelect);
 
     addBtn.addEventListener('click', function() {
         if (productCount >= MAX_PRODUCTS) {
@@ -52,7 +92,18 @@ export function initProductsCreate(config) {
             </div>
             
             <div class="row">
-                <div class="col-md-3 mb-3">
+                <div class="col-md-12 mb-4">
+                    <div class="p-3 border rounded-3 bg-white">
+                        <label class="form-label fw-bold text-primary mb-2">
+                            <i class="fas fa-truck-loading me-1"></i> Proveedores del Producto (Requerido)
+                        </label>
+                        <select class="form-select supplier-select" name="products[${productCount}][supplier_ids][]" multiple required placeholder="Busca y selecciona proveedores...">
+                            ${supplierOptions}
+                        </select>
+                        <div class="form-text small mt-1">Selecciona los proveedores específicos para este producto.</div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
                     <label class="form-label">Código</label>
                     <input type="text" class="form-control rounded-3" name="products[${productCount}][code]" required>
                 </div>
@@ -60,9 +111,9 @@ export function initProductsCreate(config) {
                     <label class="form-label">Nombre</label>
                     <input type="text" class="form-control rounded-3" name="products[${productCount}][name]" required>
                 </div>
-                <div class="col-md-4 mb-3">
+                <div class="col-md-3 mb-3">
                     <label class="form-label">Categoría</label>
-                    <select class="form-select rounded-3" name="products[${productCount}][category_id]" required>
+                    <select class="form-select rounded-3 category-select" name="products[${productCount}][category_id]" required>
                         ${categoryOptions}
                     </select>
                 </div>
@@ -81,8 +132,8 @@ export function initProductsCreate(config) {
                     </div>
                 </div>
                 <div class="col-md-2 mb-3">
-                    <label class="form-label">Stock Actual</label>
-                    <input type="number" class="form-control rounded-3" name="products[${productCount}][stock]" required>
+                    <label class="form-label">Stock Inicial (Opcional)</label>
+                    <input type="number" class="form-control rounded-3" name="products[${productCount}][stock]" placeholder="0">
                 </div>
                 <div class="col-md-2 mb-3">
                     <label class="form-label">Stock Mín.</label>
@@ -112,6 +163,14 @@ export function initProductsCreate(config) {
         `;
         
         container.appendChild(newProduct);
+        
+        // Inicializar TomSelect en los nuevos selectores
+        const newCategorySelect = newProduct.querySelector('.category-select');
+        initCategorySelect(newCategorySelect);
+        
+        const newSupplierSelect = newProduct.querySelector('.supplier-select');
+        initSupplierSelect(newSupplierSelect);
+
         productCount++;
         updateUI();
     });

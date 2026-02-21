@@ -79,7 +79,7 @@ class ProductController extends Controller
             'products.*.code' => 'required|string|max:255|distinct',
             'products.*.name' => 'required|string|max:255',
             'products.*.description' => 'nullable|string',
-            'products.*.stock' => 'required|integer|min:0',
+            'products.*.stock' => 'nullable|integer|min:0',
             'products.*.min_stock' => 'required|integer|min:0',
             'products.*.max_stock' => 'required|integer|min:0',
             'products.*.purchase_price' => 'required|numeric|min:0',
@@ -87,15 +87,15 @@ class ProductController extends Controller
             'products.*.entry_date' => 'required|date',
             'products.*.image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'products.*.category_id' => 'required|exists:categories,id',
-            'supplier_ids' => 'required|array|min:1',
-            'supplier_ids.*' => 'exists:suppliers,id',
+            'products.*.supplier_ids' => 'required|array|min:1',
+            'products.*.supplier_ids.*' => 'exists:suppliers,id',
         ], [
             'products.required' => 'Debe agregar al menos un producto.',
             'products.max' => 'Solo puede registrar hasta 5 productos a la vez.',
             'products.*.code.distinct' => 'No puede haber códigos duplicados.',
             'products.*.image.image' => 'El archivo debe ser una imagen.',
             'products.*.image.max' => 'El tamaño máximo de la imagen es 2MB.',
-            'supplier_ids.required' => 'Debe seleccionar al menos un proveedor.',
+            'products.*.supplier_ids.required' => 'Debe seleccionar al menos un proveedor para cada producto.',
         ]);
 
         $created = 0;
@@ -117,10 +117,21 @@ class ProductController extends Controller
             // Agregar el user_id
             $productData['user_id'] = Auth::id();
 
+            // Handle initial stock logic
+            $initialStock = $productData['stock'] ?? 0;
+            $productData['stock'] = 0; // Force 0 initially to ensure clean state
+
             $product = Product::create($productData);
             
+            // Add initial stock if provided
+            if ($initialStock > 0) {
+                $product->addStock($initialStock, 'Inventario Inicial', 'Stock inicial al crear el producto');
+            }
+            
             // Sincronizar proveedores
-            $product->suppliers()->sync($request->supplier_ids);
+            if (isset($productData['supplier_ids'])) {
+                $product->suppliers()->sync($productData['supplier_ids']);
+            }
             
             $created++;
         }

@@ -40,7 +40,7 @@
                             </div>
                             <div class="col-md-4 mb-3">
                                 <label for="category_id" class="form-label">Categoría</label>
-                                <select class="form-select rounded-3 @error('category_id') is-invalid @enderror" id="category_id" name="category_id" required>
+                                <select class="form-select rounded-3 category-select @error('category_id') is-invalid @enderror" id="category_id" name="category_id" required>
                                     <option value="" disabled>Selecciona una categoría</option>
                                     @foreach($categories as $category)
                                         <option value="{{ $category->id }}" {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>

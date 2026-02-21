@@ -61,6 +61,7 @@
                                     <th class="py-3 border-0">Método</th>
                                     <th class="py-3 border-0">Notas</th>
                                     <th class="py-3 border-0 text-end">Monto</th>
+                                    <th class="py-3 border-0 text-end" style="width: 100px;">Acciones</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -70,10 +71,15 @@
                                         <td><span class="badge bg-light text-dark border">{{ $payment->payment_method }}</span></td>
                                         <td class="small text-muted">{{ $payment->notes ?? '-' }}</td>
                                         <td class="text-end fw-bold text-success">${{ number_format($payment->amount, 2) }}</td>
+                                        <td class="text-end">
+                                            <a href="{{ route('supplier-payments.edit', $payment->id) }}" class="btn btn-sm btn-outline-primary rounded-pill border-0 shadow-sm" title="Editar Abono">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="text-center py-5 text-muted fst-italic">No se han registrado abonos aún.</td>
+                                        <td colspan="5" class="text-center py-5 text-muted fst-italic">No se han registrado abonos aún.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

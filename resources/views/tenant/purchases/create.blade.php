@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+
 <div class="container-fluid">
     {{-- Configuración de Página para PageLoader.js --}}
     <div id="purchases-create-page"></div>
@@ -46,6 +47,20 @@
                         <div class="mb-3">
                             <label for="purchase_date" class="form-label">Fecha de Compra</label>
                             <input type="date" class="form-control rounded-3" id="purchase_date" name="purchase_date" value="{{ old('purchase_date', date('Y-m-d')) }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="payment_condition" class="form-label">Condición de Pago</label>
+                            <select class="form-select rounded-3" id="payment_condition" name="payment_condition" onchange="toggleDueDate()">
+                                <option value="cash">Contado</option>
+                                <option value="credit">Crédito</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3" id="dueDateContainer" style="display: none;">
+                            <label for="due_date" class="form-label">Fecha de Vencimiento (Opcional)</label>
+                            <input type="date" class="form-control rounded-3" id="due_date" name="due_date" value="{{ old('due_date') }}">
+                            <div class="form-text small text-muted">Si es crédito y no tiene fecha exacta, puede dejarlo vacío.</div>
                         </div>
 
                         <div class="mb-3 d-none">
@@ -158,6 +173,19 @@
     </form>
 </div>
 
+@endsection
 
-
+@section('scripts')
+<script>
+    function toggleDueDate() {
+        const condition = document.getElementById('payment_condition').value;
+        const container = document.getElementById('dueDateContainer');
+        if (condition === 'credit') {
+            container.style.display = 'block';
+        } else {
+            container.style.display = 'none';
+            document.getElementById('due_date').value = '';
+        }
+    }
+</script>
 @endsection

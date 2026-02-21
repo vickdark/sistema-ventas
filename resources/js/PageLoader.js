@@ -20,6 +20,9 @@ const loaders = {
     '#purchases-create-page': () => import('./pages/tenants/purchases/create').then(m => m.initPurchasesCreate),
     '#purchases-edit-page': () => import('./pages/tenants/purchases/edit').then(m => m.initPurchasesEdit),
     '#suppliers-index-page': () => import('./pages/tenants/suppliers/index').then(m => m.initSuppliersIndex),
+    '#supplier-payments-index-page': () => import('./pages/tenants/supplier_payments/index').then(m => m.initSupplierPaymentsIndex),
+    '#supplier-payments-create-page': () => import('./pages/tenants/supplier_payments/create').then(m => m.initSupplierPaymentsCreate),
+    '#supplier-payments-edit-page': () => import('./pages/tenants/supplier_payments/edit').then(m => m.initSupplierPaymentsEdit), // Nuevo módulo edit
     '#suppliers-create-page': () => import('./pages/tenants/suppliers/create').then(m => m.initSuppliersCreate),
     '#cash-registers-index-page': () => import('./pages/tenants/cash_registers/index').then(m => m.initCashRegistersIndex),
     '#sales-index-page': () => import('./pages/tenants/sales/index').then(m => m.initSalesIndex),
@@ -39,7 +42,6 @@ const loaders = {
     '#quotes-create-page': () => import('./pages/tenants/quotes/create').then(m => m.initQuotesCreate),
     '#stock-transfers-index-page': () => import('./pages/tenants/stock_transfers/index').then(m => m.initStockTransfersIndex),
     '#stock-transfers-create-page': () => import('./pages/tenants/stock_transfers/create').then(m => m.initStockTransfersCreate),
-    '#supplier-payments-index-page': () => import('./pages/tenants/supplier_payments/index').then(m => m.initSupplierPaymentsIndex),
     '#attendance-index-page': () => import('./pages/tenants/attendance/index').then(m => m.initAttendanceIndex),
     '#dashboard-attendance-widget': () => import('./pages/tenants/dashboard/index').then(m => m.initDashboardIndex),
     '#journal-entries-index-page': () => import('./pages/tenants/accounting/journal_entries/index').then(m => m.initJournalEntriesIndex),

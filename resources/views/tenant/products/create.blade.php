@@ -3,7 +3,7 @@
 @section('content')
 <div class="container-fluid">
     {{-- Configuración de Página para PageLoader.js --}}
-    <div id="products-create-page" data-config='@json(["categories" => $categories])'></div>
+    <div id="products-create-page" data-config="{{ json_encode(['categories' => $categories, 'suppliers' => $suppliers], JSON_HEX_APOS) }}"></div>
 
     <div class="row mb-4">
         <div class="col">
@@ -23,40 +23,20 @@
                     <form action="{{ route('products.store') }}" method="POST" id="productsForm" enctype="multipart/form-data">
                         @csrf
                         
-                        <div class="row mb-4">
-                            <div class="col-12">
-                                <div class="p-4 border rounded-4 bg-light shadow-sm">
-                                    <h5 class="mb-3 text-primary d-flex align-items-center">
-                                        <i class="fas fa-truck-loading me-2"></i> Información de Proveedores
-                                    </h5>
-                                    <div class="row">
-                                        <div class="col-md-12">
-                                            <label class="form-label fw-bold">Proveedores (Requerido)</label>
-                                            <select class="form-select @error('supplier_ids') is-invalid @enderror" id="supplier_ids" name="supplier_ids[]" multiple placeholder="Selecciona uno o más proveedores..." required>
-                                                @foreach($suppliers as $supplier)
-                                                    <option value="{{ $supplier->id }}" {{ in_array($supplier->id, old('supplier_ids', [])) ? 'selected' : '' }}>
-                                                        {{ $supplier->name }} {{ $supplier->company ? '('.$supplier->company.')' : '' }}
-                                                    </option>
-                                                @endforeach
-                                            </select>
-                                            @error('supplier_ids')
-                                                <div class="invalid-feedback">{{ $message }}</div>
-                                            @enderror
-                                            <div class="form-text mt-2">
-                                                Selecciona los proveedores que surten estos productos. Puedes elegir varios.
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         <div class="d-flex justify-content-between align-items-center mb-3">
                             <h5 class="mb-0">Productos a Registrar</h5>
                             <button type="button" class="btn btn-sm btn-outline-primary rounded-pill shadow-sm" id="addProduct">
                                 <i class="fas fa-plus me-1"></i> Agregar Otro (Máx. 5)
                             </button>
                         </div>
+
+                        @if($suppliers->isEmpty())
+                            <div class="alert alert-warning mb-4">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Atención:</strong> No hay proveedores registrados en el sistema. 
+                                Para registrar productos, primero debes <a href="{{ route('suppliers.create') }}" class="alert-link">crear un proveedor</a>.
+                            </div>
+                        @endif
 
                         <div id="productsContainer">
                             <!-- Primer producto por defecto -->
@@ -69,7 +49,20 @@
                                 </div>
                                 
                                 <div class="row">
-                                    <div class="col-md-3 mb-3">
+                                    <div class="col-md-12 mb-4">
+                                        <div class="p-3 border rounded-3 bg-white">
+                                            <label class="form-label fw-bold text-primary mb-2">
+                                                <i class="fas fa-truck-loading me-1"></i> Proveedores del Producto (Requerido)
+                                            </label>
+                                            <select class="form-select supplier-select" name="products[0][supplier_ids][]" multiple required placeholder="Busca y selecciona proveedores...">
+                                                @foreach($suppliers as $supplier)
+                                                    <option value="{{ $supplier->id }}">{{ $supplier->name }} {{ $supplier->company ? '('.$supplier->company.')' : '' }}</option>
+                                                @endforeach
+                                            </select>
+                                            <div class="form-text small mt-1">Selecciona los proveedores específicos para este producto.</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
                                         <label class="form-label">Código</label>
                                         <input type="text" class="form-control rounded-3" name="products[0][code]" required>
                                     </div>
@@ -77,9 +70,9 @@
                                         <label class="form-label">Nombre</label>
                                         <input type="text" class="form-control rounded-3" name="products[0][name]" required>
                                     </div>
-                                    <div class="col-md-4 mb-3">
+                                    <div class="col-md-3 mb-3">
                                         <label class="form-label">Categoría</label>
-                                        <select class="form-select rounded-3" name="products[0][category_id]" required>
+                                        <select class="form-select rounded-3 category-select" name="products[0][category_id]" required>
                                             <option value="" selected disabled>Selecciona una categoría</option>
                                             @foreach($categories as $category)
                                                 <option value="{{ $category->id }}">{{ $category->name }}</option>
@@ -101,8 +94,8 @@
                                         </div>
                                     </div>
                                     <div class="col-md-2 mb-3">
-                                        <label class="form-label">Stock Actual</label>
-                                        <input type="number" class="form-control rounded-3" name="products[0][stock]" required>
+                                        <label class="form-label">Stock Inicial (Opcional)</label>
+                                        <input type="number" class="form-control rounded-3" name="products[0][stock]" placeholder="0">
                                     </div>
                                     <div class="col-md-2 mb-3">
                                         <label class="form-label">Stock Mín.</label>
