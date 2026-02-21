@@ -182,8 +182,6 @@ class SyncPermissions extends Command
             'stock-transfers'=> ['singular' => 'Traslado de Stock', 'plural' => 'Traslados de Stock'],
             'supplier-payments' => ['singular' => 'Pago a Proveedor', 'plural' => 'Cuentas por Pagar'],
             'attendance'     => ['singular' => 'Asistencia', 'plural' => 'Control de Asistencia'],
-            'journal-entries' => ['singular' => 'Asiento Contable', 'plural' => 'Libro Diario'],
-            'accounting'     => ['singular' => 'Contabilidad', 'plural' => 'Contabilidad'],
         ];
     }
 
@@ -395,12 +393,6 @@ class SyncPermissions extends Command
             'purchases'      => 30,
             'suppliers'      => 31,
             'supplier-payments' => 32,
-
-            // Contabilidad
-            'accounting'     => 40,
-            'journal-entries'=> 41,
-            'expenses'       => 42,
-            'expense-categories' => 43,
 
             // RRHH
             'attendance'     => 50,

@@ -126,10 +126,6 @@ Route::middleware([
             // Gestión de Permisos (Sincronización)
             Route::post('permissions/sync', [\App\Http\Controllers\Tenant\PermissionController::class, 'sync'])->name('permissions.sync');
             
-            // Contabilidad
-            Route::get('journal-entries', [\App\Http\Controllers\Tenant\JournalEntryController::class, 'index'])->name('journal-entries.index');
-            Route::get('accounting', [\App\Http\Controllers\Tenant\BalanceSheetController::class, 'index'])->name('accounting.index');
-
             // Notificaciones
             Route::get('notifications/low-stock', [\App\Http\Controllers\Tenant\NotificationController::class, 'getLowStockProducts'])->name('notifications.low-stock');
         });

@@ -117,7 +117,7 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'Pending-sales Abono', 'slug' => 'abonos.pending-sales', 'is_menu' => 0, 'icon' => 'fa-solid fa-hand-holding-dollar', 'module' => 'Ventas', 'order' => 21, 'descripcion' => 'Permite Pending-sales Abono en el sistema'],
 
             // Asistencia
-            ['nombre' => 'Asistencia', 'slug' => 'attendance.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-calendar-check', 'module' => 'Configuración', 'order' => 105, 'descripcion' => 'Permite Ver Asistencia en el sistema'],
+            ['nombre' => 'Control de Asistencia', 'slug' => 'attendance.index', 'descripcion' => 'Permite ver el registro de asistencias', 'module' => 'Configuración', 'icon' => 'fa-solid fa-calendar-check', 'is_menu' => true, 'order' => 104],
             ['nombre' => 'Crear Asistencia', 'slug' => 'attendance.create', 'is_menu' => 0, 'icon' => 'fa-solid fa-calendar-check', 'module' => 'Configuración', 'order' => 105, 'descripcion' => 'Permite Crear Asistencia en el sistema'],
             ['nombre' => 'Guardar Asistencia', 'slug' => 'attendance.store', 'is_menu' => 0, 'icon' => 'fa-solid fa-calendar-check', 'module' => 'Configuración', 'order' => 105, 'descripcion' => 'Permite Guardar Asistencia en el sistema'],
             ['nombre' => 'Ver Detalle Asistencia', 'slug' => 'attendance.show', 'is_menu' => 0, 'icon' => 'fa-solid fa-calendar-check', 'module' => 'Configuración', 'order' => 105, 'descripcion' => 'Permite Ver Detalle Asistencia en el sistema'],
@@ -127,18 +127,6 @@ class DatabaseSeeder extends Seeder
             ['nombre' => 'Marcar Asistencia', 'slug' => 'attendance.clock-in', 'is_menu' => 0, 'icon' => 'fa-solid fa-calendar-check', 'module' => 'Configuración', 'order' => 105, 'descripcion' => 'Permite Marcar Asistencia en el sistema'],
             ['nombre' => 'Marcar Salida', 'slug' => 'attendance.clock-out', 'is_menu' => 0, 'icon' => 'fa-solid fa-calendar-check', 'module' => 'Configuración', 'order' => 105, 'descripcion' => 'Permite Marcar Salida en el sistema'],
 
-            // Contabilidad
-            ['nombre' => 'Contabilidad', 'slug' => 'accounting.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-calculator', 'module' => 'Contabilidad', 'order' => 42, 'descripcion' => 'Permite Ver Contabilidad en el sistema'],
-            ['nombre' => 'Gestionar Plan de Cuentas', 'slug' => 'accounts.index', 'is_menu' => 0, 'icon' => 'fa-solid fa-calculator', 'module' => 'Contabilidad', 'order' => 42, 'descripcion' => 'Permite crear y editar cuentas contables'],
-            
-            // Asientos Contables
-            ['nombre' => 'Libro Diario', 'slug' => 'journal-entries.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-book-journal-whills', 'module' => 'Contabilidad', 'order' => 41, 'descripcion' => 'Permite Ver Libro Diario en el sistema'],
-            ['nombre' => 'Crear Asiento Contable', 'slug' => 'journal-entries.create', 'is_menu' => 0, 'icon' => 'fa-solid fa-book-journal-whills', 'module' => 'Contabilidad', 'order' => 41, 'descripcion' => 'Permite Crear Asiento Contable en el sistema'],
-            ['nombre' => 'Guardar Asiento Contable', 'slug' => 'journal-entries.store', 'is_menu' => 0, 'icon' => 'fa-solid fa-book-journal-whills', 'module' => 'Contabilidad', 'order' => 41, 'descripcion' => 'Permite Guardar Asiento Contable en el sistema'],
-            ['nombre' => 'Ver Detalle Asiento Contable', 'slug' => 'journal-entries.show', 'is_menu' => 0, 'icon' => 'fa-solid fa-book-journal-whills', 'module' => 'Contabilidad', 'order' => 41, 'descripcion' => 'Permite Ver Detalle Asiento Contable en el sistema'],
-            ['nombre' => 'Editar Asiento Contable', 'slug' => 'journal-entries.edit', 'is_menu' => 0, 'icon' => 'fa-solid fa-book-journal-whills', 'module' => 'Contabilidad', 'order' => 41, 'descripcion' => 'Permite Editar Asiento Contable en el sistema'],
-            ['nombre' => 'Actualizar Asiento Contable', 'slug' => 'journal-entries.update', 'is_menu' => 0, 'icon' => 'fa-solid fa-book-journal-whills', 'module' => 'Contabilidad', 'order' => 41, 'descripcion' => 'Permite Actualizar Asiento Contable en el sistema'],
-            ['nombre' => 'Eliminar Asiento Contable', 'slug' => 'journal-entries.destroy', 'is_menu' => 0, 'icon' => 'fa-solid fa-book-journal-whills', 'module' => 'Contabilidad', 'order' => 41, 'descripcion' => 'Permite Eliminar Asiento Contable en el sistema'],
             ['nombre' => 'Debt-summary Abono', 'slug' => 'abonos.debt-summary', 'is_menu' => 0, 'icon' => 'fa-solid fa-hand-holding-dollar', 'module' => 'Ventas', 'order' => 21, 'descripcion' => 'Permite Debt-summary Abono en el sistema'],
             ['nombre' => 'Client-history Abono', 'slug' => 'abonos.client-history', 'is_menu' => 0, 'icon' => 'fa-solid fa-hand-holding-dollar', 'module' => 'Ventas', 'order' => 21, 'descripcion' => 'Permite Client-history Abono en el sistema'],
             ['nombre' => 'Reportes', 'slug' => 'reports.index', 'is_menu' => 1, 'icon' => 'fa-solid fa-chart-pie', 'module' => 'Análisis', 'order' => 40, 'descripcion' => 'Permite Ver Reporte en el sistema'],

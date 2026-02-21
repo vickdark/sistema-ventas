@@ -44,7 +44,6 @@ const loaders = {
     '#stock-transfers-create-page': () => import('./pages/tenants/stock_transfers/create').then(m => m.initStockTransfersCreate),
     '#attendance-index-page': () => import('./pages/tenants/attendance/index').then(m => m.initAttendanceIndex),
     '#dashboard-attendance-widget': () => import('./pages/tenants/dashboard/index').then(m => m.initDashboardIndex),
-    '#journal-entries-index-page': () => import('./pages/tenants/accounting/journal_entries/index').then(m => m.initJournalEntriesIndex),
 
     // Central Pages
     '#central-login-page': () => import('./pages/central/auth/login').then(m => m.initCentralLogin),
