@@ -89,7 +89,10 @@
         </form>
 
         {{-- Selector de Sucursal (Solo en Tenant y con Usuario Autenticado) --}}
-        @if(function_exists('tenant') && tenant() && auth()->check())
+        @php
+            $onCentralDomain = in_array(request()->getHost(), config('tenancy.central_domains', []));
+        @endphp
+        @if(function_exists('tenant') && tenant() && auth()->check() && !$onCentralDomain)
             @php
                 $user = auth()->user();
                 $activeBranchId = session('active_branch_id');

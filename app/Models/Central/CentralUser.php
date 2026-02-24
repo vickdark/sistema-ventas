@@ -27,6 +27,18 @@ class CentralUser extends Authenticatable implements MustVerifyEmail
         return true;
     }
 
+    public function isAdmin(): bool
+    {
+        // Los usuarios centrales son administradores del panel central
+        return true;
+    }
+
+    public function getRoleAttribute()
+    {
+        // Simulamos un objeto de rol para evitar errores en vistas que esperan $user->role->nombre
+        return (object) ['nombre' => 'Administrador Central'];
+    }
+
     protected $hidden = [
         'password',
         'remember_token',
