@@ -20,26 +20,36 @@ class DashboardController extends Controller
         $tenantMetrics = [];
         
         Tenant::all()->each(function ($tenant) use (&$totalTenantUsers, &$tenantMetrics) {
-            $metrics = $tenant->run(function () use (&$totalTenantUsers) {
-                $userCount = \App\Models\Tenant\Usuario::count();
-                $totalTenantUsers += $userCount;
-                
-                $dbName = config('database.connections.tenant.database');
-                $tables = DB::select("SHOW TABLES");
-                $tableCount = count($tables);
-                
-                $sizeResult = DB::select("SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?", [$dbName]);
-                $size = round($sizeResult[0]->size ?? 0, 2);
+            try {
+                $metrics = $tenant->run(function () use (&$totalTenantUsers) {
+                    $userCount = \App\Models\Tenant\Usuario::count();
+                    $totalTenantUsers += $userCount;
+                    
+                    $dbName = config('database.connections.tenant.database');
+                    $tables = DB::select("SHOW TABLES");
+                    $tableCount = count($tables);
+                    
+                    $sizeResult = DB::select("SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?", [$dbName]);
+                    $size = round($sizeResult[0]->size ?? 0, 2);
 
-                return [
-                    'users' => $userCount,
-                    'tables' => $tableCount,
-                    'size' => $size,
-                    'db_name' => $dbName
+                    return [
+                        'users' => $userCount,
+                        'tables' => $tableCount,
+                        'size' => $size,
+                        'db_name' => $dbName
+                    ];
+                });
+                
+                $tenantMetrics[$tenant->id] = $metrics;
+            } catch (\Exception $e) {
+                // Si un inquilino falla (ej. DB no migrada o inaccesible), saltamos
+                $tenantMetrics[$tenant->id] = [
+                    'users' => 0,
+                    'tables' => 0,
+                    'size' => 0,
+                    'db_name' => 'Error/Inaccesible'
                 ];
-            });
-            
-            $tenantMetrics[$tenant->id] = $metrics;
+            }
         });
 
         // Métricas HTTP (Central)
