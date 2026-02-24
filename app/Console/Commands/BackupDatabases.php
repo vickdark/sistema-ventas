@@ -79,7 +79,7 @@ class BackupDatabases extends Command
         $this->comment("Procesando: $dbName -> $fileName");
         
         // El parámetro --no-tablespaces suele ser necesario en algunos entornos para evitar errores de permisos
-        $cmd = "mysqldump --user=\"$user\" --password=\"$pass\" --host=\"$host\" --no-tablespaces $dbName > \"$filePath\"";
+        $cmd = "mysqldump --user=\"$user\" --password=\"$pass\" --host=\"$host\" --no-tablespaces $dbName > \"$filePath\" 2>&1";
         
         exec($cmd, $output, $resultCode);
 
