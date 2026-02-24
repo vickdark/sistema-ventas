@@ -21,6 +21,12 @@ class CentralUser extends Authenticatable implements MustVerifyEmail
         'password',
     ];
 
+    public function hasPermission(string $slug): bool
+    {
+        // Los usuarios centrales tienen todos los permisos
+        return true;
+    }
+
     protected $hidden = [
         'password',
         'remember_token',

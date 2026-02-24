@@ -27,7 +27,18 @@ class AppServiceProvider extends ServiceProvider
         Paginator::useBootstrapFive();
 
         Gate::before(function ($user, string $ability) {
-            return $user->hasPermission($ability) ?: null;
+            // Si el usuario tiene el método hasPermission, lo usamos
+            if (method_exists($user, 'hasPermission')) {
+                return $user->hasPermission($ability) ?: null;
+            }
+            
+            // Si es un usuario central (usando el modelo User o CentralUser), 
+            // le otorgamos todos los permisos por defecto para la administración central.
+            if ($user instanceof \App\Models\Central\User || $user instanceof \App\Models\Central\CentralUser) {
+                return true;
+            }
+
+            return null;
         });
 
         // Vinculación explícita del modelo para CentralUser

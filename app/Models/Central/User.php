@@ -55,6 +55,12 @@ class User extends Authenticatable
         'password',
     ];
 
+    public function hasPermission(string $slug): bool
+    {
+        // Los usuarios centrales tienen todos los permisos
+        return true;
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
