@@ -13,11 +13,15 @@
     <link rel="apple-touch-icon" href="/img/logo-pwa-192.png">
 
     <script>
+        @php
+            $onCentralDomain = in_array(request()->getHost(), config('tenancy.central_domains', []));
+            $isTenant = function_exists('tenant') && tenant() && !$onCentralDomain;
+        @endphp
         window.TenantConfig = {
             businessName: "{{ config('app.name') }}",
             csrfToken: "{{ csrf_token() }}",
             routes: {
-                @if(function_exists('tenant') && tenant() && Route::has('notifications.low-stock'))
+                @if($isTenant && Route::has('notifications.low-stock'))
                     low_stock: "{{ route('notifications.low-stock') }}",
                 @endif
             }

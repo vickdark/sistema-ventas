@@ -11,20 +11,22 @@
     </div>
     <div class="app-topbar-actions">
         @php
+            $onCentralDomain = in_array(request()->getHost(), config('tenancy.central_domains', []));
+            
             // Lógica unificada para mostrar notificaciones:
             // 1. Si es Tenant: verificamos ruta y permiso 'notifications.low-stock'
             // 2. Si es Central: mostramos el icono (luego implementaremos la lógica específica)
             
             $showNotifications = false;
 
-            if (function_exists('tenant') && tenant()) {
+            if (function_exists('tenant') && tenant() && !$onCentralDomain) {
                 // Estamos en Tenant
                 $showNotifications = Route::has('notifications.low-stock') && 
                                      auth()->check() && 
                                      auth()->user()->can('notifications.low-stock');
             } else {
-                // Estamos en Central (mostrar icono por defecto para futuras implementaciones)
-                $showNotifications = auth('owner')->check(); 
+                // En el dominio central, por ahora no mostramos notificaciones de stock bajo
+                $showNotifications = false; 
             }
         @endphp
 
@@ -89,9 +91,6 @@
         </form>
 
         {{-- Selector de Sucursal (Solo en Tenant y con Usuario Autenticado) --}}
-        @php
-            $onCentralDomain = in_array(request()->getHost(), config('tenancy.central_domains', []));
-        @endphp
         @if(function_exists('tenant') && tenant() && auth()->check() && !$onCentralDomain)
             @php
                 $user = auth()->user();
