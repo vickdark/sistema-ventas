@@ -21,6 +21,9 @@ class EnsureCentralDomain
             abort(404);
         }
 
+        // Aseguramos que el guard por defecto sea 'owner' en el dominio central
+        config(['auth.defaults.guard' => 'owner']);
+
         return $next($request);
     }
 }
