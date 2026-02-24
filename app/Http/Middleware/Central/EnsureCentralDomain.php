@@ -24,6 +24,9 @@ class EnsureCentralDomain
         // Aseguramos que el guard por defecto sea 'owner' en el dominio central
         config(['auth.defaults.guard' => 'owner']);
 
+        // Separamos las cookies de sesión del central de las de los inquilinos
+        config(['session.cookie' => 'central_session']);
+
         return $next($request);
     }
 }
