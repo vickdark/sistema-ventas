@@ -270,7 +270,7 @@
                                 <span class="text-muted">{{ $tenant->domains->first()?->domain ?? 'Sin dominio' }}</span>
                             </td>
                             <td class="px-4 py-3 text-muted">
-                                {{ $tenant->created_at->format('d M, Y H:i') }}
+                                {{ $tenant->created_at ? $tenant->created_at->format('d M, Y H:i') : 'N/A' }}
                             </td>
                             <td class="px-4 py-3 text-center">
                                 <span class="badge bg-success bg-opacity-10 text-success rounded-pill px-3">

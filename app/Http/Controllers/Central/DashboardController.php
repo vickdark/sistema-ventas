@@ -26,11 +26,11 @@ class DashboardController extends Controller
                     $totalTenantUsers += $userCount;
                     
                     $dbName = config('database.connections.tenant.database');
-                    $tables = DB::select("SHOW TABLES");
+                    $tables = DB::connection('tenant')->select("SHOW TABLES");
                     $tableCount = count($tables);
                     
-                    $sizeResult = DB::select("SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?", [$dbName]);
-                    $size = round($sizeResult[0]->size ?? 0, 2);
+                    $sizeResult = DB::connection('tenant')->select("SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?", [$dbName]);
+                    $size = !empty($sizeResult) ? round($sizeResult[0]->size ?? 0, 2) : 0;
 
                     return [
                         'users' => $userCount,
@@ -41,7 +41,7 @@ class DashboardController extends Controller
                 });
                 
                 $tenantMetrics[$tenant->id] = $metrics;
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 // Si un inquilino falla (ej. DB no migrada o inaccesible), saltamos
                 $tenantMetrics[$tenant->id] = [
                     'users' => 0,
@@ -54,11 +54,20 @@ class DashboardController extends Controller
 
         // Métricas HTTP (Central)
         $httpStats = [
-            '2xx' => \App\Models\Central\HttpLog::whereBetween('status', [200, 299])->count(),
-            '3xx' => \App\Models\Central\HttpLog::whereBetween('status', [300, 399])->count(),
-            '4xx' => \App\Models\Central\HttpLog::whereBetween('status', [400, 499])->count(),
-            '5xx' => \App\Models\Central\HttpLog::whereBetween('status', [500, 599])->count(),
+            '2xx' => 0,
+            '3xx' => 0,
+            '4xx' => 0,
+            '5xx' => 0,
         ];
+
+        try {
+            $httpStats = [
+                '2xx' => \App\Models\Central\HttpLog::whereBetween('status', [200, 299])->count(),
+                '3xx' => \App\Models\Central\HttpLog::whereBetween('status', [300, 399])->count(),
+                '4xx' => \App\Models\Central\HttpLog::whereBetween('status', [400, 499])->count(),
+                '5xx' => \App\Models\Central\HttpLog::whereBetween('status', [500, 599])->count(),
+            ];
+        } catch (\Throwable $e) {}
 
         $recentTenants = Tenant::with('domains')
             ->orderBy('created_at', 'desc')
@@ -77,9 +86,9 @@ class DashboardController extends Controller
         $dbSize = 0;
         try {
             $centralDbName = config('database.connections.central.database');
-            $results = DB::select("SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?", [$centralDbName]);
-            $dbSize = round($results[0]->size ?? 0, 2);
-        } catch (\Exception $e) {}
+            $results = DB::connection('central')->select("SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?", [$centralDbName]);
+            $dbSize = !empty($results) ? round($results[0]->size ?? 0, 2) : 0;
+        } catch (\Throwable $e) {}
 
 
         return view('central.dashboard', compact(
