@@ -25,11 +25,14 @@ class DashboardController extends Controller
                     $userCount = \App\Models\Tenant\Usuario::count();
                     $totalTenantUsers += $userCount;
                     
-                    $dbName = config('database.connections.tenant.database');
-                    $tables = DB::connection('tenant')->select("SHOW TABLES");
+                    // Aseguramos que estamos usando la conexión 'tenant' que Stancl ya configuró
+                    $dbConnection = DB::connection('tenant');
+                    $dbName = $dbConnection->getDatabaseName();
+                    
+                    $tables = $dbConnection->select("SHOW TABLES");
                     $tableCount = count($tables);
                     
-                    $sizeResult = DB::connection('tenant')->select("SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?", [$dbName]);
+                    $sizeResult = $dbConnection->select("SELECT SUM(data_length + index_length) / 1024 / 1024 AS size FROM information_schema.TABLES WHERE table_schema = ?", [$dbName]);
                     $size = !empty($sizeResult) ? round($sizeResult[0]->size ?? 0, 2) : 0;
 
                     return [
@@ -42,12 +45,14 @@ class DashboardController extends Controller
                 
                 $tenantMetrics[$tenant->id] = $metrics;
             } catch (\Throwable $e) {
-                // Si un inquilino falla (ej. DB no migrada o inaccesible), saltamos
+                // Logueamos el error interno para depuración si es necesario
+                \Illuminate\Support\Facades\Log::error("Error accediendo a datos del inquilino {$tenant->id}: " . $e->getMessage());
+                
                 $tenantMetrics[$tenant->id] = [
                     'users' => 0,
                     'tables' => 0,
                     'size' => 0,
-                    'db_name' => 'Error/Inaccesible'
+                    'db_name' => 'Error: ' . substr($e->getMessage(), 0, 30) . '...'
                 ];
             }
         });
