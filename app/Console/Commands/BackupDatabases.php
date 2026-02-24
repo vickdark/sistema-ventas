@@ -42,14 +42,12 @@ class BackupDatabases extends Command
 
         // 2. Backup de la Base de Datos Central
         $centralDb = config('database.connections.central.database');
-        $this->doBackup($centralDb, "SISTEMA_CENTRAL", $serverDir, $user, $pass, $host);
+        $this->doBackup($centralDb, $centralDb, $serverDir, $user, $pass, $host);
 
         // 3. Backup de cada Inquilino
         Tenant::all()->each(function ($tenant) use ($serverDir, $user, $pass, $host) {
             $dbName = $tenant->tenancy_db_name ?? 'tenant_' . $tenant->id;
-            // Usamos el ID del inquilino para el nombre del archivo (ej: CLIENTE_MAMBATEST.sql)
-            $label = "CLIENTE_" . strtoupper($tenant->id);
-            $this->doBackup($dbName, $label, $serverDir, $user, $pass, $host);
+            $this->doBackup($dbName, $dbName, $serverDir, $user, $pass, $host);
         });
 
         // 4. Sincronizar con Google Drive en una carpeta específica para este proyecto
@@ -72,7 +70,10 @@ class BackupDatabases extends Command
      */
     private function doBackup($dbName, $label, $dir, $user, $pass, $host)
     {
-        $fileName = "{$label}.sql";
+        // Usamos el nombre nato de la DB + fecha para el archivo
+        // Al incluir la fecha del día (Y-m-d), se sobrescribirá cada 6 horas del mismo día.
+        $date = now()->format('Y-m-d');
+        $fileName = "{$label}-{$date}.sql";
         $filePath = "$dir/$fileName";
 
         $this->comment("Procesando: $dbName -> $fileName");
