@@ -28,7 +28,7 @@ class PasswordController extends Controller
 
             $user = $request->user();
             $user->update([
-                'password' => Hash::make($request->password),
+                'password' => $request->password,
             ]);
 
             return response()->json([

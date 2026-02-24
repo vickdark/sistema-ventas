@@ -26,3 +26,64 @@
 @import "generalstyles/vendor-overrides.css";
 @import "generalstyles/print.css";
 
+/* Custom transitions and animations */
+.transition-all {
+    transition: all 0.3s ease;
+}
+
+.hover-shadow:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    transform: translateY(-5px);
+}
+
+.hover-scale:hover {
+    transform: scale(1.05);
+}
+
+.group:hover .group-hover-scale {
+    transform: scale(1.1);
+}
+
+.group:hover .group-hover-text-primary {
+    color: var(--primary-color) !important;
+}
+
+.text-shadow {
+    text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+}
+
+.filter-brightness-75 {
+    filter: brightness(0.75);
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translate3d(0, 40px, 0);
+    }
+    to {
+        opacity: 1;
+        transform: translate3d(0, 0, 0);
+    }
+}
+
+.animate-fade-in-up {
+    animation-name: fadeInUp;
+    animation-duration: 0.8s;
+    animation-fill-mode: both;
+}
+
+.delay-100 {
+    animation-delay: 0.1s;
+}
+
+.delay-200 {
+    animation-delay: 0.2s;
+}
+
+@media (min-width: 768px) {
+    .divide-x-md > * + * {
+        border-left: 1px solid rgba(0,0,0,0.1);
+    }
+}
+

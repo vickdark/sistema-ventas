@@ -10,6 +10,9 @@ use App\Http\Controllers\Tenant\PaymentNotificationController;
 use App\Http\Middleware\Tenant\CheckTenantPaymentStatus;
 use App\Http\Middleware\Tenant\CheckPermission;
 
+use App\Http\Controllers\Tenant\Ecommerce\ShopController;
+use App\Http\Controllers\Tenant\Ecommerce\EcommerceSettingsController;
+
 /*
 |--------------------------------------------------------------------------
 | Tenant Routes
@@ -22,11 +25,14 @@ use App\Http\Middleware\Tenant\CheckPermission;
 |
 */
 
+use App\Http\Middleware\Tenant\CheckEcommerceActive;
+
 Route::middleware([
     InitializeTenancyByDomain::class,
     PreventAccessFromCentralDomains::class,
     'web',
     CheckTenantPaymentStatus::class,
+    CheckEcommerceActive::class,
 ])->group(function () {
     
     Route::get('payment-pending', function () {
@@ -36,6 +42,15 @@ Route::middleware([
 
     Route::post('payment-notification', [PaymentNotificationController::class, 'send'])
         ->name('tenant.payment-notification.send');
+
+    // Ecommerce Routes (Public)
+    Route::get('/shop', [ShopController::class, 'index'])->name('tenant.shop.index');
+    Route::get('/shop/products', [ShopController::class, 'products'])->name('tenant.shop.products');
+    Route::get('/shop/product/{id}', [ShopController::class, 'show'])->name('tenant.shop.show');
+    Route::get('/shop/cart', [ShopController::class, 'cart'])->name('tenant.shop.cart');
+    Route::post('/shop/cart/add', [ShopController::class, 'addToCart'])->name('tenant.shop.cart.add');
+    Route::post('/shop/cart/update', [ShopController::class, 'updateCart'])->name('tenant.shop.cart.update');
+    Route::post('/shop/cart/remove', [ShopController::class, 'removeFromCart'])->name('tenant.shop.cart.remove');
 
     // Tenant Login/Auth
     require __DIR__.'/auth.php';
@@ -80,6 +95,14 @@ Route::middleware([
                 'stock-transfers' => \App\Http\Controllers\Tenant\StockTransferController::class,
                 'supplier-payments' => \App\Http\Controllers\Tenant\SupplierPaymentController::class,
             ]);
+
+            // Ecommerce Settings (Admin)
+            Route::get('ecommerce/settings', [EcommerceSettingsController::class, 'edit'])->name('tenant.ecommerce-settings.edit');
+            Route::post('ecommerce/settings', [EcommerceSettingsController::class, 'update'])->name('tenant.ecommerce-settings.update');
+
+            // Ecommerce Testimonials
+            Route::resource('ecommerce/testimonials', \App\Http\Controllers\Tenant\Ecommerce\TestimonialController::class)
+                ->names('tenant.ecommerce.testimonials');
 
             // Rutas adicionales para usuarios
             Route::post('quotes/{quote}/convert', [\App\Http\Controllers\Tenant\QuoteController::class, 'convert'])->name('quotes.convert');

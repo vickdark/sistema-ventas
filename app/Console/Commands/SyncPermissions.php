@@ -64,7 +64,8 @@ class SyncPermissions extends Command
             'password.', 'login', 'logout', 'register',
             'profile.', 'storage.', 'central.', 'stancl.',
             'tenant.payment-notification.', 'tenant.payment-pending',
-            'tenant.profile.password.update'
+            'tenant.profile.password.update',
+            'tenant.shop.'
         ];
 
         // 1. Eliminar permisos que coinciden con los prefijos excluidos
@@ -105,7 +106,8 @@ class SyncPermissions extends Command
             'password.', 'login', 'logout', 'register',
             'profile.', 'storage.', 'central.', 'stancl.',
             'tenant.payment-notification.', 'tenant.payment-pending',
-            'tenant.profile.password.update'
+            'tenant.profile.password.update',
+            'tenant.shop.'
         ];
         
         foreach ($excludedPrefixes as $prefix) {
@@ -182,6 +184,7 @@ class SyncPermissions extends Command
             'stock-transfers'=> ['singular' => 'Traslado de Stock', 'plural' => 'Traslados de Stock'],
             'supplier-payments' => ['singular' => 'Pago a Proveedor', 'plural' => 'Cuentas por Pagar'],
             'attendance'     => ['singular' => 'Asistencia', 'plural' => 'Control de Asistencia'],
+            'ecommerce-settings' => ['singular' => 'Configuración Tienda', 'plural' => 'Configuración Tienda'],
         ];
     }
 
@@ -248,7 +251,7 @@ class SyncPermissions extends Command
         $action = end($parts);
 
         // Solo el index suele ir al menú, a menos que sea algo muy específico
-        if ($action !== 'index') {
+        if ($action !== 'index' && $slug !== 'tenant.ecommerce-settings.edit') {
             return false;
         }
 
@@ -296,6 +299,7 @@ class SyncPermissions extends Command
             'attendance'     => 'fa-solid fa-calendar-check',
             'journal-entries'=> 'fa-solid fa-book-journal-whills',
             'accounting'     => 'fa-solid fa-calculator',
+            'ecommerce-settings' => 'fa-solid fa-store',
         ];
 
         return $icons[strtolower($entity)] ?? 'fa-solid fa-circle-dot';
@@ -356,6 +360,7 @@ class SyncPermissions extends Command
             'attendance'     => 'Configuración',
             'activity-logs'  => 'Configuración',
             'import'         => 'Configuración',
+            'ecommerce-settings' => 'Configuración',
         ];
         
         return $moduleMapping[strtolower($entity)] ?? 'General';
@@ -396,6 +401,9 @@ class SyncPermissions extends Command
 
             // RRHH
             'attendance'     => 50,
+            
+            // Configuración
+            'ecommerce-settings' => 110,
 
             // Reportes
             'reports'        => 2, // En tablero

@@ -85,6 +85,8 @@ class DashboardController extends Controller
                 $due = \Carbon\Carbon::parse($next, $tz);
                 $data['formattedNextPaymentDate'] = $due->format('d/m/Y');
                 
+                $days = (int)$now->diffInDays($due, false);
+
                 if ($now->gt($due->endOfDay())) {
                     $data['badgeClass'] = 'bg-danger';
                     $data['label'] = 'VENCIDA';
@@ -92,10 +94,15 @@ class DashboardController extends Controller
                     $data['badgeClass'] = 'bg-warning';
                     $data['label'] = 'VENCE HOY';
                 } else {
-                    $days = (int)$now->diffInDays($due, false);
                     if ($days > 0) {
-                        $data['label'] = "VENCE EN {$days}D";
-                        if ($days <= 5) $data['badgeClass'] = 'bg-warning';
+                        // Si es tipo 'purchase' y faltan más de 5 días, solo mostramos 'ACTIVA'
+                        if ($serviceType === 'purchase' && $days > 5) {
+                            $data['label'] = 'ACTIVA';
+                            $data['badgeClass'] = 'bg-success';
+                        } else {
+                            $data['label'] = "VENCE EN {$days}D";
+                            if ($days <= 5) $data['badgeClass'] = 'bg-warning';
+                        }
                     }
                 }
             } catch (\Exception $dateErr) {

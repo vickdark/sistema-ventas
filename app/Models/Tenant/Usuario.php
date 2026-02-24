@@ -55,17 +55,6 @@ class Usuario extends Authenticatable
     ];
 
     /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
-    protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-        'is_active' => 'boolean',
-    ];
-
-    /**
      * Obtener el rol asociado al usuario.
      */
     public function role(): BelongsTo

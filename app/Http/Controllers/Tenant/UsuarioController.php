@@ -129,7 +129,7 @@ class UsuarioController extends Controller
             'branch_id' => $branchId,
             'name' => $request->name,
             'email' => $request->email,
-            'password' => Hash::make($request->password),
+            'password' => $request->password,
         ]);
 
         return redirect()->route('usuarios.index')
@@ -202,7 +202,7 @@ class UsuarioController extends Controller
         ];
 
         if ($request->filled('password')) {
-            $data['password'] = Hash::make($request->password);
+            $data['password'] = $request->password;
         }
 
         $usuario->update($data);
