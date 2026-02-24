@@ -22,3 +22,8 @@ Schedule::command('permissions:sync --clean')
     ->dailyAt('00:01')
     ->runInBackground()
     ->withoutOverlapping();
+
+Schedule::command('app:backup-databases')
+    ->everySixHours()
+    ->withoutOverlapping()
+    ->onOneServer();
